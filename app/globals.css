@@ -1,0 +1,318 @@
+@import "tailwindcss";
+
+/* Modo oscuro por clase (.dark en <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   Engynex — Design System (Tailwind v4)
+   Paleta adaptada al logo: verde (#70c13a) + navy casi negro. Azul secundario.
+   Tipografía: OpenDyslexic (lectura fácil).
+   ========================================================================== */
+
+@theme {
+  /* Brand — verde del logo Engynex */
+  --color-brand-green: #70c13a;
+  --color-brand-green-light: #97d766;
+  --color-brand-green-dark: #4b8f26;
+
+  /* Brand — azul secundario (acento) */
+  --color-brand-blue: #1e78e0;
+  --color-brand-blue-light: #52a0f2;
+  --color-brand-blue-dark: #1559ad;
+
+  /* Navy — casi negro (tono del logo) */
+  --color-navy-950: #0a0b10;
+  --color-navy-900: #101119;
+  --color-navy-800: #171922;
+  --color-navy-700: #20222d;
+  --color-navy-600: #2b2e3a;
+  --color-navy-500: #3a3e4c;
+
+  /* Neutros para texto sobre navy */
+  --color-ink-100: #f6f7f9;
+  --color-ink-200: #d8dbe2;
+  --color-ink-300: #a6abb7;
+  --color-ink-400: #787d8a;
+
+  /* Tipografía — cuerpo Nunito, títulos OpenDyslexic */
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: var(--font-opendyslexic), var(--font-nunito), ui-sans-serif,
+    system-ui, sans-serif;
+
+  /* Radios y sombras */
+  --radius-4xl: 2rem;
+  --shadow-glow: 0 0 0 1px rgba(112, 193, 58, 0.18),
+    0 20px 60px -15px rgba(112, 193, 58, 0.35);
+
+  /* Animaciones */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 9s ease-in-out infinite;
+  --animate-pulse-slow: pulseSlow 4s ease-in-out infinite;
+  --animate-marquee: marquee 34s linear infinite;
+  --animate-spin-slow: spin 26s linear infinite;
+  --animate-gradient: gradientShift 6s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes pulseSlow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+:root {
+  --background: #ffffff;
+  --foreground: #101119;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #0a0b10;
+  --foreground: #f6f7f9;
+  color-scheme: dark;
+}
+
+* {
+  border-color: color-mix(in oklab, var(--color-navy-900) 12%, transparent);
+}
+.dark * {
+  border-color: color-mix(in oklab, white 12%, transparent);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Títulos con OpenDyslexic (mezcla con Nunito del cuerpo).
+   OpenDyslexic tiene una altura-x grande y se ve enorme: normalizamos su
+   tamaño visual con font-size-adjust para equilibrarlo con Nunito. */
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  font-size-adjust: 0.47;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-brand-green) 55%, transparent);
+  color: var(--color-navy-950);
+}
+
+/* Scrollbar sutil */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--color-navy-500) 60%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-blue);
+  background-clip: content-box;
+}
+
+/* --------------------------------------------------------------------------
+   Utilidades de marca
+   -------------------------------------------------------------------------- */
+@utility text-gradient {
+  background: linear-gradient(
+    100deg,
+    var(--color-brand-green) 0%,
+    var(--color-brand-green-light) 40%,
+    var(--color-brand-blue-light) 75%,
+    var(--color-brand-blue) 100%
+  );
+  background-size: 200% auto;
+  animation: gradientShift 6s ease infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-grid {
+  background-image: linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-ink-100) 6%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-ink-100) 6%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 56px 56px;
+}
+
+/* Glass — efecto vidrio esmerilado tipo Apple (sobre fondos claros) */
+@utility glass {
+  background: color-mix(in oklab, white 62%, transparent);
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  border: 1px solid color-mix(in oklab, white 65%, transparent);
+  box-shadow: 0 8px 32px -12px rgba(10, 17, 34, 0.18);
+}
+
+/* Glass oscuro (sobre navy) */
+@utility glass-dark {
+  background: color-mix(in oklab, var(--color-navy-800) 55%, transparent);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid color-mix(in oklab, white 12%, transparent);
+  box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.45);
+}
+
+/* Malla de gradientes suaves — reemplaza el blanco plano */
+@utility bg-mesh {
+  background-color: #f4f8ff;
+  background-image: radial-gradient(
+      at 8% 12%,
+      color-mix(in oklab, var(--color-brand-green) 24%, transparent) 0px,
+      transparent 42%
+    ),
+    radial-gradient(
+      at 92% 8%,
+      color-mix(in oklab, var(--color-brand-blue) 22%, transparent) 0px,
+      transparent 42%
+    ),
+    radial-gradient(
+      at 75% 88%,
+      color-mix(in oklab, var(--color-brand-blue-light) 16%, transparent) 0px,
+      transparent 50%
+    );
+}
+
+@utility bg-mesh-soft {
+  background-color: #f7faff;
+  background-image: radial-gradient(
+      at 15% 20%,
+      color-mix(in oklab, var(--color-brand-green) 12%, transparent) 0px,
+      transparent 45%
+    ),
+    radial-gradient(
+      at 85% 30%,
+      color-mix(in oklab, var(--color-brand-blue) 12%, transparent) 0px,
+      transparent 48%
+    );
+}
+
+/* Patrón de puntos sutil */
+@utility bg-dots {
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--color-navy-900) 12%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+}
+
+/* --------------------------------------------------------------------------
+   Overrides para modo oscuro (glass y mallas)
+   -------------------------------------------------------------------------- */
+.dark .glass {
+  background: color-mix(in oklab, var(--color-navy-800) 60%, transparent);
+  border-color: color-mix(in oklab, white 10%, transparent);
+  box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.5);
+}
+
+.dark .bg-mesh,
+.dark .bg-mesh-soft {
+  background-color: #0a0b10;
+  background-image: radial-gradient(
+      at 12% 16%,
+      color-mix(in oklab, var(--color-brand-green) 16%, transparent) 0px,
+      transparent 42%
+    ),
+    radial-gradient(
+      at 88% 20%,
+      color-mix(in oklab, var(--color-brand-blue) 16%, transparent) 0px,
+      transparent 45%
+    );
+}
+
+/* Reveal on scroll (usado por el componente Reveal).
+   El contenido es visible por defecto (SSR / sin JS / above-the-fold);
+   solo se oculta cuando JS confirma que está debajo del viewport y lo animará. */
+.reveal {
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-hidden {
+  opacity: 0;
+  transform: translateY(24px);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal,
+  .reveal.is-hidden {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
