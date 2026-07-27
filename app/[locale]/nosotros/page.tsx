@@ -21,6 +21,7 @@ import { PageHero } from "@/components/sections/PageHero";
 import { CtaBand } from "@/components/sections/CtaBand";
 import { ProcessSection } from "@/components/sections/ProcessSection";
 import { Timeline } from "@/components/sections/Timeline";
+import { StatsBand } from "@/components/sections/StatsBand";
 import { getDictionary } from "@/i18n/dictionaries";
 import { locales, isLocale, type Locale } from "@/i18n/config";
 import { localizedHref } from "@/lib/site";
@@ -66,10 +67,10 @@ export default async function AboutPage({
       />
 
       {/* Misión y Visión con imagen real */}
-      <Section tone="mesh">
+      <Section tone="mesh" id="mision-vision" className="scroll-mt-24">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <Reveal className="relative">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-navy-900/10 dark:border-white/10 shadow-2xl sm:aspect-[4/3] lg:aspect-[4/5]">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-line shadow-2xl sm:aspect-[4/3] lg:aspect-[4/5]">
               <Image
                 src="/images/about-office.jpg"
                 alt="Engynex"
@@ -80,38 +81,38 @@ export default async function AboutPage({
               <div className="absolute inset-0 bg-gradient-to-t from-navy-950/40 to-transparent" />
             </div>
             <div className="glass absolute -bottom-6 left-6 right-6 rounded-2xl p-5 sm:left-auto sm:right-6 sm:w-64">
-              <p className="text-3xl font-extrabold text-navy-900 dark:text-white">
+              <p className="text-3xl font-extrabold text-heading">
                 <Counter value="98%" />
               </p>
-              <p className="text-sm font-semibold text-slate-500 dark:text-ink-400">
+              <p className="text-sm font-semibold text-muted">
                 {t.stats[3].label}
               </p>
             </div>
           </Reveal>
 
           <div className="space-y-6">
-            <Reveal className="rounded-3xl border border-navy-900/10 dark:border-white/10 bg-white/70 dark:bg-navy-800/70 p-7 backdrop-blur">
-              <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-green/15 text-brand-green-dark dark:text-brand-green">
+            <Reveal className="rounded-3xl border border-line bg-card/80 p-7 shadow-card backdrop-blur">
+              <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-green/15 text-accent">
                 <Target className="h-7 w-7" strokeWidth={1.75} />
               </span>
-              <h2 className="mt-5 text-2xl font-extrabold text-navy-900 dark:text-white">
+              <h2 className="mt-5 text-2xl font-extrabold text-heading">
                 {t.mission.title}
               </h2>
-              <p className="mt-3 text-lg leading-relaxed text-slate-600 dark:text-ink-300">
+              <p className="mt-3 text-lg leading-relaxed text-body">
                 {t.mission.description}
               </p>
             </Reveal>
             <Reveal
               delay={100}
-              className="rounded-3xl border border-navy-900/10 dark:border-white/10 bg-white/70 dark:bg-navy-800/70 p-7 backdrop-blur"
+              className="rounded-3xl border border-line bg-card/80 p-7 shadow-card backdrop-blur"
             >
               <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-blue/15 text-brand-blue">
                 <Eye className="h-7 w-7" strokeWidth={1.75} />
               </span>
-              <h2 className="mt-5 text-2xl font-extrabold text-navy-900 dark:text-white">
+              <h2 className="mt-5 text-2xl font-extrabold text-heading">
                 {t.vision.title}
               </h2>
-              <p className="mt-3 text-lg leading-relaxed text-slate-600 dark:text-ink-300">
+              <p className="mt-3 text-lg leading-relaxed text-body">
                 {t.vision.description}
               </p>
             </Reveal>
@@ -120,16 +121,18 @@ export default async function AboutPage({
       </Section>
 
       {/* Nuestra historia */}
-      <Timeline
-        eyebrow={t.hero.eyebrow}
-        title={t.timelineTitle}
-        subtitle={t.timelineSubtitle}
-        items={t.timeline}
-        tone="mesh"
-      />
+      <div id="historia" className="scroll-mt-24">
+        <Timeline
+          eyebrow={t.hero.eyebrow}
+          title={t.timelineTitle}
+          subtitle={t.timelineSubtitle}
+          items={t.timeline}
+          tone="mesh"
+        />
+      </div>
 
       {/* Valores */}
-      <Section tone="light">
+      <Section tone="light" id="valores" className="scroll-mt-24">
         <SectionHeading
           eyebrow={t.hero.eyebrow}
           title={t.valuesTitle}
@@ -142,15 +145,15 @@ export default async function AboutPage({
               <Reveal
                 key={value.title}
                 delay={(i % 4) * 80}
-                className="rounded-3xl border border-navy-900/10 dark:border-white/10 bg-white dark:bg-navy-800 p-7 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                className="h-full rounded-3xl border border-line bg-card p-7 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-green/40 hover:shadow-card-hover"
               >
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-green/20 to-brand-blue/20 text-navy-900 dark:text-white">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-green/20 to-brand-blue/20 text-heading">
                   <Icon className="h-6 w-6" strokeWidth={1.75} />
                 </span>
-                <h3 className="mt-5 text-lg font-extrabold text-navy-900 dark:text-white">
+                <h3 className="mt-5 text-lg font-extrabold text-heading">
                   {value.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-ink-300">
+                <p className="mt-2 text-sm leading-relaxed text-body">
                   {value.description}
                 </p>
               </Reveal>
@@ -160,45 +163,22 @@ export default async function AboutPage({
       </Section>
 
       {/* Stats con contadores */}
-      <section className="relative overflow-hidden bg-navy-950 py-20 text-ink-100">
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          <Image
-            src="/images/about-meeting.jpg"
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover opacity-10"
-          />
-          <div className="bg-grid absolute inset-0 opacity-30" />
-          <div className="absolute -left-10 top-0 h-72 w-72 rounded-full bg-brand-green/20 blur-[120px]" />
-          <div className="absolute -right-10 bottom-0 h-72 w-72 rounded-full bg-brand-blue/25 blur-[120px]" />
-        </div>
-        <div className="relative mx-auto w-full max-w-7xl px-5 sm:px-8">
-          <SectionHeading title={t.statsTitle} tone="dark" />
-          <div className="mt-14 grid grid-cols-2 gap-6 lg:grid-cols-4">
-            {t.stats.map((stat, i) => (
-              <Reveal
-                key={stat.label}
-                delay={(i % 4) * 80}
-                className="glass-dark rounded-3xl p-8 text-center"
-              >
-                <p className="text-4xl font-extrabold text-gradient sm:text-5xl">
-                  <Counter value={stat.value} />
-                </p>
-                <p className="mt-2 text-sm font-semibold uppercase tracking-wide text-ink-300">
-                  {stat.label}
-                </p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <StatsBand
+        id="cifras"
+        className="scroll-mt-24"
+        eyebrow={t.statsEyebrow}
+        title={t.statsTitle}
+        subtitle={t.statsSubtitle}
+        stats={t.stats}
+      />
 
       {/* Cómo trabajamos */}
-      <ProcessSection process={dict.process} tone="light" />
+      <div id="proceso" className="scroll-mt-24">
+        <ProcessSection process={dict.process} tone="light" />
+      </div>
 
       {/* Equipo */}
-      <Section tone="mesh">
+      <Section tone="mesh" id="equipo" className="scroll-mt-24">
         <SectionHeading
           eyebrow={t.hero.eyebrow}
           title={t.teamTitle}
@@ -211,7 +191,7 @@ export default async function AboutPage({
               <Reveal
                 key={member.name}
                 delay={(i % 4) * 80}
-                className="group overflow-hidden rounded-3xl border border-navy-900/10 dark:border-white/10 bg-white dark:bg-navy-800 text-center shadow-sm"
+                className="group h-full overflow-hidden rounded-3xl border border-line bg-card text-center shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-green/40 hover:shadow-card-hover"
               >
                 <div className="relative flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-navy-800 to-navy-950">
                   <div className="bg-grid absolute inset-0 opacity-30" />
@@ -220,10 +200,10 @@ export default async function AboutPage({
                   </span>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-lg font-extrabold text-navy-900 dark:text-white">
+                  <h3 className="text-lg font-extrabold text-heading">
                     {member.name}
                   </h3>
-                  <p className="mt-1 text-sm font-semibold text-brand-green-dark dark:text-brand-green">
+                  <p className="mt-1 text-sm font-semibold text-accent">
                     {member.role}
                   </p>
                 </div>

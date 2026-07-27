@@ -29,6 +29,7 @@ export function localizedHref(locale: Locale, path = ""): string {
 export const navRoutes = [
   { key: "home", path: "" },
   { key: "services", path: "servicios" },
+  { key: "products", path: "productos" },
   { key: "portfolio", path: "portafolio" },
   { key: "about", path: "nosotros" },
   { key: "contact", path: "contacto" },

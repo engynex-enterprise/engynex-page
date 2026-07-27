@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Send, CheckCircle2, Loader2 } from "lucide-react";
 import { services } from "@/content/services";
+import { products } from "@/content/products";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { cn } from "@/lib/utils";
@@ -61,14 +62,14 @@ export function ContactForm({
 
   if (status === "success") {
     return (
-      <div className="flex h-full flex-col items-center justify-center rounded-3xl border border-brand-green/30 bg-brand-green/5 p-10 text-center">
-        <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-green/20 text-brand-green-dark">
+      <div className="flex h-full flex-col items-center justify-center rounded-3xl border border-brand-green/30 bg-brand-green/[0.07] p-10 text-center">
+        <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-green/20 text-accent">
           <CheckCircle2 className="h-9 w-9" />
         </span>
-        <h3 className="mt-6 text-2xl font-extrabold text-navy-900 dark:text-white">
+        <h3 className="mt-6 text-2xl font-extrabold text-heading">
           {form.successTitle}
         </h3>
-        <p className="mt-3 max-w-sm text-slate-600 dark:text-ink-300">
+        <p className="mt-3 max-w-sm text-body">
           {form.successBody}
         </p>
       </div>
@@ -81,7 +82,7 @@ export function ContactForm({
       noValidate
       className={cn(
         variant === "card" &&
-          "rounded-3xl border border-navy-900/10 bg-white p-6 shadow-sm sm:p-8 dark:border-white/10 dark:bg-navy-800",
+          "rounded-3xl border border-line bg-card p-6 shadow-card sm:p-8",
       )}
     >
       <div className="grid gap-5 sm:grid-cols-2">
@@ -123,11 +124,20 @@ export function ContactForm({
         <Field label={form.service}>
           <select name="service" className={cn(inputClass(false), "appearance-none")}>
             <option value="">{form.servicePlaceholder}</option>
-            {services.map((service) => (
-              <option key={service.slug} value={service[locale].title}>
-                {service[locale].title}
-              </option>
-            ))}
+            <optgroup label={form.serviceGroupProducts}>
+              {products.map((product) => (
+                <option key={product.slug} value={product[locale].title}>
+                  {product[locale].title}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label={form.serviceGroupServices}>
+              {services.map((service) => (
+                <option key={service.slug} value={service[locale].title}>
+                  {service[locale].title}
+                </option>
+              ))}
+            </optgroup>
             <option value="other">{form.serviceOther}</option>
           </select>
         </Field>
@@ -145,7 +155,7 @@ export function ContactForm({
       </div>
 
       {status === "error" && (
-        <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+        <p className="mt-4 rounded-xl bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-600 ring-1 ring-red-500/25 dark:text-red-300">
           {form.error}
         </p>
       )}
@@ -182,21 +192,20 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-bold text-navy-800 dark:text-ink-200">
+      <span className="mb-1.5 block text-sm font-bold text-heading">
         {label}
       </span>
       {children}
-      {error && <span className="mt-1 block text-xs font-medium text-red-500">{error}</span>}
+      {error && <span className="mt-1 block text-xs font-semibold text-red-500 dark:text-red-400">{error}</span>}
     </label>
   );
 }
 
 function inputClass(hasError: boolean) {
   return cn(
-    "w-full rounded-xl border bg-slate-50 px-4 py-3 text-sm text-navy-900 placeholder:text-slate-400 outline-none transition-all focus:bg-white focus:ring-2",
-    "dark:bg-navy-900 dark:text-white dark:placeholder:text-ink-400 dark:focus:bg-navy-900",
+    "w-full rounded-xl border bg-surface-soft px-4 py-3 text-sm text-heading outline-none transition-all placeholder:text-muted focus:ring-2",
     hasError
-      ? "border-red-300 focus:border-red-400 focus:ring-red-100"
-      : "border-navy-900/10 focus:border-brand-green focus:ring-brand-green/20 dark:border-white/10",
+      ? "border-red-400/60 focus:border-red-400 focus:ring-red-400/20"
+      : "border-line focus:border-brand-green focus:ring-brand-green/25",
   );
 }

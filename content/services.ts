@@ -15,7 +15,8 @@ export type ServiceIcon =
   | "Rocket"
   | "BarChart3"
   | "Plug"
-  | "Headset";
+  | "Headset"
+  | "ServerCog";
 
 export interface ServiceCopy {
   title: string;
@@ -1654,6 +1655,128 @@ export const services: Service[] = [
         {
           q: "Can you reinforce my current team?",
           a: "Yes. We offer outsourcing and staff augmentation to complement your in-house team.",
+        },
+      ],
+    },
+  },
+  {
+    slug: "alquiler-equipos",
+    icon: "ServerCog",
+    accent: "green",
+    image: "/images/svc-alquiler-equipos.jpg",
+    es: {
+      title: "Alquiler de Equipos & Servidores",
+      tagline: "Tecnología lista para trabajar, sin comprarla",
+      description:
+        "Portátiles, computadores de escritorio, servidores rack, impresoras y redes en arriendo, con soporte y reposición incluidos.",
+      intro:
+        "Renueva la tecnología de tu empresa sin descapitalizarte. Alquilamos computadores, portátiles, servidores rack, monitores, impresoras y equipos de red con instalación, mantenimiento preventivo, soporte y reposición incluidos en la cuota mensual. Tú pagas por usar; nosotros nos encargamos de que siempre funcione.",
+      features: [
+        "Portátiles y computadores de escritorio empresariales",
+        "Servidores rack, torre, NAS y almacenamiento",
+        "Monitores, impresoras, escáneres y periféricos",
+        "Redes: switches, firewalls, access points y UPS",
+        "Soporte técnico, mantenimiento y reposición incluidos",
+        "Planes desde 1 mes (eventos y picos) hasta 36 meses",
+      ],
+      benefits: [
+        {
+          title: "Cero inversión inicial",
+          description:
+            "Cambias una compra grande por una cuota mensual deducible. Liberas caja para lo que de verdad hace crecer tu negocio.",
+        },
+        {
+          title: "Siempre operando",
+          description:
+            "Si un equipo falla, lo reemplazamos. Mantenimiento preventivo, equipos de respaldo y soporte incluidos en el plan.",
+        },
+        {
+          title: "Escala en días, no en meses",
+          description:
+            "¿Entran 20 personas nuevas o abres una sede? Entregamos los equipos configurados con tu imagen corporativa y tu dominio.",
+        },
+      ],
+      deliverables: [
+        "Levantamiento de necesidades y propuesta por perfil de usuario",
+        "Equipos entregados, configurados e inventariados",
+        "Instalación en sitio, cableado y puesta en marcha",
+        "Mantenimiento preventivo programado y mesa de ayuda",
+        "Reposición de equipos y retiro al final del contrato",
+      ],
+      faqs: [
+        {
+          q: "¿Cuál es el plazo mínimo de alquiler?",
+          a: "Tenemos planes desde 1 mes para eventos, proyectos o picos de operación, y planes de 12, 24 y 36 meses con tarifas más bajas para equipos de trabajo permanentes.",
+        },
+        {
+          q: "¿Qué pasa si un equipo se daña?",
+          a: "El soporte y el mantenimiento están incluidos. Si el daño no permite reparación inmediata, entregamos un equipo de reemplazo para que nadie deje de trabajar.",
+        },
+        {
+          q: "¿Puedo quedarme con los equipos al final?",
+          a: "Sí. Al terminar el contrato puedes renovar con equipos nuevos, extender el alquiler o comprar los equipos por su valor residual.",
+        },
+        {
+          q: "¿Los equipos llegan listos para usar?",
+          a: "Sí. Entregamos con sistema operativo, licencias, antivirus, tu dominio corporativo y el software que tu equipo necesite, más el inventario documentado.",
+        },
+      ],
+    },
+    en: {
+      title: "Equipment & Server Rental",
+      tagline: "Technology ready to work, without buying it",
+      description:
+        "Laptops, desktops, rack servers, printers and networking gear on rent, with support and replacement included.",
+      intro:
+        "Refresh your company's technology without tying up capital. We rent desktops, laptops, rack servers, monitors, printers and networking gear with installation, preventive maintenance, support and replacement included in the monthly fee. You pay to use it; we make sure it always works.",
+      features: [
+        "Business laptops and desktop computers",
+        "Rack and tower servers, NAS and storage",
+        "Monitors, printers, scanners and peripherals",
+        "Networking: switches, firewalls, access points and UPS",
+        "Technical support, maintenance and replacement included",
+        "Plans from 1 month (events, peaks) up to 36 months",
+      ],
+      benefits: [
+        {
+          title: "Zero upfront investment",
+          description:
+            "Swap a large purchase for a deductible monthly fee. Free up cash for what actually grows your business.",
+        },
+        {
+          title: "Always up and running",
+          description:
+            "If a device fails, we replace it. Preventive maintenance, backup units and support are included in the plan.",
+        },
+        {
+          title: "Scale in days, not months",
+          description:
+            "Onboarding 20 new people or opening a branch? We deliver the machines configured with your corporate image and domain.",
+        },
+      ],
+      deliverables: [
+        "Needs assessment and proposal per user profile",
+        "Devices delivered, configured and inventoried",
+        "On-site installation, cabling and rollout",
+        "Scheduled preventive maintenance and help desk",
+        "Equipment replacement and pickup at contract end",
+      ],
+      faqs: [
+        {
+          q: "What's the minimum rental term?",
+          a: "We have plans from 1 month for events, projects or operational peaks, and 12, 24 and 36-month plans with lower rates for permanent workstations.",
+        },
+        {
+          q: "What happens if a device breaks?",
+          a: "Support and maintenance are included. If it can't be repaired right away, we deliver a replacement unit so nobody stops working.",
+        },
+        {
+          q: "Can I keep the equipment at the end?",
+          a: "Yes. When the contract ends you can renew with new equipment, extend the rental or buy the units at their residual value.",
+        },
+        {
+          q: "Does the equipment arrive ready to use?",
+          a: "Yes. We deliver with the operating system, licenses, antivirus, your corporate domain and whatever software your team needs, plus documented inventory.",
         },
       ],
     },

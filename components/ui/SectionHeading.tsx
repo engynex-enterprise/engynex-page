@@ -13,7 +13,7 @@ export function Eyebrow({
     <span
       className={cn(
         "inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-[0.14em]",
-        tone === "dark" ? "text-brand-green-light" : "text-brand-green-dark dark:text-brand-green",
+        tone === "dark" ? "text-brand-green-light" : "text-accent",
         className,
       )}
     >
@@ -57,7 +57,7 @@ export function SectionHeading({
       <h2
         className={cn(
           "mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl md:text-[2.75rem] md:leading-[1.1]",
-          tone === "dark" ? "text-white" : "text-navy-900 dark:text-white",
+          tone === "dark" ? "text-white" : "text-heading",
         )}
       >
         {title}
@@ -66,7 +66,7 @@ export function SectionHeading({
         <p
           className={cn(
             "mt-5 text-lg leading-relaxed",
-            tone === "dark" ? "text-ink-300" : "text-slate-600 dark:text-ink-300",
+            tone === "dark" ? "text-ink-300" : "text-body",
           )}
         >
           {subtitle}

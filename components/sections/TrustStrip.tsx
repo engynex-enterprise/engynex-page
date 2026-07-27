@@ -14,8 +14,8 @@ export function TrustStrip({
   return (
     <section
       className={cn(
-        "border-y border-navy-900/10 py-10 dark:border-white/10",
-        tone === "mesh" ? "bg-mesh-soft" : "bg-white dark:bg-navy-950",
+        "border-y border-line py-10",
+        tone === "mesh" ? "bg-mesh-soft" : "bg-surface",
       )}
     >
       <Container>
@@ -23,17 +23,13 @@ export function TrustStrip({
           {items.map((item, i) => {
             const Icon = icons[i % icons.length];
             return (
-              <div key={item.title} className="flex items-start gap-3.5">
-                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-green/12 text-brand-green-dark dark:bg-brand-green/15 dark:text-brand-green">
-                  <Icon className="h-5 w-5" strokeWidth={2} />
+              <div key={item.title} className="group flex items-start gap-3.5">
+                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-green/12 text-accent transition-colors duration-300 group-hover:bg-brand-green group-hover:text-navy-950">
+                  <Icon className="h-5 w-5" strokeWidth={2} aria-hidden />
                 </span>
                 <div>
-                  <p className="font-extrabold text-navy-900 dark:text-white">
-                    {item.title}
-                  </p>
-                  <p className="mt-0.5 text-sm text-slate-600 dark:text-ink-300">
-                    {item.desc}
-                  </p>
+                  <p className="font-extrabold text-heading">{item.title}</p>
+                  <p className="mt-0.5 text-sm text-body">{item.desc}</p>
                 </div>
               </div>
             );

@@ -13,7 +13,7 @@ export function Timeline({
   title: string;
   subtitle?: string;
   items: readonly { year: string; title: string; desc: string }[];
-  tone?: "light" | "mesh";
+  tone?: "light" | "mesh" | "muted";
 }) {
   return (
     <Section tone={tone}>
@@ -23,17 +23,17 @@ export function Timeline({
         <div className="space-y-6">
           {items.map((m, i) => (
             <Reveal key={m.year} delay={(i % 4) * 90} className="relative pl-14">
-              <span className="absolute left-0 top-1 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue text-xs font-extrabold text-navy-950 ring-4 ring-white dark:ring-navy-950">
+              <span className="absolute left-0 top-1 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue text-xs font-extrabold text-navy-950 ring-4 ring-surface">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <div className="rounded-2xl border border-navy-900/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-navy-800">
-                <span className="text-sm font-extrabold text-brand-green-dark dark:text-brand-green">
+              <div className="rounded-2xl border border-line bg-card p-6 shadow-card transition-all duration-300 hover:border-brand-green/40 hover:shadow-card-hover">
+                <span className="text-sm font-extrabold text-accent">
                   {m.year}
                 </span>
-                <h3 className="mt-1 text-lg font-extrabold text-navy-900 dark:text-white">
+                <h3 className="mt-1 text-lg font-extrabold text-heading">
                   {m.title}
                 </h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-ink-300">
+                <p className="mt-1.5 text-sm leading-relaxed text-body">
                   {m.desc}
                 </p>
               </div>

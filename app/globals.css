@@ -50,8 +50,34 @@
   --animate-float-slow: float 9s ease-in-out infinite;
   --animate-pulse-slow: pulseSlow 4s ease-in-out infinite;
   --animate-marquee: marquee 34s linear infinite;
+  --animate-marquee-slow: marquee 60s linear infinite;
   --animate-spin-slow: spin 26s linear infinite;
   --animate-gradient: gradientShift 6s ease infinite;
+  --animate-ken-burns: kenBurns 14s ease-out forwards;
+  --animate-slide-up: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* --------------------------------------------------------------------------
+   Tokens semánticos de superficie — cambian con el tema.
+   `@theme inline` sustituye la variable en la utilidad, así que
+   `bg-surface`, `text-heading`, `border-line`… se adaptan solos y ya no hace
+   falta duplicar cada color con su `dark:`.
+   -------------------------------------------------------------------------- */
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-card: var(--card);
+  --color-card-soft: var(--card-soft);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-heading: var(--heading);
+  --color-body: var(--body);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+
+  --shadow-card: var(--shadow-card-value);
+  --shadow-card-hover: var(--shadow-card-hover-value);
 }
 
 @keyframes gradientShift {
@@ -93,6 +119,85 @@
   }
 }
 
+/* Zoom lento para las imágenes de fondo del slider */
+@keyframes kenBurns {
+  from {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.16) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Ruta punteada que "fluye" en la sección de proceso.
+   Se hace con un degradado + máscara repetida (y no con `stroke-dasharray` en
+   un SVG): `vector-effect: non-scaling-stroke` junto a
+   `preserveAspectRatio="none"` no se pinta en Chrome. */
+.process-route {
+  background-image: linear-gradient(
+    to right,
+    color-mix(in oklab, var(--color-brand-green) 10%, transparent) 0%,
+    var(--color-brand-green) 16%,
+    var(--color-brand-blue) 84%,
+    color-mix(in oklab, var(--color-brand-blue) 10%, transparent) 100%
+  );
+  --route-mask: repeating-linear-gradient(
+    to right,
+    #000 0 10px,
+    transparent 10px 18px
+  );
+  -webkit-mask-image: var(--route-mask);
+  mask-image: var(--route-mask);
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  animation: routeFlow 1.4s linear infinite;
+}
+
+@keyframes routeFlow {
+  to {
+    -webkit-mask-position: 18px 0;
+    mask-position: 18px 0;
+  }
+}
+
+/* Barra de progreso del slide activo */
+@keyframes progressGrow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Se usa en la pestaña activa del hero slider. La duración llega por
+   `--slide-duration` desde el componente, así que basta con remontar el
+   elemento (key) para reiniciar la animación. */
+.slide-progress {
+  transform-origin: left;
+  animation: progressGrow var(--slide-duration, 7000ms) linear forwards;
+}
+.slide-progress[data-paused="true"] {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide-progress {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
 /* --------------------------------------------------------------------------
    Base
    -------------------------------------------------------------------------- */
@@ -100,19 +205,63 @@
   --background: #ffffff;
   --foreground: #101119;
   color-scheme: light;
+
+  /* Superficies */
+  --surface: #ffffff;
+  --surface-soft: #f4f7fb;
+  --card: #ffffff;
+  --card-soft: #f8fafc;
+
+  /* Bordes */
+  --line: color-mix(in oklab, #101119 11%, transparent);
+  --line-strong: color-mix(in oklab, #101119 18%, transparent);
+
+  /* Texto */
+  --heading: #101119;
+  --body: #4a5568;
+  --muted: #6b7280;
+
+  /* Acento legible sobre fondo claro */
+  --accent: #4b8f26;
+  --accent-soft: color-mix(in oklab, #70c13a 14%, transparent);
+
+  /* Sombras: en claro se ven; en oscuro se sustituyen por halo/borde */
+  --shadow-card-value: 0 1px 2px rgba(16, 17, 25, 0.04),
+    0 8px 24px -14px rgba(16, 17, 25, 0.14);
+  --shadow-card-hover-value: 0 2px 4px rgba(16, 17, 25, 0.05),
+    0 24px 50px -18px rgba(16, 17, 25, 0.22);
 }
 
 .dark {
   --background: #0a0b10;
   --foreground: #f6f7f9;
   color-scheme: dark;
+
+  --surface: #0a0b10;
+  --surface-soft: #101119;
+  --card: #171922;
+  --card-soft: #20222d;
+
+  --line: color-mix(in oklab, white 11%, transparent);
+  --line-strong: color-mix(in oklab, white 20%, transparent);
+
+  --heading: #ffffff;
+  --body: #a6abb7;
+  --muted: #8b90a0;
+
+  --accent: #8ed15c;
+  --accent-soft: color-mix(in oklab, #70c13a 20%, transparent);
+
+  /* En oscuro una sombra negra no se percibe: usamos borde luminoso + halo */
+  --shadow-card-value: 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 18px 40px -22px rgba(0, 0, 0, 0.9);
+  --shadow-card-hover-value: 0 0 0 1px rgba(112, 193, 58, 0.28),
+    0 26px 60px -24px rgba(0, 0, 0, 0.95),
+    0 0 40px -12px rgba(112, 193, 58, 0.18);
 }
 
 * {
-  border-color: color-mix(in oklab, var(--color-navy-900) 12%, transparent);
-}
-.dark * {
-  border-color: color-mix(in oklab, white 12%, transparent);
+  border-color: var(--line);
 }
 
 html {
@@ -126,6 +275,8 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+  /* Evita el destello blanco al cambiar de tema en scroll largo */
+  transition: background-color 0.25s ease;
 }
 
 /* Títulos con OpenDyslexic (mezcla con Nunito del cuerpo).
@@ -155,14 +306,24 @@ h3,
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--color-navy-500) 60%, transparent);
+  background: color-mix(in oklab, var(--color-navy-500) 45%, transparent);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-brand-blue);
+.dark ::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, white 18%, transparent);
   background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-green);
+  background-clip: content-box;
+}
+
+/* Anillo de foco visible y coherente en ambos temas */
+:focus-visible {
+  outline: 2px solid var(--color-brand-green);
+  outline-offset: 2px;
 }
 
 /* --------------------------------------------------------------------------
@@ -183,6 +344,31 @@ h3,
   color: transparent;
 }
 
+/* Igual que text-gradient pero con contraste suficiente sobre fondo claro */
+@utility text-gradient-ink {
+  background: linear-gradient(
+    100deg,
+    var(--color-brand-green-dark) 0%,
+    var(--color-brand-green) 35%,
+    var(--color-brand-blue) 80%,
+    var(--color-brand-blue-dark) 100%
+  );
+  background-size: 200% auto;
+  animation: gradientShift 6s ease infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.dark .text-gradient-ink {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-brand-green) 0%,
+    var(--color-brand-green-light) 40%,
+    var(--color-brand-blue-light) 75%,
+    var(--color-brand-blue) 100%
+  );
+}
+
 @utility bg-grid {
   background-image: linear-gradient(
       to right,
@@ -195,6 +381,33 @@ h3,
       transparent 1px
     );
   background-size: 56px 56px;
+}
+
+/* Rejilla visible sobre fondos claros (la de arriba solo sirve sobre navy) */
+@utility bg-grid-ink {
+  background-image: linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-navy-900) 6%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-navy-900) 6%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 56px 56px;
+}
+.dark .bg-grid-ink {
+  background-image: linear-gradient(
+      to right,
+      color-mix(in oklab, white 6%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, white 6%, transparent) 1px,
+      transparent 1px
+    );
 }
 
 /* Glass — efecto vidrio esmerilado tipo Apple (sobre fondos claros) */
@@ -215,9 +428,16 @@ h3,
   box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.45);
 }
 
+/* Tarjeta base: superficie + borde + sombra que funcionan en ambos temas. */
+@utility card {
+  background-color: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card-value);
+}
+
 /* Malla de gradientes suaves — reemplaza el blanco plano */
 @utility bg-mesh {
-  background-color: #f4f8ff;
+  background-color: #f2f7fd;
   background-image: radial-gradient(
       at 8% 12%,
       color-mix(in oklab, var(--color-brand-green) 24%, transparent) 0px,
@@ -236,7 +456,7 @@ h3,
 }
 
 @utility bg-mesh-soft {
-  background-color: #f7faff;
+  background-color: #f6fafe;
   background-image: radial-gradient(
       at 15% 20%,
       color-mix(in oklab, var(--color-brand-green) 12%, transparent) 0px,
@@ -257,27 +477,59 @@ h3,
   );
   background-size: 22px 22px;
 }
+.dark .bg-dots {
+  background-image: radial-gradient(
+    color-mix(in oklab, white 12%, transparent) 1px,
+    transparent 1px
+  );
+}
 
 /* --------------------------------------------------------------------------
    Overrides para modo oscuro (glass y mallas)
    -------------------------------------------------------------------------- */
 .dark .glass {
-  background: color-mix(in oklab, var(--color-navy-800) 60%, transparent);
+  background: color-mix(in oklab, var(--color-navy-800) 62%, transparent);
   border-color: color-mix(in oklab, white 10%, transparent);
-  box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.55);
 }
 
-.dark .bg-mesh,
-.dark .bg-mesh-soft {
+/* En oscuro la malla no desaparece: se mantiene la profundidad con un
+   degradado de navy + los halos de marca, para que la sección no quede
+   como un rectángulo negro plano junto a las demás. */
+.dark .bg-mesh {
   background-color: #0a0b10;
   background-image: radial-gradient(
-      at 12% 16%,
-      color-mix(in oklab, var(--color-brand-green) 16%, transparent) 0px,
-      transparent 42%
+      at 10% 0%,
+      color-mix(in oklab, var(--color-brand-green) 20%, transparent) 0px,
+      transparent 45%
     ),
     radial-gradient(
-      at 88% 20%,
-      color-mix(in oklab, var(--color-brand-blue) 16%, transparent) 0px,
+      at 90% 10%,
+      color-mix(in oklab, var(--color-brand-blue) 22%, transparent) 0px,
+      transparent 48%
+    ),
+    radial-gradient(
+      at 50% 100%,
+      color-mix(in oklab, var(--color-navy-700) 85%, transparent) 0px,
+      transparent 65%
+    );
+}
+
+.dark .bg-mesh-soft {
+  background-color: #0c0d13;
+  background-image: radial-gradient(
+      at 12% 8%,
+      color-mix(in oklab, var(--color-brand-green) 13%, transparent) 0px,
+      transparent 45%
+    ),
+    radial-gradient(
+      at 88% 16%,
+      color-mix(in oklab, var(--color-brand-blue) 14%, transparent) 0px,
+      transparent 48%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-navy-900) 70%, transparent),
       transparent 45%
     );
 }
@@ -297,6 +549,15 @@ h3,
 .reveal.is-visible {
   opacity: 1;
   transform: none;
+}
+
+/* Oculta la barra de scroll manteniendo el desplazamiento (carruseles) */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

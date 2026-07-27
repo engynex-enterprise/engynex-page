@@ -13,7 +13,7 @@ export function Accordion({ items }: { items: AccordionItem[] }) {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <div className="divide-y divide-navy-900/10 overflow-hidden rounded-3xl border border-navy-900/10 dark:border-white/10 bg-white/70 dark:bg-navy-800/70 backdrop-blur">
+    <div className="divide-y divide-line overflow-hidden rounded-3xl border border-line bg-card shadow-card">
       {items.map((item, i) => {
         const isOpen = open === i;
         return (
@@ -22,14 +22,17 @@ export function Accordion({ items }: { items: AccordionItem[] }) {
               type="button"
               onClick={() => setOpen(isOpen ? null : i)}
               aria-expanded={isOpen}
-              className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition-colors hover:bg-navy-900/[0.02]"
+              className={cn(
+                "flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition-colors",
+                isOpen ? "bg-accent-soft/40" : "hover:bg-accent-soft/30",
+              )}
             >
-              <span className="text-base font-extrabold text-navy-900 dark:text-white">
+              <span className="text-base font-extrabold text-heading">
                 {item.q}
               </span>
               <span
                 className={cn(
-                  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-green/15 text-brand-green-dark dark:text-brand-green transition-transform duration-300",
+                  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-green/15 text-accent transition-transform duration-300",
                   isOpen && "rotate-45",
                 )}
               >
@@ -45,9 +48,7 @@ export function Accordion({ items }: { items: AccordionItem[] }) {
               )}
             >
               <div className="overflow-hidden">
-                <p className="px-6 pb-6 text-slate-600 dark:text-ink-300 leading-relaxed">
-                  {item.a}
-                </p>
+                <p className="px-6 pb-6 leading-relaxed text-body">{item.a}</p>
               </div>
             </div>
           </div>

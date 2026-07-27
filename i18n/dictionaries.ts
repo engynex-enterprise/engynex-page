@@ -10,12 +10,40 @@ const es = {
   nav: {
     home: "Inicio",
     services: "Servicios",
+    products: "Productos",
     portfolio: "Portafolio",
     about: "Nosotros",
     contact: "Contacto",
     cta: "Cotiza tu proyecto",
     openMenu: "Abrir menú",
     closeMenu: "Cerrar menú",
+    menuLabel: "Menú",
+    mega: {
+      servicesTagline:
+        "Del diseño al despliegue: un solo equipo para todo tu ecosistema digital.",
+      productsTagline:
+        "Software listo para implementar y adaptarse a la forma en que trabajas.",
+      aboutTagline:
+        "Ingeniería, diseño y estrategia trabajando en un mismo equipo.",
+      viewAllServices: "Ver todos los servicios",
+      viewAllProducts: "Ver todos los productos",
+      viewAllAbout: "Conocer Engynex",
+      featuredEyebrow: "Asesoría gratis",
+      featuredTitle: "¿No sabes cuál necesitas?",
+      featuredDesc:
+        "Cuéntanos cómo opera tu empresa y te recomendamos la combinación exacta en menos de 24 horas.",
+      featuredCta: "Habla con un experto",
+      aboutFeaturedEyebrow: "Nuestro trabajo",
+      aboutFeaturedTitle: "Mira lo que hemos construido",
+      aboutFeaturedDesc:
+        "Más de 120 proyectos entregados para marcas de distintas industrias en Latinoamérica.",
+      aboutFeaturedCta: "Ver portafolio",
+    },
+  },
+  badges: {
+    top: "Más solicitado",
+    popular: "Popular",
+    new: "Nuevo",
   },
   common: {
     getStarted: "Empecemos",
@@ -77,9 +105,64 @@ const es = {
     stats: [
       { value: "+120", label: "Proyectos entregados" },
       { value: "+80", label: "Clientes felices" },
-      { value: "8", label: "Servicios integrados" },
+      { value: "16", label: "Servicios integrados" },
       { value: "10", label: "Años de experiencia" },
     ],
+  },
+  heroSlides: {
+    controls: {
+      prev: "Anterior",
+      next: "Siguiente",
+      pause: "Pausar presentación",
+      play: "Reproducir presentación",
+      slideLabel: "Diapositiva",
+    },
+    common: {
+      quote: "Cotizar ahora",
+      demo: "Solicitar demo",
+    },
+    intro: { navLabel: "Fábrica digital" },
+    services: {
+      navLabel: "Servicios",
+      eyebrow: "16 servicios especializados",
+      titleLead: "Todo tu ecosistema digital",
+      titleHighlight: "con un solo aliado",
+      subtitle:
+        "Web, plataformas, apps, e-commerce, marketing, video, IA, nube, seguridad, soporte y alquiler de equipos. Elige uno o combínalos: nosotros hacemos que funcionen como un solo sistema.",
+      cta: "Explorar servicios",
+    },
+    products: {
+      navLabel: "Productos",
+      eyebrow: "Software listo para usar",
+      titleLead: "Plataformas probadas,",
+      titleHighlight: "funcionando en semanas",
+      subtitle:
+        "Chat empresarial, POS, CRM, inventarios, intranet, colegios y más. Partimos de una base ya construida y la adaptamos a tu operación.",
+      cta: "Ver productos",
+      bullets: [
+        "Implementación en 2 a 8 semanas",
+        "100% personalizable a tus procesos",
+        "En la nube o en tu propio servidor",
+        "Capacitación y soporte incluidos",
+      ],
+    },
+    promo: {
+      navLabel: "Web por suscripción",
+      eyebrow: "Promoción vigente",
+      titleLead: "Tu página web profesional",
+      titleHighlight: "sin cuota inicial",
+      subtitle:
+        "Dominio, hosting, SSL, mantenimiento y soporte incluidos mientras tu plan esté activo. Arrancas hoy y pagas mes a mes.",
+      cta: "Ver planes y precios",
+    },
+    rental: {
+      navLabel: "Alquiler de equipos",
+      eyebrow: "Nuevo servicio",
+      titleLead: "Equipos y servidores",
+      titleHighlight: "en arriendo",
+      cta: "Ver el servicio",
+      priceNote: "COP / mes por equipo",
+    },
   },
   techStrip: {
     title: "Tecnologías con las que construimos",
@@ -88,7 +171,22 @@ const es = {
     eyebrow: "Qué hacemos",
     title: "Un solo aliado para todo tu ecosistema digital",
     subtitle:
-      "Quince servicios especializados que se integran para llevar tu idea del concepto al resultado, sin costuras entre equipos.",
+      "Dieciséis servicios especializados que se integran para llevar tu idea del concepto al resultado, sin costuras entre equipos.",
+  },
+  productsSection: {
+    eyebrow: "Productos",
+    title: "Software listo para poner a trabajar hoy",
+    subtitle:
+      "Plataformas ya construidas y probadas —chat empresarial, POS, intranet, colegios, gestión de proyectos y más— que adaptamos a tu operación en semanas.",
+    cta: "Ver todos los productos",
+  },
+  subscriptionBand: {
+    eyebrow: "Nuevo",
+    title: "Tu página web por suscripción",
+    desc: "Dominio, hosting, SSL, mantenimiento y soporte incluidos mientras tu plan esté activo. Sin cuota inicial.",
+    priceLabel: "Desde",
+    priceNote: "COP / mes",
+    cta: "Ver planes y precios",
   },
   featured: {
     eyebrow: "Portafolio",
@@ -97,8 +195,11 @@ const es = {
     cta: "Ver todo el portafolio",
   },
   clients: {
+    eyebrow: "Confianza",
     title: "Empresas que confían en Engynex",
-    names: ["Nova Retail", "Pulse", "Vertex", "Meridian", "Aurora", "Helix"],
+    subtitle:
+      "Marcas grandes y negocios que están creciendo: todos necesitan que la tecnología funcione. Estas son algunas con las que hemos trabajado.",
+    note: "Y más de 80 empresas en Colombia y Latinoamérica.",
   },
   industries: {
     eyebrow: "Industrias",
@@ -149,50 +250,111 @@ const es = {
     title: "Un proceso claro, de la idea al lanzamiento",
     subtitle:
       "Metodología ágil y transparente para que sepas exactamente en qué punto está tu proyecto.",
+    stepLabel: "Etapa",
     steps: [
       {
         title: "Descubrimiento",
         description:
           "Entendemos tu negocio, objetivos y usuarios para definir el alcance ideal.",
+        meta: "1 semana · Reunión de diagnóstico",
       },
       {
         title: "Estrategia & Diseño",
         description:
           "Prototipamos la experiencia y la identidad visual antes de escribir una línea de código.",
+        meta: "1–2 semanas · Prototipo aprobado",
       },
       {
         title: "Desarrollo",
         description:
           "Construimos con sprints, entregas continuas y control de calidad en cada paso.",
+        meta: "2–8 semanas · Demo cada 15 días",
       },
       {
         title: "Lanzamiento & Crecimiento",
         description:
           "Publicamos, medimos y optimizamos para que tu producto siga evolucionando.",
+        meta: "Continuo · Métricas y mejoras",
+      },
+    ],
+  },
+  statsBand: {
+    eyebrow: "Engynex en cifras",
+    title: "Números que respaldan cada propuesta",
+    subtitle:
+      "No prometemos lo que no hemos hecho. Esto es lo que llevamos construido y cómo trabajamos.",
+    items: [
+      {
+        value: "+120",
+        label: "Proyectos entregados",
+        detail: "Sitios, plataformas, apps y tiendas en producción.",
+      },
+      {
+        value: "+80",
+        label: "Clientes felices",
+        detail: "98% vuelve a contratarnos para un segundo proyecto.",
+      },
+      {
+        value: "16",
+        label: "Servicios integrados",
+        detail: "Del diseño al soporte, sin cambiar de proveedor.",
+      },
+      {
+        value: "10",
+        label: "Años de experiencia",
+        detail: "Desde 2016 construyendo producto digital en LATAM.",
       },
     ],
   },
   testimonials: {
     eyebrow: "Clientes",
     title: "Lo que dicen de trabajar con nosotros",
+    subtitle:
+      "Proyectos distintos, un mismo criterio: entregar algo que funcione y que se pueda medir.",
+    ratingValue: "4.9 / 5",
+    ratingNote: "Satisfacción promedio en los últimos 40 proyectos",
+    prev: "Testimonio anterior",
+    next: "Testimonio siguiente",
     items: [
       {
         quote:
           "Engynex transformó nuestra operación con una plataforma que realmente entiende nuestro negocio. Profesionalismo total.",
         name: "Laura Gómez",
         role: "COO, Nova Retail",
+        company: "Nova Retail · Retail",
+        metric: "+38% en pedidos en línea",
       },
       {
         quote:
           "Del branding a la app, todo con una coherencia impecable. Se sienten parte de nuestro equipo.",
         name: "Andrés Martínez",
         role: "CEO, Pulse Fitness",
+        company: "Pulse Fitness · Bienestar",
+        metric: "App con 4.8 en las tiendas",
       },
       {
         quote:
           "Entregaron a tiempo, con calidad y con datos que respaldan cada decisión. Volveríamos sin dudarlo.",
         name: "Carolina Ruiz",
         role: "Directora de Marketing, Vertex",
+        company: "Vertex · Servicios",
+        metric: "-45% en tiempo de reporte",
+      },
+      {
+        quote:
+          "Renovamos 45 equipos sin descapitalizarnos y el soporte responde el mismo día. Dejamos de perder horas por computadores lentos.",
+        name: "Diego Ramírez",
+        role: "Gerente Administrativo",
+        company: "Distribuciones Andina · Distribución",
+        metric: "45 equipos renovados en 3 semanas",
+      },
+      {
+        quote:
+          "El POS por fin nos cuadró la caja de las cinco sedes. Antes cerrábamos con diferencias todas las semanas.",
+        name: "Paula Restrepo",
+        role: "Directora de Operaciones",
+        company: "Hotel Casa Bolívar · Hotelería",
+        metric: "Cuadre de caja del 100%",
       },
     ],
   },
@@ -213,6 +375,44 @@ const es = {
     featuresTitle: "Qué incluye",
     ctaService: "Cotizar este servicio",
     viewDetail: "Ver servicio",
+    plans: {
+      eyebrow: "Planes y precios",
+      title: "Elige el plan que se ajusta a tu proyecto",
+      subtitle:
+        "Precios de referencia en pesos colombianos. Ajustamos el alcance a lo que realmente necesitas y te entregamos una cotización formal sin costo.",
+      from: "Desde",
+      monthly: "/mes",
+      once: "pago único",
+      custom: "A la medida",
+      customPrice: "Cotización personalizada",
+      includes: "Incluye",
+      cta: "Solicitar cotización",
+      ctaCustom: "Hablar con un asesor",
+      note: "Los valores están en pesos colombianos (COP) y no incluyen IVA. El precio final depende del alcance acordado; la cotización y la asesoría no tienen costo.",
+    },
+    commonFaqsTitle: "Sobre trabajar con Engynex",
+    commonFaqs: [
+      {
+        q: "¿Cómo son las formas de pago?",
+        a: "En proyectos de pago único trabajamos con 50% de anticipo y 50% contra entrega; en proyectos grandes dividimos por hitos. Los planes mensuales se facturan al inicio de cada mes. Recibimos transferencia, PSE y tarjeta.",
+      },
+      {
+        q: "¿Los precios incluyen IVA?",
+        a: "No. Todos los valores publicados están en pesos colombianos antes de IVA. En la cotización formal verás el desglose completo.",
+      },
+      {
+        q: "¿Qué garantía tiene el trabajo entregado?",
+        a: "Todos los desarrollos incluyen garantía sobre errores de funcionamiento (entre 2 y 6 meses según el plan). Corregimos sin costo cualquier falla atribuible a nuestro trabajo.",
+      },
+      {
+        q: "¿Debo firmar un contrato de permanencia?",
+        a: "Los proyectos de pago único no tienen permanencia. Los planes mensuales se acuerdan por 3 o 12 meses según el servicio, y siempre queda por escrito antes de empezar.",
+      },
+      {
+        q: "¿Trabajan con empresas fuera de Colombia?",
+        a: "Sí. Atendemos clientes en toda Latinoamérica de forma remota y podemos facturar en dólares cuando se requiere.",
+      },
+    ],
     detail: {
       overviewTitle: "En qué consiste",
       benefitsTitle: "Por qué elegir Engynex",
@@ -223,6 +423,89 @@ const es = {
       ctaTitle: "¿Hablamos de tu proyecto?",
       ctaSubtitle:
         "Cuéntanos qué necesitas y te enviamos una propuesta a tu medida en menos de 24 horas.",
+    },
+  },
+  productsPage: {
+    hero: {
+      eyebrow: "Productos",
+      title: "Software listo para tu empresa, adaptado a tu operación",
+      subtitle:
+        "Soluciones que ya funcionan en decenas de empresas: chat corporativo, POS, intranet, colegios, gestión de proyectos y mucho más. Las implementamos en semanas y las ajustamos a tus procesos.",
+    },
+    intro: {
+      eyebrow: "Catálogo",
+      title: "Elige tu producto y lo adaptamos a tu medida",
+      subtitle:
+        "Cada producto se entrega configurado, con tus datos migrados, tu marca aplicada y tu equipo capacitado.",
+    },
+    featuresTitle: "Qué incluye",
+    audienceLabel: "Para quién",
+    cta: "Solicitar demo",
+    ctaAll: "Solicitar una demo",
+    whyEyebrow: "Cómo lo entregamos",
+    whyTitle: "Producto probado, implementación a tu medida",
+    whySubtitle:
+      "No empezamos de cero: partimos de una base sólida y la ajustamos a tu operación. Menos tiempo, menos riesgo, mismo resultado a la medida.",
+    why: [
+      {
+        title: "En semanas, no en meses",
+        description:
+          "La base ya está construida y probada: nos concentramos en configurarla para tu negocio.",
+      },
+      {
+        title: "100% personalizable",
+        description:
+          "Ajustamos módulos, campos, permisos y flujos para que encajen con tu forma de trabajar.",
+      },
+      {
+        title: "En la nube o en tu servidor",
+        description:
+          "Tú eliges dónde vive tu información: nuestra infraestructura o la de tu empresa.",
+      },
+      {
+        title: "Capacitación y soporte",
+        description:
+          "Acompañamos a tu equipo en la puesta en marcha y seguimos disponibles después del lanzamiento.",
+      },
+    ],
+    customEyebrow: "Y mucho más",
+    customTitle: "¿No encuentras el producto que necesitas?",
+    customSubtitle:
+      "Estos son solo los más solicitados. Si tu operación necesita algo distinto, lo diseñamos y construimos a la medida con el mismo equipo y la misma calidad.",
+    customPrimary: "Cuéntanos tu necesidad",
+    customSecondary: "Ver servicios de desarrollo",
+    faqsTitle: "Preguntas frecuentes",
+    faqsSubtitle: "Lo que más nos preguntan antes de implementar un producto.",
+    faqs: [
+      {
+        q: "¿Cuánto tarda la implementación?",
+        a: "Entre 2 y 8 semanas según el producto y el nivel de personalización. Te damos un cronograma exacto tras la primera reunión.",
+      },
+      {
+        q: "¿Puedo pedir cambios y módulos nuevos?",
+        a: "Sí. Todos nuestros productos son personalizables: ajustamos módulos, campos y flujos, y desarrollamos funcionalidades nuevas si las necesitas.",
+      },
+      {
+        q: "¿Se integra con los sistemas que ya uso?",
+        a: "Sí. Conectamos con tu ERP, CRM, pasarelas de pago, facturación y cualquier herramienta que exponga una API.",
+      },
+      {
+        q: "¿Cómo se cobra: licencia o pago único?",
+        a: "Manejamos ambos modelos: suscripción mensual con soporte incluido o pago único con el código a tu nombre. Te explicamos cuál conviene a tu caso.",
+      },
+    ],
+    detail: {
+      back: "Volver a productos",
+      overviewTitle: "En qué consiste",
+      modulesTitle: "Módulos incluidos",
+      faqsTitle: "Preguntas sobre este producto",
+      relatedTitle: "Otros productos que te pueden servir",
+      allProducts: "Ver todos los productos",
+      viewProduct: "Ver producto",
+      demoNote: "Demo en vivo sin costo, en menos de 24 horas",
+      ctaTitle: "¿Lo vemos funcionando con tus datos?",
+      ctaSubtitle:
+        "Agendamos una demo, entendemos tu operación y te enviamos la propuesta de implementación sin costo.",
     },
   },
   portfolioPage: {
@@ -279,11 +562,30 @@ const es = {
       },
     ],
     statsTitle: "Engynex en números",
+    statsEyebrow: "Trayectoria",
+    statsSubtitle:
+      "Lo que hemos construido desde 2016, en cifras verificables.",
     stats: [
-      { value: "+120", label: "Proyectos entregados" },
-      { value: "+80", label: "Clientes en 3 países" },
-      { value: "25", label: "Especialistas" },
-      { value: "98%", label: "Clientes que repiten" },
+      {
+        value: "+120",
+        label: "Proyectos entregados",
+        detail: "En 16 líneas de servicio y 8 industrias distintas.",
+      },
+      {
+        value: "+80",
+        label: "Clientes en 3 países",
+        detail: "Colombia como base, atendiendo toda Latinoamérica.",
+      },
+      {
+        value: "25",
+        label: "Especialistas",
+        detail: "Ingeniería, diseño, marketing y audiovisual en casa.",
+      },
+      {
+        value: "98%",
+        label: "Clientes que repiten",
+        detail: "La mejor señal de que el trabajo quedó bien hecho.",
+      },
     ],
     timelineTitle: "Nuestra historia",
     timelineSubtitle:
@@ -307,7 +609,7 @@ const es = {
       {
         year: "2026",
         title: "Hoy",
-        desc: "Una fábrica de desarrollo integral con 15 servicios y más de 120 proyectos entregados.",
+        desc: "Una fábrica de desarrollo integral con 16 servicios y más de 120 proyectos entregados.",
       },
     ],
     teamTitle: "El equipo detrás de Engynex",
@@ -336,8 +638,10 @@ const es = {
       companyPlaceholder: "Nombre de tu empresa",
       phone: "Teléfono / WhatsApp",
       phonePlaceholder: "+57 300 000 0000",
-      service: "Servicio de interés",
-      servicePlaceholder: "Selecciona un servicio",
+      service: "Servicio o producto de interés",
+      servicePlaceholder: "Selecciona una opción",
+      serviceGroupServices: "Servicios",
+      serviceGroupProducts: "Productos",
       serviceOther: "Otro / No estoy seguro",
       message: "Cuéntanos sobre tu proyecto",
       messagePlaceholder: "Objetivos, plazos, referencias...",
@@ -395,6 +699,7 @@ const es = {
     tagline:
       "Tu fábrica de desarrollo digital. Diseñamos, desarrollamos y hacemos crecer tu marca.",
     servicesTitle: "Servicios",
+    productsTitle: "Productos",
     companyTitle: "Empresa",
     contactTitle: "Contacto",
     followUs: "Síguenos",
@@ -415,12 +720,39 @@ const en = {
   nav: {
     home: "Home",
     services: "Services",
+    products: "Products",
     portfolio: "Portfolio",
     about: "About",
     contact: "Contact",
     cta: "Get a quote",
     openMenu: "Open menu",
     closeMenu: "Close menu",
+    menuLabel: "Menu",
+    mega: {
+      servicesTagline:
+        "From design to deployment: one team for your entire digital ecosystem.",
+      productsTagline:
+        "Software that is ready to deploy and adapts to the way you work.",
+      aboutTagline: "Engineering, design and strategy working as one team.",
+      viewAllServices: "View all services",
+      viewAllProducts: "View all products",
+      viewAllAbout: "Get to know Engynex",
+      featuredEyebrow: "Free advice",
+      featuredTitle: "Not sure which one you need?",
+      featuredDesc:
+        "Tell us how your company runs and we'll recommend the exact combination in under 24 hours.",
+      featuredCta: "Talk to an expert",
+      aboutFeaturedEyebrow: "Our work",
+      aboutFeaturedTitle: "See what we've built",
+      aboutFeaturedDesc:
+        "Over 120 projects delivered for brands across many industries in Latin America.",
+      aboutFeaturedCta: "View portfolio",
+    },
+  },
+  badges: {
+    top: "Most requested",
+    popular: "Popular",
+    new: "New",
   },
   common: {
     getStarted: "Let's start",
@@ -482,9 +814,64 @@ const en = {
     stats: [
       { value: "+120", label: "Projects delivered" },
       { value: "+80", label: "Happy clients" },
-      { value: "8", label: "Integrated services" },
+      { value: "16", label: "Integrated services" },
       { value: "10", label: "Years of experience" },
     ],
+  },
+  heroSlides: {
+    controls: {
+      prev: "Previous",
+      next: "Next",
+      pause: "Pause slideshow",
+      play: "Play slideshow",
+      slideLabel: "Slide",
+    },
+    common: {
+      quote: "Get a quote",
+      demo: "Request a demo",
+    },
+    intro: { navLabel: "Digital factory" },
+    services: {
+      navLabel: "Services",
+      eyebrow: "16 specialized services",
+      titleLead: "Your entire digital ecosystem",
+      titleHighlight: "with one partner",
+      subtitle:
+        "Web, platforms, apps, e-commerce, marketing, video, AI, cloud, security, support and equipment rental. Pick one or combine them: we make them work as a single system.",
+      cta: "Explore services",
+    },
+    products: {
+      navLabel: "Products",
+      eyebrow: "Ready-to-use software",
+      titleLead: "Proven platforms,",
+      titleHighlight: "running in weeks",
+      subtitle:
+        "Business chat, POS, CRM, inventory, intranet, school management and more. We start from a built base and adapt it to your operation.",
+      cta: "View products",
+      bullets: [
+        "Rollout in 2 to 8 weeks",
+        "100% customizable to your processes",
+        "In the cloud or on your own server",
+        "Training and support included",
+      ],
+    },
+    promo: {
+      navLabel: "Website subscription",
+      eyebrow: "Current promotion",
+      titleLead: "Your professional website",
+      titleHighlight: "with no setup fee",
+      subtitle:
+        "Domain, hosting, SSL, maintenance and support included for as long as your plan is active. Start today and pay month to month.",
+      cta: "See plans and pricing",
+    },
+    rental: {
+      navLabel: "Equipment rental",
+      eyebrow: "New service",
+      titleLead: "Computers and servers",
+      titleHighlight: "for rent",
+      cta: "See the service",
+      priceNote: "COP / month per device",
+    },
   },
   techStrip: {
     title: "Technologies we build with",
@@ -493,7 +880,22 @@ const en = {
     eyebrow: "What we do",
     title: "One partner for your entire digital ecosystem",
     subtitle:
-      "Fifteen specialized services that come together to take your idea from concept to result, with no seams between teams.",
+      "Sixteen specialized services that come together to take your idea from concept to result, with no seams between teams.",
+  },
+  productsSection: {
+    eyebrow: "Products",
+    title: "Software ready to put to work today",
+    subtitle:
+      "Platforms already built and proven —business chat, POS, intranet, school management, project management and more— that we adapt to your operation in weeks.",
+    cta: "View all products",
+  },
+  subscriptionBand: {
+    eyebrow: "New",
+    title: "Your website on a subscription",
+    desc: "Domain, hosting, SSL, maintenance and support included for as long as your plan is active. No setup fee.",
+    priceLabel: "From",
+    priceNote: "COP / month",
+    cta: "See plans and pricing",
   },
   featured: {
     eyebrow: "Portfolio",
@@ -502,8 +904,11 @@ const en = {
     cta: "View the full portfolio",
   },
   clients: {
+    eyebrow: "Trust",
     title: "Companies that trust Engynex",
-    names: ["Nova Retail", "Pulse", "Vertex", "Meridian", "Aurora", "Helix"],
+    subtitle:
+      "Large brands and growing businesses: they all need technology that works. These are some of the ones we've worked with.",
+    note: "Plus more than 80 companies across Colombia and Latin America.",
   },
   industries: {
     eyebrow: "Industries",
@@ -554,50 +959,111 @@ const en = {
     title: "A clear process, from idea to launch",
     subtitle:
       "An agile, transparent methodology so you always know exactly where your project stands.",
+    stepLabel: "Stage",
     steps: [
       {
         title: "Discovery",
         description:
           "We understand your business, goals and users to define the ideal scope.",
+        meta: "1 week · Discovery meeting",
       },
       {
         title: "Strategy & Design",
         description:
           "We prototype the experience and visual identity before writing a line of code.",
+        meta: "1–2 weeks · Approved prototype",
       },
       {
         title: "Development",
         description:
           "We build in sprints, with continuous delivery and quality control at every step.",
+        meta: "2–8 weeks · Demo every two weeks",
       },
       {
         title: "Launch & Growth",
         description:
           "We ship, measure and optimize so your product keeps evolving.",
+        meta: "Ongoing · Metrics and improvements",
+      },
+    ],
+  },
+  statsBand: {
+    eyebrow: "Engynex in numbers",
+    title: "Numbers that back every proposal",
+    subtitle:
+      "We don't promise what we haven't done. This is what we've built and how we work.",
+    items: [
+      {
+        value: "+120",
+        label: "Projects delivered",
+        detail: "Sites, platforms, apps and stores live in production.",
+      },
+      {
+        value: "+80",
+        label: "Happy clients",
+        detail: "98% come back to us for a second project.",
+      },
+      {
+        value: "16",
+        label: "Integrated services",
+        detail: "From design to support, without switching vendors.",
+      },
+      {
+        value: "10",
+        label: "Years of experience",
+        detail: "Building digital products across LATAM since 2016.",
       },
     ],
   },
   testimonials: {
     eyebrow: "Clients",
     title: "What it's like to work with us",
+    subtitle:
+      "Different projects, one standard: ship something that works and can be measured.",
+    ratingValue: "4.9 / 5",
+    ratingNote: "Average satisfaction across our last 40 projects",
+    prev: "Previous testimonial",
+    next: "Next testimonial",
     items: [
       {
         quote:
           "Engynex transformed our operation with a platform that truly understands our business. Total professionalism.",
         name: "Laura Gómez",
         role: "COO, Nova Retail",
+        company: "Nova Retail · Retail",
+        metric: "+38% in online orders",
       },
       {
         quote:
           "From branding to the app, everything with flawless consistency. They feel like part of our team.",
         name: "Andrés Martínez",
         role: "CEO, Pulse Fitness",
+        company: "Pulse Fitness · Wellness",
+        metric: "App rated 4.8 in the stores",
       },
       {
         quote:
           "Delivered on time, with quality and data backing every decision. We'd do it again without hesitation.",
         name: "Carolina Ruiz",
         role: "Marketing Director, Vertex",
+        company: "Vertex · Services",
+        metric: "-45% in reporting time",
+      },
+      {
+        quote:
+          "We refreshed 45 machines without tying up capital, and support answers the same day. We stopped losing hours to slow computers.",
+        name: "Diego Ramírez",
+        role: "Administrative Manager",
+        company: "Distribuciones Andina · Distribution",
+        metric: "45 devices refreshed in 3 weeks",
+      },
+      {
+        quote:
+          "The POS finally balanced the cash across our five locations. We used to close with discrepancies every week.",
+        name: "Paula Restrepo",
+        role: "Operations Director",
+        company: "Hotel Casa Bolívar · Hospitality",
+        metric: "100% cash reconciliation",
       },
     ],
   },
@@ -618,6 +1084,44 @@ const en = {
     featuresTitle: "What's included",
     ctaService: "Get a quote for this service",
     viewDetail: "View service",
+    plans: {
+      eyebrow: "Plans and pricing",
+      title: "Choose the plan that fits your project",
+      subtitle:
+        "Reference prices in Colombian pesos. We adapt the scope to what you actually need and send you a formal quote at no cost.",
+      from: "From",
+      monthly: "/month",
+      once: "one-time",
+      custom: "Custom",
+      customPrice: "Tailored quote",
+      includes: "Includes",
+      cta: "Request a quote",
+      ctaCustom: "Talk to an advisor",
+      note: "Values are in Colombian pesos (COP) and exclude VAT. The final price depends on the agreed scope; quotes and advice are always free.",
+    },
+    commonFaqsTitle: "About working with Engynex",
+    commonFaqs: [
+      {
+        q: "What are the payment terms?",
+        a: "For one-time projects we work with 50% upfront and 50% on delivery; large projects are split into milestones. Monthly plans are billed at the start of each month. We accept bank transfer, PSE and card.",
+      },
+      {
+        q: "Do prices include VAT?",
+        a: "No. All published values are in Colombian pesos before VAT. The formal quote shows the full breakdown.",
+      },
+      {
+        q: "What warranty does the delivered work have?",
+        a: "Every development includes a warranty on functional defects (2 to 6 months depending on the plan). We fix any failure attributable to our work at no cost.",
+      },
+      {
+        q: "Do I have to sign a minimum-term contract?",
+        a: "One-time projects have no minimum term. Monthly plans are agreed for 3 or 12 months depending on the service, and it's always in writing before we start.",
+      },
+      {
+        q: "Do you work with companies outside Colombia?",
+        a: "Yes. We serve clients across Latin America remotely and can invoice in US dollars when needed.",
+      },
+    ],
     detail: {
       overviewTitle: "What it's about",
       benefitsTitle: "Why choose Engynex",
@@ -628,6 +1132,89 @@ const en = {
       ctaTitle: "Shall we talk about your project?",
       ctaSubtitle:
         "Tell us what you need and we'll send you a tailored proposal in under 24 hours.",
+    },
+  },
+  productsPage: {
+    hero: {
+      eyebrow: "Products",
+      title: "Ready-made software for your company, tailored to your operation",
+      subtitle:
+        "Solutions already running in dozens of companies: business chat, POS, intranet, school management, project management and much more. We deploy them in weeks and adapt them to your processes.",
+    },
+    intro: {
+      eyebrow: "Catalog",
+      title: "Pick your product and we tailor it to you",
+      subtitle:
+        "Every product is delivered configured, with your data migrated, your brand applied and your team trained.",
+    },
+    featuresTitle: "What's included",
+    audienceLabel: "Who it's for",
+    cta: "Request a demo",
+    ctaAll: "Request a demo",
+    whyEyebrow: "How we deliver",
+    whyTitle: "Proven product, tailored implementation",
+    whySubtitle:
+      "We don't start from scratch: we begin with a solid base and adjust it to your operation. Less time, less risk, the same tailored result.",
+    why: [
+      {
+        title: "In weeks, not months",
+        description:
+          "The core is already built and tested: we focus on configuring it for your business.",
+      },
+      {
+        title: "100% customizable",
+        description:
+          "We adjust modules, fields, permissions and workflows to match the way you work.",
+      },
+      {
+        title: "Cloud or your own server",
+        description:
+          "You choose where your data lives: our infrastructure or your company's.",
+      },
+      {
+        title: "Training and support",
+        description:
+          "We guide your team through rollout and stay available long after launch.",
+      },
+    ],
+    customEyebrow: "And much more",
+    customTitle: "Can't find the product you need?",
+    customSubtitle:
+      "These are just the most requested ones. If your operation needs something different, we design and build it from scratch with the same team and the same quality.",
+    customPrimary: "Tell us what you need",
+    customSecondary: "See development services",
+    faqsTitle: "Frequently asked questions",
+    faqsSubtitle: "What clients ask us most before deploying a product.",
+    faqs: [
+      {
+        q: "How long does implementation take?",
+        a: "Between 2 and 8 weeks depending on the product and the level of customization. We give you an exact timeline after the first meeting.",
+      },
+      {
+        q: "Can I request changes and new modules?",
+        a: "Yes. All our products are customizable: we adjust modules, fields and workflows, and build new features whenever you need them.",
+      },
+      {
+        q: "Does it integrate with the systems I already use?",
+        a: "Yes. We connect to your ERP, CRM, payment gateways, invoicing and any tool that exposes an API.",
+      },
+      {
+        q: "How is it priced: license or one-time payment?",
+        a: "We offer both models: a monthly subscription with support included, or a one-time payment with the code in your name. We'll explain which fits your case.",
+      },
+    ],
+    detail: {
+      back: "Back to products",
+      overviewTitle: "What it's about",
+      modulesTitle: "Included modules",
+      faqsTitle: "Questions about this product",
+      relatedTitle: "Other products that may fit",
+      allProducts: "View all products",
+      viewProduct: "View product",
+      demoNote: "Free live demo, in under 24 hours",
+      ctaTitle: "Shall we see it running with your data?",
+      ctaSubtitle:
+        "We schedule a demo, understand your operation and send you the implementation proposal at no cost.",
     },
   },
   portfolioPage: {
@@ -684,11 +1271,29 @@ const en = {
       },
     ],
     statsTitle: "Engynex in numbers",
+    statsEyebrow: "Track record",
+    statsSubtitle: "What we've built since 2016, in verifiable numbers.",
     stats: [
-      { value: "+120", label: "Projects delivered" },
-      { value: "+80", label: "Clients in 3 countries" },
-      { value: "25", label: "Specialists" },
-      { value: "98%", label: "Returning clients" },
+      {
+        value: "+120",
+        label: "Projects delivered",
+        detail: "Across 16 service lines and 8 different industries.",
+      },
+      {
+        value: "+80",
+        label: "Clients in 3 countries",
+        detail: "Based in Colombia, serving all of Latin America.",
+      },
+      {
+        value: "25",
+        label: "Specialists",
+        detail: "Engineering, design, marketing and video in-house.",
+      },
+      {
+        value: "98%",
+        label: "Returning clients",
+        detail: "The clearest sign the work was done right.",
+      },
     ],
     timelineTitle: "Our story",
     timelineSubtitle:
@@ -712,7 +1317,7 @@ const en = {
       {
         year: "2026",
         title: "Today",
-        desc: "A full development factory with 15 services and over 120 projects delivered.",
+        desc: "A full development factory with 16 services and over 120 projects delivered.",
       },
     ],
     teamTitle: "The team behind Engynex",
@@ -741,8 +1346,10 @@ const en = {
       companyPlaceholder: "Your company name",
       phone: "Phone / WhatsApp",
       phonePlaceholder: "+57 300 000 0000",
-      service: "Service of interest",
-      servicePlaceholder: "Select a service",
+      service: "Service or product of interest",
+      servicePlaceholder: "Select an option",
+      serviceGroupServices: "Services",
+      serviceGroupProducts: "Products",
       serviceOther: "Other / Not sure",
       message: "Tell us about your project",
       messagePlaceholder: "Goals, timeline, references...",
@@ -800,6 +1407,7 @@ const en = {
     tagline:
       "Your digital development factory. We design, build and grow your brand.",
     servicesTitle: "Services",
+    productsTitle: "Products",
     companyTitle: "Company",
     contactTitle: "Contact",
     followUs: "Follow us",

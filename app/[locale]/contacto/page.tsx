@@ -305,7 +305,12 @@ export default async function ContactPage({
       </Section>
 
       {/* FAQ de contacto */}
-      <Section tone="light" containerClassName="relative">
+      <Section
+        tone="light"
+        id="faq"
+        className="scroll-mt-24"
+        containerClassName="relative"
+      >
         <Decor />
         <div className="relative">
           <SectionHeading

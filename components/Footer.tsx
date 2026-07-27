@@ -9,6 +9,7 @@ import {
 } from "./SocialIcons";
 import { navRoutes, localizedHref, siteConfig } from "@/lib/site";
 import { services } from "@/content/services";
+import { products } from "@/content/products";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 
@@ -90,9 +91,9 @@ export function Footer({
       </div>
 
       <Container className="relative py-16">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_0.85fr_1.05fr]">
           {/* Marca */}
-          <div className="max-w-sm">
+          <div className="max-w-sm sm:col-span-2 lg:col-span-1">
             <Logo variant="white" />
             <p className="mt-5 text-sm leading-relaxed text-ink-300">
               {dict.footer.tagline}
@@ -118,14 +119,33 @@ export function Footer({
             <h3 className="text-sm font-extrabold uppercase tracking-wider text-white">
               {dict.footer.servicesTitle}
             </h3>
-            <ul className="mt-5 space-y-3 text-sm">
+            <ul className="mt-5 space-y-1 text-sm">
               {services.slice(0, 6).map((service) => (
                 <li key={service.slug}>
                   <Link
-                    href={`${localizedHref(locale, "servicios")}#${service.slug}`}
-                    className="transition-colors hover:text-brand-green-light"
+                    href={localizedHref(locale, `servicios/${service.slug}`)}
+                    className="inline-block py-1.5 transition-colors hover:text-brand-green-light"
                   >
                     {service[locale].title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Productos */}
+          <div>
+            <h3 className="text-sm font-extrabold uppercase tracking-wider text-white">
+              {dict.footer.productsTitle}
+            </h3>
+            <ul className="mt-5 space-y-1 text-sm">
+              {products.slice(0, 6).map((product) => (
+                <li key={product.slug}>
+                  <Link
+                    href={localizedHref(locale, `productos/${product.slug}`)}
+                    className="inline-block py-1.5 transition-colors hover:text-brand-green-light"
+                  >
+                    {product[locale].title}
                   </Link>
                 </li>
               ))}
@@ -137,12 +157,12 @@ export function Footer({
             <h3 className="text-sm font-extrabold uppercase tracking-wider text-white">
               {dict.footer.companyTitle}
             </h3>
-            <ul className="mt-5 space-y-3 text-sm">
+            <ul className="mt-5 space-y-1 text-sm">
               {navRoutes.map((route) => (
                 <li key={route.key}>
                   <Link
                     href={localizedHref(locale, route.path)}
-                    className="transition-colors hover:text-brand-green-light"
+                    className="inline-block py-1.5 transition-colors hover:text-brand-green-light"
                   >
                     {dict.nav[route.key]}
                   </Link>
@@ -156,14 +176,14 @@ export function Footer({
             <h3 className="text-sm font-extrabold uppercase tracking-wider text-white">
               {dict.footer.contactTitle}
             </h3>
-            <ul className="mt-5 space-y-3 text-sm">
+            <ul className="mt-5 space-y-1 text-sm">
               <li>
                 <a
                   href={`mailto:${siteConfig.email}`}
-                  className="inline-flex items-center gap-2 transition-colors hover:text-brand-green-light"
+                  className="inline-flex items-center gap-2 py-1.5 transition-colors hover:text-brand-green-light"
                 >
-                  <Mail className="h-4 w-4 text-brand-green" />
-                  {siteConfig.email}
+                  <Mail className="h-4 w-4 shrink-0 text-brand-green" />
+                  <span className="break-all">{siteConfig.email}</span>
                 </a>
               </li>
               <li>
@@ -171,13 +191,13 @@ export function Footer({
                   href={`https://wa.me/${siteConfig.whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 transition-colors hover:text-brand-green-light"
+                  className="inline-flex items-center gap-2 py-1.5 transition-colors hover:text-brand-green-light"
                 >
-                  <Phone className="h-4 w-4 text-brand-green" />
+                  <Phone className="h-4 w-4 shrink-0 text-brand-green" />
                   {siteConfig.phone}
                 </a>
               </li>
-              <li className="pt-1 text-ink-400">
+              <li className="pt-2 text-ink-400">
                 {dict.contactPage.info.address}
               </li>
             </ul>

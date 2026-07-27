@@ -47,7 +47,12 @@ export default async function PortfolioPage({
         subtitle={t.hero.subtitle}
       />
 
-      <StatsBand stats={dict.aboutPage.stats} image="/images/about-meeting.jpg" />
+      <StatsBand
+        eyebrow={dict.aboutPage.statsEyebrow}
+        title={dict.aboutPage.statsTitle}
+        subtitle={dict.aboutPage.statsSubtitle}
+        stats={dict.aboutPage.stats}
+      />
 
       <Section tone="mesh">
         <PortfolioGrid

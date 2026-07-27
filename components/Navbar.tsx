@@ -1,32 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ArrowRight, Clock, Mail, Phone } from "lucide-react";
+import {
+  Menu,
+  X,
+  ArrowRight,
+  ChevronDown,
+  Clock,
+  Mail,
+  Phone,
+  Sparkles,
+} from "lucide-react";
 import { Logo } from "./Logo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 import { InstagramIcon, FacebookIcon, TiktokIcon } from "./SocialIcons";
 import { Container } from "./ui/Container";
 import { buttonClasses } from "./ui/Button";
+import { iconRegistry, fallbackIcon } from "./icons";
 import { navRoutes, localizedHref, siteConfig } from "@/lib/site";
+import type { MegaMenu, MenuItem, MenuPanel } from "@/lib/menu";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { cn } from "@/lib/utils";
+
+type PanelKey = MenuPanel["key"];
+
+/** Rutas de la barra que abren un panel del mega menú. */
+const panelForRoute: Partial<Record<string, PanelKey>> = {
+  services: "services",
+  products: "products",
+  about: "about",
+};
 
 export function Navbar({
   locale,
   nav,
   themeLabel,
+  menu,
 }: {
   locale: Locale;
   nav: Dictionary["nav"];
   themeLabel: string;
+  menu: MegaMenu;
 }) {
   const pathname = usePathname() || `/${locale}`;
   const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [openPanel, setOpenPanel] = useState<PanelKey | null>(null);
+  const [mobileSection, setMobileSection] = useState<PanelKey | null>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -35,16 +60,65 @@ export function Navbar({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Bloquea el scroll del body con el menú abierto.
+  // Bloquea el scroll del body solo con el menú móvil abierto.
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [open]);
+  }, [mobileOpen]);
 
-  const closeMenu = () => setOpen(false);
-  const solid = scrolled || open;
+  // Cierra todo al cambiar de ruta (evita que el menú quede abierto y el
+  // scroll bloqueado tras navegar desde el logo o cualquier enlace).
+  const [lastPath, setLastPath] = useState(pathname);
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    setMobileOpen(false);
+    setMobileSection(null);
+    setOpenPanel(null);
+  }
+
+  // Escape cierra el panel abierto.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setOpenPanel(null);
+      setMobileOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  useEffect(() => () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  }, []);
+
+  const cancelClose = useCallback(() => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  }, []);
+
+  const scheduleClose = useCallback(() => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setOpenPanel(null), 160);
+  }, [cancelClose]);
+
+  const hoverPanel = useCallback(
+    (key: PanelKey | null) => {
+      cancelClose();
+      setOpenPanel(key);
+    },
+    [cancelClose],
+  );
+
+  const closeMobile = () => {
+    setMobileOpen(false);
+    setMobileSection(null);
+  };
+
+  const solid = scrolled || mobileOpen || openPanel !== null;
 
   const isActive = (path: string) => {
     const href = localizedHref(locale, path);
@@ -69,174 +143,467 @@ export function Navbar({
         )}
       >
         <Container>
-          <div className="flex h-10 items-center justify-between gap-4 text-xs font-semibold">
-            <div className="flex items-center gap-4 truncate">
-              <span className="hidden items-center gap-1.5 whitespace-nowrap sm:inline-flex">
-                <Clock className="h-3.5 w-3.5 text-brand-green" />
-                <span className="hidden lg:inline">
-                  {siteConfig.hours[locale]}
-                </span>
-                <span className="inline lg:hidden">
-                  {locale === "es"
-                    ? "Lun–Vie 7–17 · Sáb 8–16"
-                    : "Mon–Fri 7–17 · Sat 8–16"}
-                </span>
+          <div className="flex h-10 items-center justify-between gap-3 text-xs font-semibold">
+            <span className="hidden items-center gap-1.5 truncate whitespace-nowrap sm:inline-flex">
+              <Clock className="h-3.5 w-3.5 shrink-0 text-brand-green" />
+              <span className="hidden lg:inline">{siteConfig.hours[locale]}</span>
+              <span className="inline lg:hidden">
+                {locale === "es"
+                  ? "Lun–Vie 7–17 · Sáb 8–16"
+                  : "Mon–Fri 7–17 · Sat 8–16"}
               </span>
-            </div>
-            <div className="flex items-center gap-3">
+            </span>
+            <div className="flex flex-1 items-center justify-end gap-1">
               <a
                 href={`mailto:${siteConfig.email}`}
-                className="hidden items-center gap-1.5 whitespace-nowrap transition-colors hover:text-white lg:inline-flex"
+                className="mr-2 hidden items-center gap-1.5 whitespace-nowrap transition-colors hover:text-white lg:inline-flex"
               >
                 <Mail className="h-3.5 w-3.5 text-brand-green" />
                 {siteConfig.email}
               </a>
               <a
                 href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
-                className="inline-flex items-center gap-1.5 whitespace-nowrap transition-colors hover:text-white"
+                className="mr-1 inline-flex h-8 items-center gap-1.5 whitespace-nowrap px-1 transition-colors hover:text-white"
               >
                 <Phone className="h-3.5 w-3.5 text-brand-green" />
                 <span>{siteConfig.phoneDisplay}</span>
               </a>
-              <span className="hidden h-4 w-px bg-white/15 sm:block" />
-              <div className="flex items-center gap-1.5">
-                {socials.map(({ href, label, Icon }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={label}
-                    className="inline-flex h-6 w-6 items-center justify-center rounded-full text-ink-300 transition-colors hover:bg-brand-green hover:text-navy-950"
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                  </a>
-                ))}
-              </div>
+              <span className="mx-1 hidden h-4 w-px bg-white/15 sm:block" />
+              {socials.map(({ href, label, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-ink-300 transition-colors hover:bg-brand-green hover:text-navy-950"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
             </div>
           </div>
         </Container>
       </div>
 
-      {/* Fila principal */}
+      {/* Fila principal + paneles del mega menú */}
       <div
         className={cn(
-          "transition-all duration-300",
+          "relative transition-all duration-300",
           solid
             ? "border-b border-navy-900/10 bg-white/85 backdrop-blur-lg supports-[backdrop-filter]:bg-white/70 dark:border-white/10 dark:bg-navy-950/85 dark:supports-[backdrop-filter]:bg-navy-950/70"
             : "border-b border-transparent bg-transparent",
         )}
+        onMouseEnter={cancelClose}
+        onMouseLeave={scheduleClose}
       >
-      <Container>
-        <div className="flex h-18 items-center justify-between gap-4">
-          <Link
-            href={localizedHref(locale)}
-            aria-label="Engynex Colombia"
-            className="shrink-0"
-          >
-            <Logo variant={solid ? "adaptive" : "white"} height={34} />
-          </Link>
+        <Container>
+          <div className="flex h-18 items-center justify-between gap-4">
+            <Link
+              href={localizedHref(locale)}
+              aria-label="Engynex Colombia"
+              className="shrink-0"
+              onClick={closeMobile}
+            >
+              {/* Logo más pequeño en pantallas estrechas para que la barra no
+                  desborde (el `!` gana al alto en línea del componente). */}
+              <Logo
+                variant={solid ? "adaptive" : "white"}
+                height={34}
+                className="h-7! w-auto sm:h-[34px]!"
+              />
+            </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden items-center gap-1 lg:flex">
-            {navRoutes.map((route) => (
-              <Link
-                key={route.key}
-                href={localizedHref(locale, route.path)}
-                className={cn(
-                  "rounded-full px-4 py-2 text-sm font-bold transition-colors",
+            {/* Navegación desktop */}
+            <nav className="hidden items-center gap-0.5 lg:flex">
+              {navRoutes.map((route) => {
+                const panelKey = panelForRoute[route.key];
+                const active = isActive(route.path);
+                const itemClass = cn(
+                  "inline-flex h-10 items-center gap-1 rounded-full px-2.5 text-sm font-bold transition-colors xl:px-4",
                   solid
-                    ? isActive(route.path)
+                    ? active
                       ? "text-brand-green-dark dark:text-brand-green"
                       : "text-navy-700 hover:text-brand-green-dark dark:text-ink-200 dark:hover:text-brand-green"
-                    : isActive(route.path)
+                    : active
                       ? "text-brand-green-light"
                       : "text-ink-200 hover:text-white",
+                );
+
+                if (!panelKey) {
+                  return (
+                    <Link
+                      key={route.key}
+                      href={localizedHref(locale, route.path)}
+                      className={itemClass}
+                      onMouseEnter={() => hoverPanel(null)}
+                      onFocus={() => setOpenPanel(null)}
+                    >
+                      {nav[route.key]}
+                    </Link>
+                  );
+                }
+
+                const expanded = openPanel === panelKey;
+                return (
+                  <button
+                    key={route.key}
+                    type="button"
+                    id={`mega-trigger-${panelKey}`}
+                    aria-expanded={expanded}
+                    aria-controls={`mega-panel-${panelKey}`}
+                    onMouseEnter={() => hoverPanel(panelKey)}
+                    onFocus={() => hoverPanel(panelKey)}
+                    onClick={() =>
+                      setOpenPanel((current) =>
+                        current === panelKey ? null : panelKey,
+                      )
+                    }
+                    className={cn(itemClass, expanded && "bg-brand-green/10")}
+                  >
+                    {nav[route.key]}
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 transition-transform duration-200",
+                        expanded && "rotate-180",
+                      )}
+                      aria-hidden
+                    />
+                  </button>
+                );
+              })}
+            </nav>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              <ThemeToggle label={themeLabel} tone={solid ? "light" : "dark"} />
+              {/* Oculto entre lg y xl: ahí la barra ya lleva 6 enlaces + CTA. */}
+              <div className="hidden sm:max-lg:block xl:block">
+                <LanguageSwitcher locale={locale} tone={solid ? "light" : "dark"} />
+              </div>
+              {/* El wrapper evita mezclar `hidden` con el `inline-flex` del
+                  botón: en móvil el CTA desbordaba la barra. */}
+              <div className="hidden sm:block">
+                <Link
+                  href={localizedHref(locale, "contacto")}
+                  className={buttonClasses("primary", "md")}
+                >
+                  {nav.cta}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+
+              {/* Botón menú móvil */}
+              <button
+                type="button"
+                onClick={() => setMobileOpen((value) => !value)}
+                aria-label={mobileOpen ? nav.closeMenu : nav.openMenu}
+                aria-expanded={mobileOpen}
+                aria-controls="mobile-menu"
+                className={cn(
+                  "inline-flex h-11 w-11 items-center justify-center rounded-full transition-colors lg:hidden",
+                  solid
+                    ? "text-navy-900 hover:bg-navy-900/5 dark:text-white dark:hover:bg-white/10"
+                    : "text-white hover:bg-white/10",
                 )}
               >
-                {nav[route.key]}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <ThemeToggle label={themeLabel} tone={solid ? "light" : "dark"} />
-            <div className="hidden sm:block">
-              <LanguageSwitcher locale={locale} tone={solid ? "light" : "dark"} />
+                {mobileOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
+              </button>
             </div>
-            <div className="hidden sm:block">
+          </div>
+        </Container>
+
+        {/* Paneles del mega menú (solo desktop) */}
+        {menu.map((panel) => (
+          <MegaPanel
+            key={panel.key}
+            panel={panel}
+            open={openPanel === panel.key}
+            onNavigate={() => setOpenPanel(null)}
+          />
+        ))}
+      </div>
+
+      {/* Menú móvil */}
+      <div
+        id="mobile-menu"
+        className={cn(
+          "overflow-hidden border-navy-900/10 bg-white transition-[max-height,opacity] duration-300 ease-in-out lg:hidden dark:border-white/10 dark:bg-navy-950",
+          mobileOpen
+            ? "max-h-[calc(100dvh-4.5rem)] border-t opacity-100"
+            : "max-h-0 border-t-0 opacity-0",
+        )}
+      >
+        <div className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain">
+          <Container className="py-4">
+            <nav className="flex flex-col gap-1">
+              {navRoutes.map((route) => {
+                const panelKey = panelForRoute[route.key];
+                const panel = panelKey
+                  ? menu.find((item) => item.key === panelKey)
+                  : undefined;
+                const active = isActive(route.path);
+
+                if (!panel) {
+                  return (
+                    <Link
+                      key={route.key}
+                      href={localizedHref(locale, route.path)}
+                      onClick={closeMobile}
+                      className={cn(
+                        "rounded-2xl px-4 py-3 text-base font-bold transition-colors",
+                        active
+                          ? "bg-brand-green/10 text-brand-green-dark dark:text-brand-green"
+                          : "text-navy-800 hover:bg-navy-900/5 dark:text-ink-200 dark:hover:bg-white/5",
+                      )}
+                    >
+                      {nav[route.key]}
+                    </Link>
+                  );
+                }
+
+                const expanded = mobileSection === panel.key;
+                return (
+                  <div key={route.key}>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setMobileSection((current) =>
+                          current === panel.key ? null : panel.key,
+                        )
+                      }
+                      aria-expanded={expanded}
+                      className={cn(
+                        "flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-base font-bold transition-colors",
+                        active || expanded
+                          ? "bg-brand-green/10 text-brand-green-dark dark:text-brand-green"
+                          : "text-navy-800 hover:bg-navy-900/5 dark:text-ink-200 dark:hover:bg-white/5",
+                      )}
+                    >
+                      {nav[route.key]}
+                      <ChevronDown
+                        className={cn(
+                          "h-5 w-5 shrink-0 transition-transform duration-200",
+                          expanded && "rotate-180",
+                        )}
+                        aria-hidden
+                      />
+                    </button>
+
+                    <div
+                      className={cn(
+                        "grid transition-all duration-300 ease-in-out",
+                        expanded
+                          ? "grid-rows-[1fr] opacity-100"
+                          : "grid-rows-[0fr] opacity-0",
+                      )}
+                    >
+                      <div className="overflow-hidden">
+                        <div className="space-y-4 px-1 pb-3 pt-2">
+                          {panel.columns.map((column) => (
+                            <div key={column.key}>
+                              <p className="px-3 text-[0.7rem] font-extrabold uppercase tracking-[0.14em] text-slate-400 dark:text-ink-400">
+                                {column.title}
+                              </p>
+                              <ul className="mt-1">
+                                {column.items.map((item) => (
+                                  <li key={item.href}>
+                                    <MenuLink
+                                      item={item}
+                                      onNavigate={closeMobile}
+                                      compact
+                                    />
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                          <Link
+                            href={panel.href}
+                            onClick={closeMobile}
+                            className="mx-3 inline-flex items-center gap-1.5 text-sm font-extrabold text-brand-blue dark:text-brand-blue-light"
+                          >
+                            {panel.viewAllLabel}
+                            <ArrowRight className="h-4 w-4" />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </nav>
+
+            <div className="mt-4 flex flex-col gap-3 border-t border-navy-900/10 pt-4 dark:border-white/10">
               <Link
                 href={localizedHref(locale, "contacto")}
-                className={buttonClasses("primary", "md")}
+                onClick={closeMobile}
+                className={buttonClasses("primary", "md", "w-full")}
               >
                 {nav.cta}
                 <ArrowRight className="h-4 w-4" />
               </Link>
+              <div className="flex items-center justify-between gap-3">
+                <LanguageSwitcher
+                  locale={locale}
+                  tone="light"
+                  onNavigate={closeMobile}
+                />
+                <a
+                  href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
+                  className="inline-flex h-11 items-center gap-2 rounded-full px-3 text-sm font-bold text-navy-800 transition-colors hover:text-brand-green-dark dark:text-ink-200 dark:hover:text-brand-green"
+                >
+                  <Phone className="h-4 w-4 text-brand-green" />
+                  {siteConfig.phoneDisplay}
+                </a>
+              </div>
             </div>
-
-            {/* Mobile toggle */}
-            <button
-              type="button"
-              onClick={() => setOpen((v) => !v)}
-              aria-label={open ? nav.closeMenu : nav.openMenu}
-              aria-expanded={open}
-              className={cn(
-                "inline-flex h-11 w-11 items-center justify-center rounded-full transition-colors lg:hidden",
-                solid
-                  ? "text-navy-900 hover:bg-navy-900/5 dark:text-white dark:hover:bg-white/10"
-                  : "text-white hover:bg-white/10",
-              )}
-            >
-              {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
+          </Container>
         </div>
-      </Container>
       </div>
+    </header>
+  );
+}
 
-      {/* Mobile menu */}
-      <div
-        className={cn(
-          "overflow-hidden border-t border-navy-900/10 bg-white lg:hidden dark:border-white/10 dark:bg-navy-950",
-          "transition-[max-height,opacity] duration-300 ease-in-out",
-          open ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0",
-        )}
-      >
-        <Container className="py-5">
-          <nav className="flex flex-col gap-1">
-            {navRoutes.map((route) => (
-              <Link
-                key={route.key}
-                href={localizedHref(locale, route.path)}
-                onClick={closeMenu}
-                className={cn(
-                  "rounded-xl px-4 py-3 text-base font-bold transition-colors",
-                  isActive(route.path)
-                    ? "bg-brand-green/10 text-brand-green-dark dark:text-brand-green"
-                    : "text-navy-800 hover:bg-navy-900/5 dark:text-ink-200 dark:hover:bg-white/5",
-                )}
-              >
-                {nav[route.key]}
-              </Link>
+function MegaPanel({
+  panel,
+  open,
+  onNavigate,
+}: {
+  panel: MenuPanel;
+  open: boolean;
+  onNavigate: () => void;
+}) {
+  return (
+    <div
+      id={`mega-panel-${panel.key}`}
+      aria-labelledby={`mega-trigger-${panel.key}`}
+      className={cn(
+        "absolute inset-x-0 top-full hidden transition-all duration-200 ease-out lg:block",
+        open
+          ? "visible translate-y-0 opacity-100"
+          : "pointer-events-none invisible -translate-y-2 opacity-0",
+      )}
+    >
+      <Container>
+        <div className="mt-2 max-h-[calc(100vh-8rem)] overflow-y-auto overscroll-contain rounded-3xl border border-navy-900/10 bg-white shadow-2xl shadow-navy-900/25 dark:border-white/10 dark:bg-navy-900">
+          <div className="grid gap-x-6 gap-y-7 p-6 lg:grid-cols-3 xl:grid-cols-[repeat(3,minmax(0,1fr))_18rem] xl:p-7">
+            {panel.columns.map((column) => (
+              <div key={column.key}>
+                <p className="px-2.5 text-[0.7rem] font-extrabold uppercase tracking-[0.14em] text-slate-400 dark:text-ink-400">
+                  {column.title}
+                </p>
+                <ul className="mt-2 space-y-0.5">
+                  {column.items.map((item) => (
+                    <li key={item.href}>
+                      <MenuLink item={item} onNavigate={onNavigate} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </nav>
-          <div className="mt-5 flex items-center justify-between gap-3">
-            <LanguageSwitcher
-              locale={locale}
-              tone="light"
-              onNavigate={closeMenu}
-            />
+
+            {/* Tarjeta destacada */}
+            <div className="relative overflow-hidden rounded-2xl bg-navy-950 p-6 lg:col-span-3 xl:col-span-1">
+              <div aria-hidden className="pointer-events-none absolute inset-0">
+                <div className="bg-grid absolute inset-0 opacity-30" />
+                <div className="absolute -right-8 -top-10 h-40 w-40 rounded-full bg-brand-green/25 blur-[70px]" />
+                <div className="absolute -bottom-10 -left-8 h-40 w-40 rounded-full bg-brand-blue/25 blur-[70px]" />
+              </div>
+              <div className="relative flex h-full flex-col">
+                <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[0.7rem] font-extrabold uppercase tracking-wide text-brand-green-light ring-1 ring-white/15">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  {panel.featured.eyebrow}
+                </span>
+                <p className="mt-4 text-lg font-extrabold leading-snug text-white">
+                  {panel.featured.title}
+                </p>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-300">
+                  {panel.featured.desc}
+                </p>
+                <Link
+                  href={panel.featured.ctaHref}
+                  onClick={onNavigate}
+                  className={buttonClasses("primary", "md", "mt-5 w-full")}
+                >
+                  {panel.featured.ctaLabel}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 border-t border-navy-900/10 bg-slate-50/80 px-7 py-4 dark:border-white/10 dark:bg-white/[0.03]">
+            <p className="text-sm text-slate-500 dark:text-ink-400">
+              {panel.tagline}
+            </p>
             <Link
-              href={localizedHref(locale, "contacto")}
-              onClick={closeMenu}
-              className={cn(buttonClasses("primary", "md"), "flex-1")}
+              href={panel.href}
+              onClick={onNavigate}
+              className="inline-flex shrink-0 items-center gap-1.5 text-sm font-extrabold text-brand-blue transition-colors hover:text-brand-green-dark dark:text-brand-blue-light dark:hover:text-brand-green"
             >
-              {nav.cta}
+              {panel.viewAllLabel}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-        </Container>
-      </div>
-    </header>
+        </div>
+      </Container>
+    </div>
+  );
+}
+
+function MenuLink({
+  item,
+  onNavigate,
+  compact = false,
+}: {
+  item: MenuItem;
+  onNavigate: () => void;
+  compact?: boolean;
+}) {
+  const Icon = iconRegistry[item.icon] ?? fallbackIcon;
+  const isGreen = item.accent === "green";
+
+  return (
+    <Link
+      href={item.href}
+      onClick={onNavigate}
+      className="group flex items-center gap-3 rounded-2xl p-2.5 transition-colors hover:bg-brand-green/[0.08] dark:hover:bg-white/5"
+    >
+      <span
+        className={cn(
+          "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-200",
+          isGreen
+            ? "bg-brand-green/12 text-brand-green-dark group-hover:bg-brand-green group-hover:text-navy-950 dark:bg-brand-green/15 dark:text-brand-green"
+            : "bg-brand-blue/12 text-brand-blue group-hover:bg-brand-blue group-hover:text-white dark:bg-brand-blue/20 dark:text-brand-blue-light",
+        )}
+      >
+        <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="text-sm font-extrabold leading-tight text-navy-900 dark:text-white">
+            {item.title}
+          </span>
+          {item.badge && (
+            <span className="shrink-0 rounded-full bg-brand-green/15 px-2 py-0.5 text-[0.62rem] font-extrabold uppercase tracking-wide text-brand-green-dark dark:text-brand-green">
+              {item.badge}
+            </span>
+          )}
+        </span>
+        <span
+          className={cn(
+            // sin `block`: chocaría con el display de line-clamp
+            "mt-0.5 text-xs leading-snug text-slate-500 dark:text-ink-400",
+            compact ? "line-clamp-1" : "line-clamp-2",
+          )}
+        >
+          {item.desc}
+        </span>
+      </span>
+    </Link>
   );
 }

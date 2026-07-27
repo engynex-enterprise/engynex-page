@@ -43,11 +43,15 @@ export function WhatsAppWidget({ chat }: { chat: Dictionary["chat"] }) {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end">
+    // pointer-events-none en el contenedor: con el chat cerrado, su caja
+    // (casi el ancho de la pantalla en móvil) interceptaba los toques sobre
+    // los enlaces y botones que quedaban debajo.
+    <div className="pointer-events-none fixed bottom-5 right-5 z-50 flex flex-col items-end">
       {/* Panel */}
       <div
         role="dialog"
         aria-label={chat.title}
+        aria-hidden={!open}
         className={cn(
           "mb-3 w-[calc(100vw-2.5rem)] max-w-sm origin-bottom-right overflow-hidden rounded-3xl border border-navy-900/10 bg-white shadow-2xl transition-all duration-300 dark:border-white/10 dark:bg-navy-900",
           open
@@ -154,7 +158,7 @@ export function WhatsAppWidget({ chat }: { chat: Dictionary["chat"] }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? chat.close : chat.open}
-        className="group relative inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl shadow-[#25D366]/30 transition-transform hover:scale-110"
+        className="group pointer-events-auto relative inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl shadow-[#25D366]/30 transition-transform hover:scale-110"
       >
         {!open && (
           <span className="absolute inline-flex h-14 w-14 animate-ping rounded-full bg-[#25D366]/40 [animation-duration:2.5s]" />

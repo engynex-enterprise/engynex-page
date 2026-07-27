@@ -1,13 +1,18 @@
 import { cn } from "@/lib/utils";
 import { Container } from "./Container";
 
-type Tone = "light" | "muted" | "dark" | "mesh";
+type Tone = "light" | "muted" | "dark" | "mesh" | "mesh-strong";
 
+/**
+ * Los tonos usan los tokens semánticos (`surface`, `body`…) definidos en
+ * globals.css, así que se adaptan al tema sin duplicar cada color con `dark:`.
+ */
 const toneClasses: Record<Tone, string> = {
-  light: "bg-white text-navy-900",
-  muted: "bg-slate-50 text-navy-900",
+  light: "bg-surface text-body",
+  muted: "bg-surface-soft text-body",
   dark: "bg-navy-950 text-ink-100",
-  mesh: "bg-mesh-soft text-navy-900",
+  mesh: "bg-mesh-soft text-body",
+  "mesh-strong": "bg-mesh text-body",
 };
 
 export function Section({

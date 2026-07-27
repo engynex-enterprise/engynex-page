@@ -9,6 +9,7 @@ import { WhatsAppWidget } from "@/components/WhatsAppWidget";
 import { locales, isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { siteConfig } from "@/lib/site";
+import { buildMegaMenu } from "@/lib/menu";
 
 // OpenDyslexic — títulos (lectura fácil, autoalojada).
 const opendyslexic = localFont({
@@ -111,6 +112,7 @@ export default async function LocaleLayout({
           locale={locale}
           nav={dict.nav}
           themeLabel={dict.common.toggleTheme}
+          menu={buildMegaMenu(locale)}
         />
         <main className="flex-1">{children}</main>
         <Footer locale={locale} dict={dict} />

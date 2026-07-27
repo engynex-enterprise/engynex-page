@@ -16,8 +16,11 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Button, ButtonExternal } from "@/components/ui/Button";
 import { Accordion } from "@/components/Accordion";
 import { ServiceIcon } from "@/components/ServiceIcon";
+import { PricingTable } from "@/components/PricingTable";
 import { CtaBand } from "@/components/sections/CtaBand";
 import { services, getService } from "@/content/services";
+import { servicePlans } from "@/content/pricing";
+import { extraServiceFaqs } from "@/content/faqs";
 import { getDictionary } from "@/i18n/dictionaries";
 import { locales, isLocale, type Locale } from "@/i18n/config";
 import { localizedHref, siteConfig } from "@/lib/site";
@@ -67,6 +70,9 @@ export default async function ServiceDetailPage({
   const isGreen = service.accent === "green";
   const index = services.findIndex((s) => s.slug === slug);
   const related = services.filter((s) => s.slug !== slug).slice(0, 3);
+  const plans = servicePlans[slug] ?? [];
+  // FAQs del servicio + las específicas adicionales; las comunes van aparte.
+  const faqs = [...copy.faqs, ...(extraServiceFaqs[slug]?.[locale] ?? [])];
 
   return (
     <>
@@ -368,16 +374,42 @@ export default async function ServiceDetailPage({
         </div>
       </Section>
 
+      {/* ============= PLANES Y PRECIOS ============= */}
+      {plans.length > 0 && (
+        <Section tone="mesh" id="planes">
+          <SectionHeading
+            eyebrow={t.plans.eyebrow}
+            title={t.plans.title}
+            subtitle={t.plans.subtitle}
+            className="mb-14"
+          />
+          <PricingTable
+            plans={plans}
+            locale={locale}
+            t={t.plans}
+            badges={dict.badges}
+            ctaHref={localizedHref(locale, "contacto")}
+            accent={service.accent}
+          />
+        </Section>
+      )}
+
       {/* ============= FAQ ============= */}
-      <Section tone="mesh">
+      <Section tone="light">
         <SectionHeading eyebrow="FAQ" title={t.detail.faqsTitle} className="mb-12" />
-        <div className="mx-auto max-w-3xl">
-          <Accordion items={copy.faqs} />
+        <div className="mx-auto max-w-3xl space-y-10">
+          <Accordion items={faqs} />
+          <div>
+            <h3 className="mb-4 text-lg font-extrabold text-navy-900 dark:text-white">
+              {t.commonFaqsTitle}
+            </h3>
+            <Accordion items={t.commonFaqs} />
+          </div>
         </div>
       </Section>
 
       {/* ============= RELATED ============= */}
-      <Section tone="light">
+      <Section tone="mesh">
         <SectionHeading eyebrow={t.hero.eyebrow} title={t.detail.relatedTitle} />
         <div className="mt-12 grid gap-6 sm:grid-cols-3">
           {related.map((s, i) => {

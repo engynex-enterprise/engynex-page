@@ -63,7 +63,7 @@ export function PortfolioGrid({
           return (
             <article
               key={project.slug}
-              className="group flex flex-col overflow-hidden rounded-3xl border border-navy-900/10 dark:border-white/10 bg-white dark:bg-navy-800 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-navy-900/10"
+              className="group flex flex-col overflow-hidden rounded-3xl border border-line bg-card shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-green/40 hover:shadow-card-hover"
             >
               {/* Imagen del proyecto */}
               <div className="relative aspect-[16/10] overflow-hidden">
@@ -86,17 +86,19 @@ export function PortfolioGrid({
                     {categoryLabels[project.category][locale]}
                   </span>
                 </div>
-                <span className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-navy-900 dark:text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                {/* El círculo es blanco en los dos temas: el icono debe ser
+                    oscuro siempre (antes en oscuro quedaba blanco sobre blanco). */}
+                <span className="absolute right-4 top-4 inline-flex h-9 w-9 translate-y-1 items-center justify-center rounded-full bg-white/90 text-navy-900 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                   <ArrowUpRight className="h-5 w-5" />
                 </span>
               </div>
 
               {/* Contenido */}
               <div className="flex flex-1 flex-col p-6">
-                <h3 className="text-xl font-extrabold text-navy-900 dark:text-white">
+                <h3 className="text-xl font-extrabold text-heading">
                   {copy.title}
                 </h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600 dark:text-ink-300">
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-body">
                   {copy.summary}
                 </p>
 
@@ -104,19 +106,19 @@ export function PortfolioGrid({
                   {project.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full bg-navy-900/5 dark:bg-white/5 px-2.5 py-1 text-xs font-semibold text-navy-600 dark:text-ink-300"
+                      className="rounded-full bg-surface-soft px-2.5 py-1 text-xs font-semibold text-body ring-1 ring-line"
                     >
                       {tag}
                     </span>
                   ))}
                 </div>
 
-                <div className="mt-5 flex items-center gap-2 border-t border-navy-900/10 dark:border-white/10 pt-4">
-                  <TrendingUp className="h-4 w-4 text-brand-green-dark dark:text-brand-green" />
-                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-ink-400">
+                <div className="mt-5 flex items-center gap-2 border-t border-line pt-4">
+                  <TrendingUp className="h-4 w-4 shrink-0 text-accent" />
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted">
                     {resultLabel}:
                   </span>
-                  <span className="text-sm font-extrabold text-navy-900 dark:text-white">
+                  <span className="text-sm font-extrabold text-heading">
                     {copy.result}
                   </span>
                 </div>
@@ -145,8 +147,8 @@ function FilterButton({
       className={cn(
         "rounded-full px-5 py-2 text-sm font-bold transition-all",
         active
-          ? "bg-navy-950 text-white shadow-md"
-          : "bg-navy-900/5 dark:bg-white/5 text-navy-700 dark:text-ink-200 hover:bg-navy-900/10 dark:hover:bg-white/10",
+          ? "bg-gradient-to-r from-brand-green to-brand-blue text-navy-950 shadow-md shadow-brand-blue/25"
+          : "bg-card text-body ring-1 ring-line hover:text-heading hover:ring-brand-green/50",
       )}
     >
       {children}

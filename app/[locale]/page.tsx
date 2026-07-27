@@ -1,17 +1,5 @@
 import Image from "next/image";
-import {
-  Users,
-  Cpu,
-  Target,
-  LifeBuoy,
-  Quote,
-  Star,
-  ArrowRight,
-  Clock,
-  ShieldCheck,
-  TrendingUp,
-  HeartHandshake,
-} from "lucide-react";
+import { Users, Cpu, Target, LifeBuoy, ArrowRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Section } from "@/components/ui/Section";
 import { Container } from "@/components/ui/Container";
@@ -21,16 +9,23 @@ import { Button } from "@/components/ui/Button";
 import { ServiceCard } from "@/components/ServiceCard";
 import { Counter } from "@/components/Counter";
 import { Decor } from "@/components/Decor";
-import { HomeHero } from "@/components/sections/HomeHero";
+import { HeroSlider } from "@/components/sections/HeroSlider";
 import { TechMarquee } from "@/components/sections/TechMarquee";
+import { TrustStrip } from "@/components/sections/TrustStrip";
 import { ClientLogos } from "@/components/sections/ClientLogos";
 import { Industries } from "@/components/sections/Industries";
 import { PortfolioPreview } from "@/components/sections/PortfolioPreview";
+import { ProductsPreview } from "@/components/sections/ProductsPreview";
+import { ProcessSection } from "@/components/sections/ProcessSection";
+import { StatsBand } from "@/components/sections/StatsBand";
+import { Testimonials } from "@/components/sections/Testimonials";
 import { CtaBand } from "@/components/sections/CtaBand";
 import { services } from "@/content/services";
+import { servicePlans, formatCOP } from "@/content/pricing";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { localizedHref } from "@/lib/site";
+import { buildHeroSlides } from "@/lib/heroSlides";
 
 const whyUsIcons = [Users, Cpu, Target, LifeBuoy];
 
@@ -43,40 +38,23 @@ export default async function HomePage({
   if (!isLocale(locale)) notFound();
   const dict = getDictionary(locale);
 
+  // Precio de arranque del plan web por suscripción (se lee de content/pricing).
+  const webSubscription = servicePlans["desarrollo-web"]?.[0];
+
   return (
     <>
-      <HomeHero locale={locale} dict={dict} />
+      <HeroSlider
+        slides={buildHeroSlides(locale)}
+        controls={dict.heroSlides.controls}
+      />
 
       <TechMarquee title={dict.techStrip.title} />
 
       {/* Barra de confianza (conversión) */}
-      <section className="border-b border-navy-900/10 bg-white py-10 dark:border-white/10 dark:bg-navy-950">
-        <Container>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {dict.trust.map((item, i) => {
-              const Icon = [Clock, ShieldCheck, TrendingUp, HeartHandshake][i];
-              return (
-                <div key={item.title} className="flex items-start gap-3.5">
-                  <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-green/12 text-brand-green-dark dark:bg-brand-green/15 dark:text-brand-green">
-                    <Icon className="h-5 w-5" strokeWidth={2} />
-                  </span>
-                  <div>
-                    <p className="font-extrabold text-navy-900 dark:text-white">
-                      {item.title}
-                    </p>
-                    <p className="mt-0.5 text-sm text-slate-600 dark:text-ink-300">
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Container>
-      </section>
+      <TrustStrip items={dict.trust} />
 
       {/* Logos de clientes */}
-      <ClientLogos clients={dict.clients} />
+      <ClientLogos clients={dict.clients} locale={locale} />
 
       {/* Servicios */}
       <Section tone="mesh" id="servicios" containerClassName="relative">
@@ -89,7 +67,7 @@ export default async function HomePage({
           />
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {services.slice(0, 6).map((service, i) => (
-              <Reveal key={service.slug} delay={(i % 3) * 80}>
+              <Reveal key={service.slug} delay={(i % 3) * 80} className="h-full">
                 <ServiceCard
                   service={service}
                   locale={locale}
@@ -110,6 +88,63 @@ export default async function HomePage({
           </div>
         </div>
       </Section>
+
+      {/* Productos listos para implementar */}
+      <ProductsPreview
+        locale={locale}
+        copy={dict.productsSection}
+        badges={dict.badges}
+      />
+
+      {/* Web por suscripción — plan destacado */}
+      {webSubscription?.price != null && (
+        <section className="bg-mesh-soft pb-20 sm:pb-24">
+          <Container>
+            <div className="relative overflow-hidden rounded-[2rem] bg-navy-950 px-6 py-10 sm:px-10 sm:py-12">
+              <div aria-hidden className="pointer-events-none absolute inset-0">
+                <div className="bg-grid absolute inset-0 opacity-25" />
+                <div className="absolute -left-10 top-0 h-64 w-64 rounded-full bg-brand-green/25 blur-[100px]" />
+                <div className="absolute -right-10 bottom-0 h-64 w-64 rounded-full bg-brand-blue/25 blur-[100px]" />
+              </div>
+              <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+                <div className="max-w-xl">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-brand-green/15 px-3 py-1 text-[0.7rem] font-extrabold uppercase tracking-[0.14em] text-brand-green-light ring-1 ring-brand-green/25">
+                    {dict.subscriptionBand.eyebrow}
+                  </span>
+                  <h2 className="mt-4 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+                    {dict.subscriptionBand.title}
+                  </h2>
+                  <p className="mt-3 leading-relaxed text-ink-300">
+                    {dict.subscriptionBand.desc}
+                  </p>
+                </div>
+                <div className="shrink-0 rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-center">
+                  <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-ink-400">
+                    {dict.subscriptionBand.priceLabel}
+                  </p>
+                  <p className="mt-1 text-4xl font-extrabold tracking-tight text-white">
+                    {formatCOP(webSubscription.price)}
+                  </p>
+                  <p className="text-xs font-semibold text-ink-400">
+                    {dict.subscriptionBand.priceNote}
+                  </p>
+                  <Button
+                    href={
+                      localizedHref(locale, "servicios/desarrollo-web") +
+                      "#planes"
+                    }
+                    variant="primary"
+                    className="mt-5 w-full"
+                  >
+                    {dict.subscriptionBand.cta}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Container>
+        </section>
+      )}
 
       {/* Por qué Engynex — con imagen real */}
       <Section tone="dark">
@@ -180,102 +215,19 @@ export default async function HomePage({
         resultLabel={dict.portfolioPage.resultLabel}
       />
 
-      {/* Proceso */}
-      <Section tone="mesh">
-        <SectionHeading
-          eyebrow={dict.process.eyebrow}
-          title={dict.process.title}
-          subtitle={dict.process.subtitle}
-        />
-        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {dict.process.steps.map((step, i) => (
-            <Reveal key={step.title} delay={(i % 4) * 80} className="relative">
-              <div className="flex items-center gap-4">
-                <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-green to-brand-blue text-lg font-extrabold text-navy-950 shadow-lg shadow-brand-blue/20">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                {i < dict.process.steps.length - 1 && (
-                  <span className="hidden h-px flex-1 bg-gradient-to-r from-navy-900/20 to-transparent lg:block" />
-                )}
-              </div>
-              <h3 className="mt-5 text-lg font-extrabold text-navy-900 dark:text-white">
-                {step.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-ink-300">
-                {step.description}
-              </p>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
+      {/* Cómo trabajamos — ruta del proceso */}
+      <ProcessSection process={dict.process} tone="muted" />
 
       {/* Cifras con contadores animados */}
-      <section className="relative overflow-hidden bg-navy-950 py-20 text-ink-100">
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          <Image
-            src="/images/cta-bg.jpg"
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover opacity-15"
-          />
-          <div className="absolute inset-0 bg-navy-950/70" />
-          <div className="absolute -left-10 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-brand-green/20 blur-[120px]" />
-          <div className="absolute -right-10 top-0 h-72 w-72 rounded-full bg-brand-blue/25 blur-[120px]" />
-        </div>
-        <Container className="relative">
-          <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
-            {dict.hero.stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-4xl font-extrabold text-gradient sm:text-5xl">
-                  <Counter value={stat.value} />
-                </p>
-                <p className="mt-2 text-sm font-semibold uppercase tracking-wide text-ink-300">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
+      <StatsBand
+        eyebrow={dict.statsBand.eyebrow}
+        title={dict.statsBand.title}
+        subtitle={dict.statsBand.subtitle}
+        stats={dict.statsBand.items}
+      />
 
       {/* Testimonios */}
-      <Section tone="mesh">
-        <SectionHeading
-          eyebrow={dict.testimonials.eyebrow}
-          title={dict.testimonials.title}
-        />
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {dict.testimonials.items.map((item, i) => (
-            <Reveal
-              key={item.name}
-              delay={(i % 3) * 80}
-              className="flex h-full flex-col rounded-3xl border border-navy-900/10 bg-white p-8 shadow-lg shadow-navy-900/5 dark:border-white/10 dark:bg-navy-800"
-            >
-              <div className="flex items-center justify-between">
-                <Quote className="h-9 w-9 text-brand-green" />
-                <div className="flex gap-0.5 text-brand-green">
-                  {Array.from({ length: 5 }).map((_, s) => (
-                    <Star key={s} className="h-4 w-4 fill-current" />
-                  ))}
-                </div>
-              </div>
-              <p className="mt-5 flex-1 text-base leading-relaxed text-navy-800 dark:text-ink-200">
-                “{item.quote}”
-              </p>
-              <div className="mt-6 flex items-center gap-3 border-t border-navy-900/10 dark:border-white/10 pt-5">
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue font-extrabold text-navy-950">
-                  {item.name.charAt(0)}
-                </span>
-                <div>
-                  <p className="font-extrabold text-navy-900 dark:text-white">{item.name}</p>
-                  <p className="text-sm text-slate-500 dark:text-ink-400">{item.role}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
+      <Testimonials testimonials={dict.testimonials} tone="light" />
 
       <CtaBand
         locale={locale}
