@@ -1,3 +1,6 @@
+import { Container } from "@/components/ui/Container";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { Reveal } from "@/components/ui/Reveal";
 import {
   Rocket,
   Smile,
@@ -5,11 +8,9 @@ import {
   CalendarCheck,
   type LucideIcon,
 } from "lucide-react";
-import { Container } from "@/components/ui/Container";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Reveal } from "@/components/ui/Reveal";
 import { Counter } from "@/components/Counter";
-import { Decor } from "@/components/Decor";
+import { Backdrop } from "@/components/ui/Backdrop";
+import { hue, hueAt } from "@/lib/accents";
 import { cn } from "@/lib/utils";
 
 const defaultIcons: LucideIcon[] = [Rocket, Smile, Layers, CalendarCheck];
@@ -22,91 +23,92 @@ export interface StatItem {
 }
 
 /**
- * Banda de cifras. Antes era una franja navy que rompía el ritmo del resto de
- * la página: ahora usa la malla suave de marca y tarjetas claras, con el número
- * como protagonista.
+ * Cifras en grande, sin tarjetas ni fondo de color.
+ *
+ * Antes eran cuatro tarjetas sobre una malla de degradados; el número se
+ * perdía entre el cromo. Ahora el número es la sección: tipografía enorme,
+ * separadores de un píxel y nada más.
  */
 export function StatsBand({
   eyebrow,
   title,
   subtitle,
   stats,
-  icons = defaultIcons,
   id,
   className,
+  tone = "light",
 }: {
   eyebrow?: string;
   title?: string;
   subtitle?: string;
   stats: readonly StatItem[];
-  icons?: LucideIcon[];
   id?: string;
   className?: string;
+  tone?: "light" | "muted";
 }) {
   return (
     <section
       id={id}
       className={cn(
-        "bg-mesh relative overflow-hidden py-20 sm:py-24",
+        "relative py-24 sm:py-32",
+        tone === "muted" ? "bg-surface-soft" : "bg-surface",
         className,
       )}
     >
-      <Decor className="opacity-70" />
-
+      <Backdrop variant="soft" />
       <Container className="relative">
         {title && (
-          <SectionHeading eyebrow={eyebrow} title={title} subtitle={subtitle} />
+          <SectionHeading
+            eyebrow={eyebrow}
+            title={title}
+            subtitle={subtitle}
+            align="left"
+            font="sans"
+            size="lg"
+          />
         )}
 
         <dl
           className={cn(
-            "grid gap-5 sm:grid-cols-2 lg:grid-cols-4",
-            title ? "mt-14" : "mt-0",
+            "grid gap-y-12 sm:grid-cols-2 lg:grid-cols-4",
+            title ? "mt-20" : "mt-0",
           )}
         >
           {stats.map((stat, i) => {
-            const Icon = icons[i % icons.length];
-            const isGreen = i % 2 === 0;
+            const Icon = defaultIcons[i % defaultIcons.length];
+            const c = hue[hueAt(i)];
             return (
-              <Reveal
-                key={stat.label}
-                delay={(i % 4) * 90}
-                className="group relative h-full overflow-hidden rounded-3xl border border-line bg-card p-7 shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-green/40 hover:shadow-card-hover"
-              >
-                {/* Filete superior de acento */}
-                <span
-                  aria-hidden
-                  className={cn(
-                    "absolute inset-x-0 top-0 h-1 origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100",
-                    isGreen
-                      ? "bg-gradient-to-r from-brand-green to-brand-green-light"
-                      : "bg-gradient-to-r from-brand-blue to-brand-blue-light",
-                  )}
-                />
-
-                <span
-                  className={cn(
-                    "inline-flex h-12 w-12 items-center justify-center rounded-2xl transition-colors duration-300",
-                    isGreen
-                      ? "bg-brand-green/12 text-accent group-hover:bg-brand-green group-hover:text-navy-950"
-                      : "bg-brand-blue/12 text-brand-blue group-hover:bg-brand-blue group-hover:text-white dark:text-brand-blue-light",
-                  )}
-                >
-                  <Icon className="h-6 w-6" strokeWidth={1.9} aria-hidden />
-                </span>
-
-                <dd className="text-gradient-ink mt-6 text-5xl font-extrabold leading-none tracking-tight sm:text-[3.25rem]">
-                  <Counter value={stat.value} />
-                </dd>
-                <dt className="mt-3 text-sm font-extrabold uppercase tracking-[0.1em] text-heading">
-                  {stat.label}
-                </dt>
-                {stat.detail && (
-                  <p className="mt-2 text-sm leading-snug text-body">
-                    {stat.detail}
-                  </p>
+            <Reveal
+              key={stat.label}
+              delay={(i % 4) * 90}
+              className={cn(
+                "group border-t-2 pt-7 transition-colors",
+                c.borderTop,
+                // Separador vertical entre columnas solo en pantallas anchas.
+                i > 0 && "lg:border-l lg:border-l-line lg:pl-8",
+              )}
+            >
+              <span
+                className={cn(
+                  "mb-6 inline-flex h-11 w-11 items-center justify-center rounded-2xl transition-colors duration-300",
+                  c.tile,
+                  c.tileHover,
                 )}
-              </Reveal>
+              >
+                <Icon className="h-5.5 w-5.5" strokeWidth={1.9} aria-hidden />
+              </span>
+              <dd className="font-sans text-[clamp(2.75rem,5vw,4rem)] font-extrabold leading-none tracking-[-0.04em] text-heading">
+                <Counter value={stat.value} />
+              </dd>
+              <dt className="mt-5 text-sm font-extrabold text-heading">
+                {stat.label}
+              </dt>
+              {stat.detail && (
+                <p className="mt-2 max-w-56 text-sm leading-snug text-body">
+                  {stat.detail}
+                </p>
+              )}
+            </Reveal>
             );
           })}
         </dl>

@@ -1,16 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, TrendingUp } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
-import { Button } from "@/components/ui/Button";
 import { projects, categoryLabels } from "@/content/portfolio";
 import { localizedHref } from "@/lib/site";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { cn } from "@/lib/utils";
 
+/**
+ * Portafolio: la imagen manda. Sin bordes, sin sombras y sin tarjeta: solo la
+ * fotografía en grande y el texto debajo, como una ficha de catálogo.
+ */
 export function PortfolioPreview({
   locale,
   featured,
@@ -28,69 +30,59 @@ export function PortfolioPreview({
         eyebrow={featured.eyebrow}
         title={featured.title}
         subtitle={featured.subtitle}
+        align="left"
+        font="sans"
+        size="lg"
+        action={
+          <Link
+            href={localizedHref(locale, "portafolio")}
+            className="group inline-flex items-center gap-2 text-base font-semibold text-heading underline-offset-8 transition-colors hover:text-accent hover:underline"
+          >
+            {featured.cta}
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+        }
       />
-      <div className="mt-14 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+
+      <div className="mt-14 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((project, i) => {
           const copy = project[locale];
           return (
-            <Reveal key={project.slug} delay={(i % 3) * 80} className="h-full">
+            <Reveal key={project.slug} delay={(i % 3) * 90} className="h-full">
               <Link
                 href={localizedHref(locale, "portafolio")}
-                className="group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-card shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-green/40 hover:shadow-card-hover"
+                className="group flex h-full flex-col"
               >
-                <div className="relative aspect-[16/10] overflow-hidden">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-surface-soft">
                   <Image
                     src={project.image}
                     alt={copy.title}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                   />
-                  <div
-                    className={cn(
-                      "absolute inset-0 bg-gradient-to-br opacity-50 mix-blend-multiply",
-                      project.gradient,
-                    )}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy-950/65 via-navy-950/10 to-transparent" />
-                  <span className="absolute left-5 top-5 rounded-full bg-navy-950/70 px-3 py-1 text-xs font-bold text-ink-100 backdrop-blur">
-                    {categoryLabels[project.category][locale]}
-                  </span>
-                  <span className="absolute right-4 top-4 inline-flex h-9 w-9 translate-y-1 items-center justify-center rounded-full bg-white/90 text-navy-900 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    <ArrowUpRight className="h-5 w-5" />
-                  </span>
                 </div>
-                <div className="flex flex-1 flex-col p-6">
-                  <h3 className="text-xl font-extrabold text-heading">
-                    {copy.title}
-                  </h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-body">
-                    {copy.summary}
-                  </p>
-                  <div className="mt-5 flex items-center gap-2 border-t border-line pt-4">
-                    <TrendingUp className="h-4 w-4 shrink-0 text-accent" />
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted">
-                      {resultLabel}:
-                    </span>
-                    <span className="text-sm font-extrabold text-heading">
-                      {copy.result}
-                    </span>
-                  </div>
-                </div>
+
+                <p className="mt-6 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-muted">
+                  {categoryLabels[project.category][locale]}
+                </p>
+                <h3 className="mt-3 flex items-start gap-2 font-sans text-xl font-extrabold tracking-[-0.02em] text-heading">
+                  {copy.title}
+                  <ArrowUpRight className="mt-0.5 h-5 w-5 shrink-0 text-muted transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-body">
+                  {copy.summary}
+                </p>
+                <p className="mt-5 border-t border-line pt-4 text-sm">
+                  <span className="text-muted">{resultLabel}: </span>
+                  <span className="font-extrabold text-heading">
+                    {copy.result}
+                  </span>
+                </p>
               </Link>
             </Reveal>
           );
         })}
-      </div>
-      <div className="mt-12 flex justify-center">
-        <Button
-          href={localizedHref(locale, "portafolio")}
-          variant="outline"
-          size="lg"
-        >
-          {featured.cta}
-          <ArrowRight className="h-5 w-5" />
-        </Button>
       </div>
     </Section>
   );

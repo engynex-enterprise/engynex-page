@@ -1,40 +1,62 @@
 import { Clock, ShieldCheck, TrendingUp, HeartHandshake } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { hue, hueAt } from "@/lib/accents";
 import { cn } from "@/lib/utils";
 
 const icons = [Clock, ShieldCheck, TrendingUp, HeartHandshake];
 
+/**
+ * Barra de confianza justo bajo el hero: cuatro argumentos con su icono a
+ * color y un filete superior del mismo tono.
+ */
 export function TrustStrip({
   items,
   tone = "light",
 }: {
   items: readonly { title: string; desc: string }[];
-  tone?: "light" | "mesh";
+  tone?: "light" | "muted";
 }) {
   return (
     <section
       className={cn(
-        "border-y border-line py-10",
-        tone === "mesh" ? "bg-mesh-soft" : "bg-surface",
+        "border-b border-line py-4",
+        tone === "muted" ? "bg-surface-soft" : "bg-surface",
       )}
     >
       <Container>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <dl className="grid gap-x-10 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((item, i) => {
             const Icon = icons[i % icons.length];
+            const c = hue[hueAt(i)];
             return (
-              <div key={item.title} className="group flex items-start gap-3.5">
-                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-green/12 text-accent transition-colors duration-300 group-hover:bg-brand-green group-hover:text-navy-950">
-                  <Icon className="h-5 w-5" strokeWidth={2} aria-hidden />
-                </span>
-                <div>
-                  <p className="font-extrabold text-heading">{item.title}</p>
-                  <p className="mt-0.5 text-sm text-body">{item.desc}</p>
+              <div key={item.title} className="group py-6 lg:py-7">
+                <span
+                  aria-hidden
+                  className={cn("mb-5 block h-0.5 w-10 rounded-full transition-all duration-300 group-hover:w-16", c.dot)}
+                />
+                <div className="flex items-start gap-3.5">
+                  <span
+                    className={cn(
+                      "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-300",
+                      c.tile,
+                      c.tileHover,
+                    )}
+                  >
+                    <Icon className="h-5 w-5" strokeWidth={2} aria-hidden />
+                  </span>
+                  <div>
+                    <dt className="text-sm font-extrabold text-heading">
+                      {item.title}
+                    </dt>
+                    <dd className="mt-1 text-sm leading-snug text-body">
+                      {item.desc}
+                    </dd>
+                  </div>
                 </div>
               </div>
             );
           })}
-        </div>
+        </dl>
       </Container>
     </section>
   );

@@ -11,6 +11,7 @@ import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import type { Dictionary } from "@/i18n/dictionaries";
+import { cn } from "@/lib/utils";
 
 const stepIcons: LucideIcon[] = [Compass, PenTool, Code2, Rocket];
 
@@ -23,10 +24,13 @@ export function ProcessSection({
   process,
   tone = "mesh",
   id,
+  /** `sans` alinea los titulares con el registro editorial del home. */
+  font = "display",
 }: {
   process: Dictionary["process"];
   tone?: "mesh" | "light" | "muted";
   id?: string;
+  font?: "display" | "sans";
 }) {
   const steps = process.steps;
   const last = steps.length - 1;
@@ -37,6 +41,8 @@ export function ProcessSection({
         eyebrow={process.eyebrow}
         title={process.title}
         subtitle={process.subtitle}
+        font={font}
+        size={font === "sans" ? "lg" : "md"}
       />
 
       <div className="relative mt-16 lg:mt-20">
@@ -105,7 +111,12 @@ export function ProcessSection({
                   <span className="relative inline-flex items-center rounded-full bg-accent-soft px-2.5 py-1 text-[0.62rem] font-extrabold uppercase tracking-[0.12em] text-accent">
                     {process.stepLabel} {i + 1}
                   </span>
-                  <h3 className="relative mt-3 text-lg font-extrabold text-heading">
+                  <h3
+                    className={cn(
+                      "relative mt-3 text-lg font-extrabold text-heading",
+                      font === "sans" && "font-sans tracking-[-0.015em]",
+                    )}
+                  >
                     {step.title}
                   </h3>
                   <p className="relative mt-2 text-sm leading-relaxed text-body">

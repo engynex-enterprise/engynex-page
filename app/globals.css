@@ -76,6 +76,17 @@
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
 
+  /* Acentos por categoría. Cada tono tiene su versión legible en claro y en
+     oscuro, así un icono ámbar no se pierde sobre fondo blanco. */
+  --color-hue-green: var(--hue-green);
+  --color-hue-blue: var(--hue-blue);
+  --color-hue-violet: var(--hue-violet);
+  --color-hue-teal: var(--hue-teal);
+  --color-hue-amber: var(--hue-amber);
+  --color-hue-rose: var(--hue-rose);
+  --color-hue-cyan: var(--hue-cyan);
+  --color-hue-indigo: var(--hue-indigo);
+
   --shadow-card: var(--shadow-card-value);
   --shadow-card-hover: var(--shadow-card-hover-value);
 }
@@ -225,6 +236,15 @@
   --accent: #4b8f26;
   --accent-soft: color-mix(in oklab, #70c13a 14%, transparent);
 
+  --hue-green: #4b8f26;
+  --hue-blue: #1e78e0;
+  --hue-violet: #6d28d9;
+  --hue-teal: #0f766e;
+  --hue-amber: #b45309;
+  --hue-rose: #be123c;
+  --hue-cyan: #0e7490;
+  --hue-indigo: #4338ca;
+
   /* Sombras: en claro se ven; en oscuro se sustituyen por halo/borde */
   --shadow-card-value: 0 1px 2px rgba(16, 17, 25, 0.04),
     0 8px 24px -14px rgba(16, 17, 25, 0.14);
@@ -251,6 +271,15 @@
 
   --accent: #8ed15c;
   --accent-soft: color-mix(in oklab, #70c13a 20%, transparent);
+
+  --hue-green: #8ed15c;
+  --hue-blue: #52a0f2;
+  --hue-violet: #a78bfa;
+  --hue-teal: #2dd4bf;
+  --hue-amber: #fbbf24;
+  --hue-rose: #fb7185;
+  --hue-cyan: #22d3ee;
+  --hue-indigo: #818cf8;
 
   /* En oscuro una sombra negra no se percibe: usamos borde luminoso + halo */
   --shadow-card-value: 0 0 0 1px rgba(255, 255, 255, 0.06),
@@ -471,6 +500,21 @@ h3:not(.font-sans),
       color-mix(in oklab, var(--color-brand-blue) 12%, transparent) 0px,
       transparent 48%
     );
+}
+
+/* Malla de puntos más fina, para capas decorativas sobre secciones claras */
+@utility bg-dots-fine {
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--color-navy-900) 10%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 16px 16px;
+}
+.dark .bg-dots-fine {
+  background-image: radial-gradient(
+    color-mix(in oklab, white 9%, transparent) 1px,
+    transparent 1px
+  );
 }
 
 /* Patrón de puntos sutil */

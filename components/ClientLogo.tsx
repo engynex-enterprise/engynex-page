@@ -103,11 +103,11 @@ export function ClientLogo({
 
   return (
     <span
-      className={cn("inline-flex items-center gap-2.5 text-xl", className)}
+      className={cn("inline-flex min-w-0 items-center gap-2.5 text-xl", className)}
       title={client.name}
     >
       <Mark mark={client.mark} initials={client.initials} />
-      <span className={cn("whitespace-nowrap", typeClasses[client.type])}>
+      <span className={cn("text-balance", typeClasses[client.type])}>
         {client.name}
       </span>
     </span>
