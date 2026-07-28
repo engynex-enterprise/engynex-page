@@ -320,11 +320,13 @@ function Slide({
         style={delay(1)}
         className={cn(
           anim,
-          "mt-7 max-w-4xl text-[clamp(2.4rem,6vw,4.75rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white",
+          "mt-7 max-w-4xl text-[clamp(1.85rem,3.9vw,3.15rem)] font-extrabold tracking-[-0.02em] text-white",
         )}
       >
         {slide.titleLead}{" "}
-        <span className="text-white/55">{slide.titleHighlight}</span>
+        {/* La parte destacada va en verde de marca (antes en gris): es lo que
+            diferencia un slide de otro de un vistazo. */}
+        <span className="text-brand-green">{slide.titleHighlight}</span>
       </h1>
 
       {/* Línea de apoyo */}
@@ -350,7 +352,7 @@ function Slide({
           <span className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             {slide.price.value}
           </span>
-          <span className="text-sm font-medium text-white/60">
+          <span className="text-sm font-semibold text-brand-green">
             {slide.price.note}
           </span>
         </p>

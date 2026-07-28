@@ -113,7 +113,7 @@ export function ServiceHero({
               </span>
             </div>
 
-            <h1 className="mt-7 text-[clamp(2.2rem,4.6vw,3.75rem)] font-extrabold leading-[1.05] tracking-[-0.025em] text-white">
+            <h1 className="mt-7 max-w-2xl text-[clamp(1.85rem,3.6vw,2.9rem)] font-extrabold tracking-[-0.02em] text-white">
               {copy.title}
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-300">
