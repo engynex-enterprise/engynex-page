@@ -19,11 +19,11 @@ export function TrustStrip({
   return (
     <section
       className={cn(
-        "border-b border-line py-4",
+        "relative isolate overflow-hidden border-b border-line py-4",
         tone === "muted" ? "bg-surface-soft" : "bg-surface",
       )}
     >
-      <Container>
+      <Container className="relative">
         <dl className="grid gap-x-10 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((item, i) => {
             const Icon = icons[i % icons.length];

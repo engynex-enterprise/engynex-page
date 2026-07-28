@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { BrandSwoosh, DotGrid } from "@/components/ui/Backdrop";
+import { ParallaxLayer } from "@/components/ui/Parallax";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { cn } from "@/lib/utils";
 
@@ -22,13 +23,15 @@ export function WhyEngynex({ whyUs }: { whyUs: Dictionary["whyUs"] }) {
   return (
     <section className="relative overflow-hidden bg-navy-950 py-24 text-ink-100 sm:py-32">
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <Image
-          src="/images/about-team.jpg"
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover opacity-[0.12]"
-        />
+        <ParallaxLayer distance={70}>
+          <Image
+            src="/images/about-team.jpg"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover opacity-[0.12]"
+          />
+        </ParallaxLayer>
         <div className="absolute inset-0 bg-gradient-to-b from-navy-950 via-navy-950/88 to-navy-950" />
         <div className="bg-grid absolute inset-0 opacity-30" />
         <div className="absolute -left-32 top-10 h-[26rem] w-[26rem] rounded-full bg-brand-green/12 blur-[140px]" />
@@ -46,8 +49,7 @@ export function WhyEngynex({ whyUs }: { whyUs: Dictionary["whyUs"] }) {
           subtitle={whyUs.subtitle}
           tone="dark"
           align="left"
-          font="sans"
-          size="lg"
+            size="lg"
         />
 
         <div className="mt-20 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
@@ -70,7 +72,7 @@ export function WhyEngynex({ whyUs }: { whyUs: Dictionary["whyUs"] }) {
                 >
                   <Icon className="h-6 w-6" strokeWidth={1.9} aria-hidden />
                 </span>
-                <h3 className="mt-5 font-sans text-lg font-extrabold tracking-[-0.015em] text-white">
+                <h3 className="mt-5 text-lg font-extrabold tracking-[-0.015em] text-white">
                   {item.title}
                 </h3>
                 <p className="mt-2.5 text-sm leading-relaxed text-ink-300">

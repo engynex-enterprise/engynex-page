@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Star } from "lucide-react";
+import Image from "next/image";
+import { Quote, Star } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Eyebrow } from "@/components/ui/SectionHeading";
+import { Backdrop } from "@/components/ui/Backdrop";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { cn } from "@/lib/utils";
@@ -12,12 +14,13 @@ import { cn } from "@/lib/utils";
 const ROTATE_MS = 8000;
 
 type Copy = Dictionary["testimonials"];
+type Item = Copy["items"][number];
 
 /**
- * Un solo testimonio a la vez, en tipografía grande y centrada.
+ * Un testimonio a la vez, con la foto del cliente y la cita en grande.
  *
- * Sin tarjetas ni panel lateral: la cita es la sección. Debajo, las iniciales
- * de cada cliente hacen de navegación, y la activa lleva el anillo de progreso.
+ * Debajo, los retratos de los demás hacen de navegación: el activo crece y
+ * lleva el anillo de progreso.
  */
 export function Testimonials({
   testimonials,
@@ -61,7 +64,13 @@ export function Testimonials({
   };
 
   return (
-    <Section tone={tone}>
+    <Section tone={tone} className="relative">
+      <Backdrop
+        variant="warm"
+        image="/images/about-team.jpg"
+        imageDistance={60}
+      />
+
       <div
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
@@ -74,7 +83,7 @@ export function Testimonials({
         <Eyebrow className="justify-center">{testimonials.eyebrow}</Eyebrow>
 
         {/* Citas apiladas en la misma celda: la altura la marca la más larga */}
-        <div className="mt-10 grid min-w-0 grid-cols-1">
+        <div className="mt-12 grid min-w-0 grid-cols-1">
           {items.map((item, i) => {
             const active = i === current;
             return (
@@ -83,19 +92,27 @@ export function Testimonials({
                 inert={!active}
                 aria-hidden={!active}
                 className={cn(
-                  "col-start-1 row-start-1 min-w-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                  "col-start-1 row-start-1 flex min-w-0 flex-col items-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]",
                   active
                     ? "translate-y-0 opacity-100"
                     : "pointer-events-none translate-y-3 opacity-0",
                 )}
               >
-                <blockquote>
-                  <p className="text-balance font-sans text-[clamp(1.5rem,3.1vw,2.5rem)] font-extrabold leading-[1.2] tracking-[-0.025em] text-heading">
+                {/* Retrato del cliente, con la comilla como sello */}
+                <div className="relative">
+                  <Avatar item={item} size="lg" />
+                  <span className="absolute -bottom-1 -right-1 grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue text-navy-950 ring-4 ring-surface">
+                    <Quote className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+                  </span>
+                </div>
+
+                <blockquote className="mt-9">
+                  <p className="text-balance text-[clamp(1.45rem,3vw,2.4rem)] font-extrabold leading-[1.2] tracking-[-0.025em] text-heading">
                     &ldquo;{item.quote}&rdquo;
                   </p>
                 </blockquote>
 
-                <figcaption className="mt-10 flex flex-col items-center gap-1.5">
+                <figcaption className="mt-8 flex flex-col items-center gap-1.5">
                   <span className="flex gap-0.5 text-brand-green">
                     {Array.from({ length: 5 }).map((_, s) => (
                       <Star
@@ -110,7 +127,7 @@ export function Testimonials({
                   </p>
                   <p className="text-sm text-muted">{item.role}</p>
                   {item.metric && (
-                    <p className="mt-3 text-sm font-extrabold text-accent">
+                    <p className="mt-4 inline-flex items-center rounded-full bg-accent-soft px-4 py-1.5 text-sm font-extrabold text-accent">
                       {item.metric}
                     </p>
                   )}
@@ -120,11 +137,11 @@ export function Testimonials({
           })}
         </div>
 
-        {/* Navegación: iniciales de cada cliente */}
+        {/* Navegación: los retratos del resto de clientes */}
         <div
           role="tablist"
           aria-label={testimonials.title}
-          className="mt-14 flex flex-wrap items-center justify-center gap-3"
+          className="mt-14 flex flex-wrap items-center justify-center gap-4"
         >
           {items.map((item, i) => {
             const active = i === current;
@@ -138,18 +155,18 @@ export function Testimonials({
                 title={`${item.name} · ${item.company ?? item.role}`}
                 onClick={() => goTo(i)}
                 className={cn(
-                  "relative grid h-11 w-11 place-items-center rounded-full text-xs font-extrabold transition-all duration-300",
+                  "relative rounded-full transition-all duration-300",
                   active
-                    ? "bg-gradient-to-br from-brand-green to-brand-blue text-navy-950"
-                    : "bg-surface-soft text-muted ring-1 ring-line hover:text-heading hover:ring-line-strong",
+                    ? "scale-110 ring-2 ring-brand-green ring-offset-4 ring-offset-surface"
+                    : "opacity-45 grayscale hover:scale-105 hover:opacity-90 hover:grayscale-0",
                 )}
               >
-                {initials(item.name)}
+                <Avatar item={item} />
                 {/* Riel de progreso del testimonio activo */}
                 {active && (
                   <span
                     aria-hidden
-                    className="absolute -bottom-3 left-1/2 block h-0.5 w-11 -translate-x-1/2 overflow-hidden rounded-full bg-line"
+                    className="absolute -bottom-5 left-1/2 block h-0.5 w-12 -translate-x-1/2 overflow-hidden rounded-full bg-line"
                   >
                     <span
                       key={current}
@@ -168,7 +185,7 @@ export function Testimonials({
           })}
         </div>
 
-        <p className="mt-12 text-sm text-muted">
+        <p className="mt-14 text-sm text-muted">
           <span className="font-extrabold text-heading">
             {testimonials.ratingValue}
           </span>{" "}
@@ -179,12 +196,45 @@ export function Testimonials({
   );
 }
 
-function initials(name: string) {
-  return name
+/**
+ * Retrato del cliente. Si aún no hay foto cargada, cae a un monograma con el
+ * degradado de marca en vez de dejar un hueco.
+ */
+function Avatar({ item, size = "md" }: { item: Item; size?: "md" | "lg" }) {
+  const dimension = size === "lg" ? 112 : 48;
+
+  if (item.avatar) {
+    return (
+      <Image
+        src={item.avatar}
+        alt={item.name}
+        width={dimension}
+        height={dimension}
+        className={cn(
+          "rounded-full object-cover",
+          size === "lg" ? "h-28 w-28 shadow-card" : "h-12 w-12",
+        )}
+      />
+    );
+  }
+
+  const initials = item.name
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0])
     .join("")
     .toUpperCase();
+
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "grid place-items-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue font-extrabold text-navy-950",
+        size === "lg" ? "h-28 w-28 text-3xl" : "h-12 w-12 text-sm",
+      )}
+    >
+      {initials}
+    </span>
+  );
 }

@@ -38,14 +38,17 @@ export function Industries({
   industries: Dictionary["industries"];
 }) {
   return (
-    <Section tone="muted" className="relative">
-      <Backdrop variant="warm" />
+    <Section tone="light" className="relative">
+      <Backdrop
+        variant="warm"
+        image="/images/svc-ecommerce.jpg"
+        imageDistance={70}
+      />
       <SectionHeading
         eyebrow={industries.eyebrow}
         title={industries.title}
         subtitle={industries.subtitle}
         align="left"
-        font="sans"
         size="lg"
       />
 
@@ -79,7 +82,7 @@ export function Industries({
               >
                 <Icon className="h-6 w-6" strokeWidth={1.9} aria-hidden />
               </span>
-              <p className="relative font-sans font-extrabold tracking-[-0.01em] text-heading">
+              <p className="relative font-extrabold tracking-[-0.01em] text-heading">
                 {item.name}
               </p>
             </Reveal>

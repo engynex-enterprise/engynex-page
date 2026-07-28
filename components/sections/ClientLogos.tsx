@@ -12,8 +12,8 @@ import type { Dictionary } from "@/i18n/dictionaries";
  */
 export function ClientLogos({ clients: copy }: { clients: Dictionary["clients"] }) {
   return (
-    <section className="border-b border-line bg-surface-soft py-16 sm:py-20">
-      <Container>
+    <section className="relative isolate overflow-hidden border-b border-line bg-surface-soft py-16 sm:py-20">
+      <Container className="relative">
         <p className="text-center text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-muted">
           {copy.title}
         </p>

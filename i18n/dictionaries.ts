@@ -251,6 +251,7 @@ const es = {
     subtitle:
       "Metodología ágil y transparente para que sepas exactamente en qué punto está tu proyecto.",
     stepLabel: "Etapa",
+    measureNote: "Medimos, ajustamos y volvemos a medir",
     steps: [
       {
         title: "Descubrimiento",
@@ -320,6 +321,7 @@ const es = {
         quote:
           "Engynex transformó nuestra operación con una plataforma que realmente entiende nuestro negocio. Profesionalismo total.",
         name: "Laura Gómez",
+        avatar: "/images/clients/laura-gomez.jpg",
         role: "COO, Nova Retail",
         company: "Nova Retail · Retail",
         metric: "+38% en pedidos en línea",
@@ -328,6 +330,7 @@ const es = {
         quote:
           "Del branding a la app, todo con una coherencia impecable. Se sienten parte de nuestro equipo.",
         name: "Andrés Martínez",
+        avatar: "/images/clients/andres-martinez.jpg",
         role: "CEO, Pulse Fitness",
         company: "Pulse Fitness · Bienestar",
         metric: "App con 4.8 en las tiendas",
@@ -336,6 +339,7 @@ const es = {
         quote:
           "Entregaron a tiempo, con calidad y con datos que respaldan cada decisión. Volveríamos sin dudarlo.",
         name: "Carolina Ruiz",
+        avatar: "/images/clients/carolina-ruiz.jpg",
         role: "Directora de Marketing, Vertex",
         company: "Vertex · Servicios",
         metric: "-45% en tiempo de reporte",
@@ -344,6 +348,7 @@ const es = {
         quote:
           "Renovamos 45 equipos sin descapitalizarnos y el soporte responde el mismo día. Dejamos de perder horas por computadores lentos.",
         name: "Diego Ramírez",
+        avatar: "/images/clients/diego-ramirez.jpg",
         role: "Gerente Administrativo",
         company: "Distribuciones Andina · Distribución",
         metric: "45 equipos renovados en 3 semanas",
@@ -351,7 +356,8 @@ const es = {
       {
         quote:
           "El POS por fin nos cuadró la caja de las cinco sedes. Antes cerrábamos con diferencias todas las semanas.",
-        name: "Paula Restrepo",
+        name: "Julián Restrepo",
+        avatar: "/images/clients/julian-restrepo.jpg",
         role: "Directora de Operaciones",
         company: "Hotel Casa Bolívar · Hotelería",
         metric: "Cuadre de caja del 100%",
@@ -996,6 +1002,7 @@ const en = {
     subtitle:
       "An agile, transparent methodology so you always know exactly where your project stands.",
     stepLabel: "Stage",
+    measureNote: "We measure, adjust and measure again",
     steps: [
       {
         title: "Discovery",
@@ -1065,6 +1072,7 @@ const en = {
         quote:
           "Engynex transformed our operation with a platform that truly understands our business. Total professionalism.",
         name: "Laura Gómez",
+        avatar: "/images/clients/laura-gomez.jpg",
         role: "COO, Nova Retail",
         company: "Nova Retail · Retail",
         metric: "+38% in online orders",
@@ -1073,6 +1081,7 @@ const en = {
         quote:
           "From branding to the app, everything with flawless consistency. They feel like part of our team.",
         name: "Andrés Martínez",
+        avatar: "/images/clients/andres-martinez.jpg",
         role: "CEO, Pulse Fitness",
         company: "Pulse Fitness · Wellness",
         metric: "App rated 4.8 in the stores",
@@ -1081,6 +1090,7 @@ const en = {
         quote:
           "Delivered on time, with quality and data backing every decision. We'd do it again without hesitation.",
         name: "Carolina Ruiz",
+        avatar: "/images/clients/carolina-ruiz.jpg",
         role: "Marketing Director, Vertex",
         company: "Vertex · Services",
         metric: "-45% in reporting time",
@@ -1089,6 +1099,7 @@ const en = {
         quote:
           "We refreshed 45 machines without tying up capital, and support answers the same day. We stopped losing hours to slow computers.",
         name: "Diego Ramírez",
+        avatar: "/images/clients/diego-ramirez.jpg",
         role: "Administrative Manager",
         company: "Distribuciones Andina · Distribution",
         metric: "45 devices refreshed in 3 weeks",
@@ -1096,7 +1107,8 @@ const en = {
       {
         quote:
           "The POS finally balanced the cash across our five locations. We used to close with discrepancies every week.",
-        name: "Paula Restrepo",
+        name: "Julián Restrepo",
+        avatar: "/images/clients/julian-restrepo.jpg",
         role: "Operations Director",
         company: "Hotel Casa Bolívar · Hospitality",
         metric: "100% cash reconciliation",

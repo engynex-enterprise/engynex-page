@@ -1,5 +1,6 @@
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { Backdrop } from "@/components/ui/Backdrop";
 import { TechLogo } from "@/components/TechLogo";
 import { technologies } from "@/content/tech";
 
@@ -11,8 +12,11 @@ import { technologies } from "@/content/tech";
  */
 export function TechStrip({ title }: { title: string }) {
   return (
-    <section className="relative border-y border-line bg-surface py-14 sm:py-16">
-      <Container>
+    <section className="relative isolate overflow-hidden border-y border-line bg-surface-soft py-14 sm:py-16">
+      <Backdrop
+        variant="grid"
+      />
+      <Container className="relative">
         <p className="text-center text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-muted">
           {title}
         </p>

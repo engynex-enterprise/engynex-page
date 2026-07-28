@@ -10,7 +10,7 @@ import { ProductsPreview } from "@/components/sections/ProductsPreview";
 import { WhyEngynex } from "@/components/sections/WhyEngynex";
 import { StatsBand } from "@/components/sections/StatsBand";
 import { PortfolioPreview } from "@/components/sections/PortfolioPreview";
-import { ProcessSection } from "@/components/sections/ProcessSection";
+import { ProcessShowcase } from "@/components/sections/ProcessShowcase";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { CtaBand } from "@/components/sections/CtaBand";
 import { servicePlans } from "@/content/pricing";
@@ -83,6 +83,7 @@ export default async function HomePage({
         title={dict.statsBand.title}
         subtitle={dict.statsBand.subtitle}
         stats={dict.statsBand.items}
+        tone="muted"
       />
 
       <PortfolioPreview
@@ -91,7 +92,7 @@ export default async function HomePage({
         resultLabel={dict.portfolioPage.resultLabel}
       />
 
-      <ProcessSection process={dict.process} tone="muted" font="sans" />
+      <ProcessShowcase process={dict.process} />
 
       <Testimonials testimonials={dict.testimonials} tone="light" />
 

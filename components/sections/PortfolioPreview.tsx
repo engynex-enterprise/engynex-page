@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
+import { ParallaxLayer } from "@/components/ui/Parallax";
 import { projects, categoryLabels } from "@/content/portfolio";
 import { localizedHref } from "@/lib/site";
 import type { Locale } from "@/i18n/config";
@@ -25,13 +26,12 @@ export function PortfolioPreview({
   const items = projects.slice(0, 3);
 
   return (
-    <Section tone="light">
+    <Section tone="light" className="relative">
       <SectionHeading
         eyebrow={featured.eyebrow}
         title={featured.title}
         subtitle={featured.subtitle}
         align="left"
-        font="sans"
         size="lg"
         action={
           <Link
@@ -54,19 +54,21 @@ export function PortfolioPreview({
                 className="group flex h-full flex-col"
               >
                 <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-surface-soft">
-                  <Image
-                    src={project.image}
-                    alt={copy.title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  />
+                  <ParallaxLayer distance={26}>
+                    <Image
+                      src={project.image}
+                      alt={copy.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                    />
+                  </ParallaxLayer>
                 </div>
 
                 <p className="mt-6 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-muted">
                   {categoryLabels[project.category][locale]}
                 </p>
-                <h3 className="mt-3 flex items-start gap-2 font-sans text-xl font-extrabold tracking-[-0.02em] text-heading">
+                <h3 className="mt-3 flex items-start gap-2 text-xl font-extrabold tracking-[-0.02em] text-heading">
                   {copy.title}
                   <ArrowUpRight className="mt-0.5 h-5 w-5 shrink-0 text-muted transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
                 </h3>

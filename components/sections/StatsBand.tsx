@@ -50,12 +50,16 @@ export function StatsBand({
     <section
       id={id}
       className={cn(
-        "relative py-24 sm:py-32",
+        "relative isolate overflow-hidden py-24 sm:py-32",
         tone === "muted" ? "bg-surface-soft" : "bg-surface",
         className,
       )}
     >
-      <Backdrop variant="soft" />
+      <Backdrop
+        variant="soft"
+        image="/images/about-office.jpg"
+        imageDistance={65}
+      />
       <Container className="relative">
         {title && (
           <SectionHeading
@@ -63,8 +67,7 @@ export function StatsBand({
             title={title}
             subtitle={subtitle}
             align="left"
-            font="sans"
-            size="lg"
+                size="lg"
           />
         )}
 
@@ -97,7 +100,7 @@ export function StatsBand({
               >
                 <Icon className="h-5.5 w-5.5" strokeWidth={1.9} aria-hidden />
               </span>
-              <dd className="font-sans text-[clamp(2.75rem,5vw,4rem)] font-extrabold leading-none tracking-[-0.04em] text-heading">
+              <dd className="text-[clamp(2.75rem,5vw,4rem)] font-extrabold leading-none tracking-[-0.04em] text-heading">
                 <Counter value={stat.value} />
               </dd>
               <dt className="mt-5 text-sm font-extrabold text-heading">

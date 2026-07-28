@@ -2,6 +2,7 @@ import { ArrowRight, Check } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/SectionHeading";
+import { Backdrop } from "@/components/ui/Backdrop";
 import { formatCOP, type Plan } from "@/content/pricing";
 import { localizedHref } from "@/lib/site";
 import type { Locale } from "@/i18n/config";
@@ -28,12 +29,15 @@ export function SubscriptionBand({
   const features = plan[locale].features.slice(0, 4);
 
   return (
-    <section className="border-y border-line bg-surface py-24 sm:py-28">
-      <Container>
+    <section className="relative isolate overflow-hidden border-y border-line bg-surface-soft py-24 sm:py-28">
+      <Backdrop
+        variant="soft"
+      />
+      <Container className="relative">
         <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-24">
           <div>
             <Eyebrow>{copy.eyebrow}</Eyebrow>
-            <h2 className="mt-5 text-balance font-sans text-[clamp(1.9rem,3.4vw,2.9rem)] font-extrabold leading-[1.06] tracking-[-0.028em] text-heading">
+            <h2 className="mt-5 text-balance text-[clamp(1.9rem,3.4vw,2.9rem)] font-extrabold leading-[1.06] tracking-[-0.028em] text-heading">
               {copy.title}
             </h2>
             <p className="mt-5 max-w-md text-lg leading-relaxed text-body">
@@ -44,7 +48,7 @@ export function SubscriptionBand({
               <span className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-muted">
                 {fromLabel}
               </span>
-              <span className="font-sans text-[clamp(2.5rem,5vw,4rem)] font-extrabold leading-none tracking-[-0.04em] text-heading">
+              <span className="text-[clamp(2.5rem,5vw,4rem)] font-extrabold leading-none tracking-[-0.04em] text-heading">
                 {formatCOP(plan.price)}
               </span>
               <span className="text-sm font-semibold text-muted">
@@ -68,7 +72,7 @@ export function SubscriptionBand({
             {features.map((feature) => (
               <li
                 key={feature}
-                className="flex items-start gap-3.5 bg-surface px-6 py-5"
+                className="flex items-start gap-3.5 bg-card px-6 py-5"
               >
                 <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-green/15 text-accent">
                   <Check className="h-3 w-3" strokeWidth={3} aria-hidden />

@@ -114,7 +114,7 @@ export function ProcessSection({
                   <h3
                     className={cn(
                       "relative mt-3 text-lg font-extrabold text-heading",
-                      font === "sans" && "font-sans tracking-[-0.015em]",
+                      font === "sans" && "tracking-[-0.015em]",
                     )}
                   >
                     {step.title}

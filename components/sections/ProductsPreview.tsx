@@ -30,14 +30,15 @@ export function ProductsPreview({
   const productsHref = localizedHref(locale, "productos");
 
   return (
-    <Section tone="muted" className="relative">
-      <Backdrop variant="cool" />
+    <Section tone="light" className="relative">
+      <Backdrop
+        variant="cool"
+      />
       <SectionHeading
         eyebrow={copy.eyebrow}
         title={copy.title}
         subtitle={copy.subtitle}
         align="left"
-        font="sans"
         size="lg"
         action={
           <Link

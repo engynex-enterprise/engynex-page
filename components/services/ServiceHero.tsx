@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, ShieldCheck } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
+import { ParallaxLayer } from "@/components/ui/Parallax";
 import { buttonClasses } from "@/components/ui/Button";
 import { ServiceIcon } from "@/components/ServiceIcon";
 import type { Service } from "@/content/services";
@@ -51,14 +52,16 @@ export function ServiceHero({
       <div aria-hidden className="pointer-events-none absolute inset-0">
         {/* En las familias con foto, la imagen del servicio tiñe el fondo. */}
         {(family === "build" || family === "creative") && (
-          <Image
-            src={service.image}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover opacity-15"
-          />
+          <ParallaxLayer distance={60}>
+            <Image
+              src={service.image}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover opacity-15"
+            />
+          </ParallaxLayer>
         )}
         <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/92 to-navy-950/70" />
         <div
@@ -110,7 +113,7 @@ export function ServiceHero({
               </span>
             </div>
 
-            <h1 className="mt-7 font-sans text-[clamp(2.2rem,4.6vw,3.75rem)] font-extrabold leading-[1.05] tracking-[-0.025em] text-white">
+            <h1 className="mt-7 text-[clamp(2.2rem,4.6vw,3.75rem)] font-extrabold leading-[1.05] tracking-[-0.025em] text-white">
               {copy.title}
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-300">

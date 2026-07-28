@@ -1,14 +1,22 @@
+import Image from "next/image";
+import { ParallaxLayer } from "@/components/ui/Parallax";
 import { cn } from "@/lib/utils";
 
 /**
- * Capa decorativa de sección: halos de color difuminados, malla de puntos y,
- * opcionalmente, un trazo vectorial de marca.
+ * Capa decorativa de sección: fotografía de fondo con parallax, halos de color
+ * difuminados y malla de puntos.
  *
  * Va dentro de una sección con `position: relative` y siempre por detrás del
  * contenido (`-z-10`), así que nunca intercepta clics.
+ *
+ * La fotografía se mantiene en una opacidad muy baja y además lleva una máscara
+ * radial que la desvanece en el centro: la textura se ve en los márgenes y la
+ * zona donde va el texto queda limpia, sin comprometer el contraste.
  */
 export function Backdrop({
   variant = "soft",
+  image,
+  imageDistance = 70,
   className,
 }: {
   /**
@@ -18,6 +26,10 @@ export function Backdrop({
    * `grid`  solo la malla de puntos, sin halos.
    */
   variant?: "soft" | "warm" | "cool" | "grid";
+  /** Fotografía de fondo (ruta dentro de /public). */
+  image?: string;
+  /** Recorrido del parallax de la fotografía, en píxeles. */
+  imageDistance?: number;
   className?: string;
 }) {
   return (
@@ -28,27 +40,39 @@ export function Backdrop({
         className,
       )}
     >
+      {image && (
+        <ParallaxLayer distance={imageDistance}>
+          <Image
+            src={image}
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover opacity-[0.07] [mask-image:radial-gradient(ellipse_at_center,transparent_18%,black_78%)] dark:opacity-[0.13]"
+          />
+        </ParallaxLayer>
+      )}
+
       {/* Malla de puntos, desvanecida hacia los bordes */}
-      <div className="bg-dots-fine absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
+      <div className="bg-dots-fine absolute inset-0 opacity-80 [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
 
       {variant === "soft" && (
         <>
-          <div className="absolute -left-32 -top-24 h-[28rem] w-[28rem] rounded-full bg-hue-green/12 blur-[130px]" />
-          <div className="absolute -right-40 top-1/3 h-[26rem] w-[26rem] rounded-full bg-hue-blue/12 blur-[130px]" />
+          <div className="absolute -left-32 -top-24 h-[28rem] w-[28rem] rounded-full bg-hue-green/16 blur-[130px]" />
+          <div className="absolute -right-40 top-1/3 h-[26rem] w-[26rem] rounded-full bg-hue-blue/16 blur-[130px]" />
         </>
       )}
 
       {variant === "warm" && (
         <>
-          <div className="absolute -left-40 top-0 h-[26rem] w-[26rem] rounded-full bg-hue-amber/12 blur-[130px]" />
-          <div className="absolute -right-32 bottom-0 h-[26rem] w-[26rem] rounded-full bg-hue-rose/12 blur-[130px]" />
+          <div className="absolute -left-40 top-0 h-[26rem] w-[26rem] rounded-full bg-hue-amber/16 blur-[130px]" />
+          <div className="absolute -right-32 bottom-0 h-[26rem] w-[26rem] rounded-full bg-hue-rose/16 blur-[130px]" />
         </>
       )}
 
       {variant === "cool" && (
         <>
-          <div className="absolute -left-32 bottom-0 h-[26rem] w-[26rem] rounded-full bg-hue-violet/12 blur-[130px]" />
-          <div className="absolute -right-32 -top-20 h-[26rem] w-[26rem] rounded-full bg-hue-cyan/12 blur-[130px]" />
+          <div className="absolute -left-32 bottom-0 h-[26rem] w-[26rem] rounded-full bg-hue-violet/16 blur-[130px]" />
+          <div className="absolute -right-32 -top-20 h-[26rem] w-[26rem] rounded-full bg-hue-cyan/16 blur-[130px]" />
         </>
       )}
     </div>

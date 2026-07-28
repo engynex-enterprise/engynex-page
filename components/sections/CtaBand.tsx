@@ -36,7 +36,7 @@ export function CtaBand({
 
       <Container className="relative">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-balance font-sans text-[clamp(2rem,4.4vw,3.5rem)] font-extrabold leading-[1.04] tracking-[-0.03em] text-white">
+          <h2 className="text-balance text-[clamp(2rem,4.4vw,3.5rem)] font-extrabold leading-[1.04] tracking-[-0.03em] text-white">
             {title}
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-white/60">

@@ -35,13 +35,14 @@ export function ServicesBento({
 
   return (
     <Section tone="light" id="servicios" className="relative">
-      <Backdrop variant="soft" />
+      <Backdrop
+        variant="soft"
+      />
       <SectionHeading
         eyebrow={copy.eyebrow}
         title={copy.title}
         subtitle={copy.subtitle}
         align="left"
-        font="sans"
         size="lg"
         action={
           <Link
@@ -92,7 +93,7 @@ export function ServicesBento({
                   >
                     <ServiceIcon name={service.icon} className="h-6 w-6" />
                   </span>
-                  <h3 className="font-sans text-2xl font-extrabold tracking-[-0.02em] text-heading sm:text-3xl">
+                  <h3 className="text-2xl font-extrabold tracking-[-0.02em] text-heading sm:text-3xl">
                     {c.title}
                   </h3>
                   <p className="max-w-md leading-relaxed text-body">
@@ -142,7 +143,7 @@ export function ServicesBento({
                 >
                   <ServiceIcon name={service.icon} className="h-5.5 w-5.5" />
                 </span>
-                <h3 className="relative mt-1 font-sans text-lg font-extrabold tracking-[-0.015em] text-heading">
+                <h3 className="relative mt-1 text-lg font-extrabold tracking-[-0.015em] text-heading">
                   {c.title}
                 </h3>
                 <p className="relative flex-1 text-sm leading-relaxed text-body">

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { ParallaxLayer } from "@/components/ui/Parallax";
 import { buttonClasses } from "@/components/ui/Button";
 import type { HeroSlide } from "@/lib/heroSlides";
 import { useReducedMotion } from "@/lib/useReducedMotion";
@@ -97,6 +98,9 @@ export function HeroSlider({
     >
       {/* Fotografía a sangre con fundido cruzado y zoom lento */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
+        {/* Una sola capa de parallax para las cinco fotos: se desplazan algo
+            más lento que la página mientras el hero sale de pantalla. */}
+        <ParallaxLayer distance={80}>
         {slides.map((slide, i) => (
           <div
             key={slide.key}
@@ -123,8 +127,9 @@ export function HeroSlider({
             />
           </div>
         ))}
+        </ParallaxLayer>
 
-        {/* Un único velo direccional: legibilidad sin ensuciar la foto. */}
+        {/* Los velos no se mueven: si lo hicieran, se verían los bordes. */}
         <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/85 to-navy-950/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/20 to-navy-950/55" />
       </div>
@@ -315,7 +320,7 @@ function Slide({
         style={delay(1)}
         className={cn(
           anim,
-          "mt-7 max-w-4xl font-sans text-[clamp(2.4rem,6vw,4.75rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white",
+          "mt-7 max-w-4xl text-[clamp(2.4rem,6vw,4.75rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white",
         )}
       >
         {slide.titleLead}{" "}
