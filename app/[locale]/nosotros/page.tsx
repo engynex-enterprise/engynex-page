@@ -81,7 +81,7 @@ export default async function AboutPage({
               <div className="absolute inset-0 bg-gradient-to-t from-navy-950/40 to-transparent" />
             </div>
             <div className="glass absolute -bottom-6 left-6 right-6 rounded-2xl p-5 sm:left-auto sm:right-6 sm:w-64">
-              <p className="text-3xl font-extrabold text-heading">
+              <p className="font-display text-3xl font-extrabold text-heading">
                 <Counter value="98%" />
               </p>
               <p className="text-sm font-semibold text-muted">

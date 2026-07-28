@@ -200,6 +200,8 @@ const es = {
     subtitle:
       "Marcas grandes y negocios que están creciendo: todos necesitan que la tecnología funcione. Estas son algunas con las que hemos trabajado.",
     note: "Y más de 80 empresas en Colombia y Latinoamérica.",
+    count: "+80",
+    countLabel: "empresas atendidas en Colombia y Latinoamérica",
   },
   industries: {
     eyebrow: "Industrias",
@@ -207,14 +209,46 @@ const es = {
     subtitle:
       "Entendemos los retos de cada industria y creamos soluciones a su medida.",
     items: [
-      { name: "Retail & Consumo", icon: "ShoppingBag" },
-      { name: "Salud", icon: "HeartPulse" },
-      { name: "Educación", icon: "GraduationCap" },
-      { name: "Fintech & Banca", icon: "Landmark" },
-      { name: "Inmobiliario", icon: "Building2" },
-      { name: "Logística", icon: "Truck" },
-      { name: "Turismo & Hotelería", icon: "Plane" },
-      { name: "Gastronomía", icon: "UtensilsCrossed" },
+      {
+        name: "Retail & Consumo",
+        icon: "ShoppingBag",
+        desc: "Tienda en línea, POS e inventario hablando entre sí.",
+      },
+      {
+        name: "Salud",
+        icon: "HeartPulse",
+        desc: "Agenda de citas, historia clínica y recordatorios.",
+      },
+      {
+        name: "Educación",
+        icon: "GraduationCap",
+        desc: "Matrículas, notas y portal para acudientes.",
+      },
+      {
+        name: "Fintech & Banca",
+        icon: "Landmark",
+        desc: "Integración de pagos, seguridad y trazabilidad.",
+      },
+      {
+        name: "Inmobiliario",
+        icon: "Building2",
+        desc: "Portales de propiedades y CRM de prospectos.",
+      },
+      {
+        name: "Logística",
+        icon: "Truck",
+        desc: "Rutas, trazabilidad y control de flota.",
+      },
+      {
+        name: "Turismo & Hotelería",
+        icon: "Plane",
+        desc: "Reservas en línea y gestión de disponibilidad.",
+      },
+      {
+        name: "Gastronomía",
+        icon: "UtensilsCrossed",
+        desc: "POS, domicilios y pedidos por WhatsApp.",
+      },
     ],
   },
   whyUs: {
@@ -951,6 +985,8 @@ const en = {
     subtitle:
       "Large brands and growing businesses: they all need technology that works. These are some of the ones we've worked with.",
     note: "Plus more than 80 companies across Colombia and Latin America.",
+    count: "+80",
+    countLabel: "companies served across Colombia and Latin America",
   },
   industries: {
     eyebrow: "Industries",
@@ -958,14 +994,46 @@ const en = {
     subtitle:
       "We understand the challenges of each industry and build tailored solutions.",
     items: [
-      { name: "Retail & Consumer", icon: "ShoppingBag" },
-      { name: "Healthcare", icon: "HeartPulse" },
-      { name: "Education", icon: "GraduationCap" },
-      { name: "Fintech & Banking", icon: "Landmark" },
-      { name: "Real Estate", icon: "Building2" },
-      { name: "Logistics", icon: "Truck" },
-      { name: "Travel & Hospitality", icon: "Plane" },
-      { name: "Food & Restaurants", icon: "UtensilsCrossed" },
+      {
+        name: "Retail & Consumer",
+        icon: "ShoppingBag",
+        desc: "Online store, POS and inventory talking to each other.",
+      },
+      {
+        name: "Healthcare",
+        icon: "HeartPulse",
+        desc: "Appointment booking, patient records and reminders.",
+      },
+      {
+        name: "Education",
+        icon: "GraduationCap",
+        desc: "Enrollment, grades and a portal for guardians.",
+      },
+      {
+        name: "Fintech & Banking",
+        icon: "Landmark",
+        desc: "Payment integration, security and traceability.",
+      },
+      {
+        name: "Real Estate",
+        icon: "Building2",
+        desc: "Property portals and lead management CRM.",
+      },
+      {
+        name: "Logistics",
+        icon: "Truck",
+        desc: "Routing, traceability and fleet control.",
+      },
+      {
+        name: "Travel & Hospitality",
+        icon: "Plane",
+        desc: "Online booking and availability management.",
+      },
+      {
+        name: "Food & Restaurants",
+        icon: "UtensilsCrossed",
+        desc: "POS, delivery and WhatsApp ordering.",
+      },
     ],
   },
   whyUs: {

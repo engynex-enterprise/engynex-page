@@ -349,7 +349,7 @@ function Slide({
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
             {slide.price.label}
           </span>
-          <span className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          <span className="font-display text-3xl font-extrabold text-white sm:text-4xl">
             {slide.price.value}
           </span>
           <span className="text-sm font-semibold text-brand-green">
@@ -396,7 +396,7 @@ function Slide({
           {slide.stats.map((stat) => (
             <div key={stat.label} className="flex items-baseline gap-2">
               <dt className="sr-only">{stat.label}</dt>
-              <dd className="text-lg font-extrabold tracking-tight text-white">
+              <dd className="font-display text-lg font-extrabold text-white">
                 {stat.value}
               </dd>
               <span className="text-xs font-medium text-white/55">

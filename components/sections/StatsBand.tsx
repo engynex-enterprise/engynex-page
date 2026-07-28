@@ -71,47 +71,54 @@ export function StatsBand({
           />
         )}
 
+        {/* Mismo muro con retícula que el resto de la página: el número manda
+            y el filete de color identifica cada cifra. */}
         <dl
           className={cn(
-            "grid gap-y-12 sm:grid-cols-2 lg:grid-cols-4",
-            title ? "mt-20" : "mt-0",
+            "grid grid-cols-1 gap-px overflow-hidden rounded-3xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4",
+            title ? "mt-16" : "mt-0",
           )}
         >
           {stats.map((stat, i) => {
             const Icon = defaultIcons[i % defaultIcons.length];
             const c = hue[hueAt(i)];
             return (
-            <Reveal
-              key={stat.label}
-              delay={(i % 4) * 90}
-              className={cn(
-                "group border-t-2 pt-7 transition-colors",
-                c.borderTop,
-                // Separador vertical entre columnas solo en pantallas anchas.
-                i > 0 && "lg:border-l lg:border-l-line lg:pl-8",
-              )}
-            >
-              <span
-                className={cn(
-                  "mb-6 inline-flex h-11 w-11 items-center justify-center rounded-2xl transition-colors duration-300",
-                  c.tile,
-                  c.tileHover,
-                )}
+              <Reveal
+                key={stat.label}
+                delay={(i % 4) * 90}
+                className="group relative flex h-full flex-col bg-card p-8 transition-colors duration-300 hover:bg-accent-soft/30"
               >
-                <Icon className="h-5.5 w-5.5" strokeWidth={1.9} aria-hidden />
-              </span>
-              <dd className="text-[clamp(2.75rem,5vw,4rem)] font-extrabold leading-none tracking-[-0.04em] text-heading">
-                <Counter value={stat.value} />
-              </dd>
-              <dt className="mt-5 text-sm font-extrabold text-heading">
-                {stat.label}
-              </dt>
-              {stat.detail && (
-                <p className="mt-2 max-w-56 text-sm leading-snug text-body">
-                  {stat.detail}
-                </p>
-              )}
-            </Reveal>
+                {/* Filete superior del tono, ocupa el ancho al pasar el cursor */}
+                <span
+                  aria-hidden
+                  className={cn(
+                    "absolute inset-x-0 top-0 h-1 origin-left scale-x-[0.18] transition-transform duration-500 group-hover:scale-x-100",
+                    c.dot,
+                  )}
+                />
+
+                <span
+                  className={cn(
+                    "inline-flex h-11 w-11 items-center justify-center rounded-2xl transition-colors duration-300",
+                    c.tile,
+                    c.tileHover,
+                  )}
+                >
+                  <Icon className="h-5.5 w-5.5" strokeWidth={1.9} aria-hidden />
+                </span>
+
+                <dd className="mt-7 font-display text-[clamp(2.4rem,4vw,3.2rem)] font-extrabold leading-none text-heading">
+                  <Counter value={stat.value} />
+                </dd>
+                <dt className="mt-4 text-sm font-extrabold text-heading">
+                  {stat.label}
+                </dt>
+                {stat.detail && (
+                  <p className="mt-2 text-sm leading-snug text-body">
+                    {stat.detail}
+                  </p>
+                )}
+              </Reveal>
             );
           })}
         </dl>

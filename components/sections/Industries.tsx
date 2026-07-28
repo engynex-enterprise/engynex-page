@@ -29,8 +29,15 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 /**
- * Sectores atendidos. Cada uno con su icono y su tono, así la retícula se lee
- * de un golpe en vez de ser ocho cajas iguales.
+ * Sectores atendidos.
+ *
+ * Retícula de líneas finas, sin caja alrededor: las celdas comparten el fondo
+ * de la sección y solo las separa el `gap-px`, así que se lee como una tabla de
+ * especificaciones y no como ocho tarjetas más. Es la variante ligera del muro
+ * que usan clientes, tecnologías y servicios.
+ *
+ * Cada sector dice además qué construimos ahí: el nombre solo ("Salud") no
+ * informa de nada.
  */
 export function Industries({
   industries,
@@ -44,6 +51,7 @@ export function Industries({
         image="/images/svc-ecommerce.jpg"
         imageDistance={70}
       />
+
       <SectionHeading
         eyebrow={industries.eyebrow}
         title={industries.title}
@@ -52,43 +60,46 @@ export function Industries({
         size="lg"
       />
 
-      <div className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      <ul className="mt-14 grid grid-cols-1 gap-px bg-line sm:grid-cols-2 lg:grid-cols-4">
         {industries.items.map((item, i) => {
           const Icon = iconMap[item.icon] ?? ShoppingBag;
           const tone = hue[hueAt(i)];
           return (
             <Reveal
               key={item.name}
+              as="li"
               delay={(i % 4) * 70}
-              className={cn(
-                "group relative flex h-full flex-col gap-4 overflow-hidden rounded-2xl border border-line bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover",
-                tone.border,
-              )}
+              className="group flex h-full flex-col gap-4 bg-surface p-7 transition-colors duration-300 hover:bg-card"
             >
-              {/* Halo del tono, solo al pasar el cursor */}
-              <span
-                aria-hidden
-                className={cn(
-                  "pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100",
-                  tone.glow,
-                )}
-              />
               <span
                 className={cn(
-                  "relative inline-flex h-12 w-12 items-center justify-center rounded-2xl transition-colors duration-300",
+                  "inline-flex h-12 w-12 items-center justify-center rounded-2xl transition-colors duration-300",
                   tone.tile,
                   tone.tileHover,
                 )}
               >
                 <Icon className="h-6 w-6" strokeWidth={1.9} aria-hidden />
               </span>
-              <p className="relative font-extrabold tracking-[-0.01em] text-heading">
-                {item.name}
-              </p>
+
+              <div>
+                <p className="font-extrabold text-heading">{item.name}</p>
+                <p className="mt-2 text-sm leading-snug text-body">
+                  {item.desc}
+                </p>
+              </div>
+
+              {/* Filete del tono, crece al pasar el cursor */}
+              <span
+                aria-hidden
+                className={cn(
+                  "mt-auto block h-0.5 w-8 rounded-full transition-all duration-300 group-hover:w-16",
+                  tone.dot,
+                )}
+              />
             </Reveal>
           );
         })}
-      </div>
+      </ul>
     </Section>
   );
 }
