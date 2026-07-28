@@ -18,7 +18,6 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Button, ButtonExternal } from "@/components/ui/Button";
 import { Accordion } from "@/components/Accordion";
 import { ProductIcon } from "@/components/ProductIcon";
-import { ProcessSection } from "@/components/sections/ProcessSection";
 import { CtaBand } from "@/components/sections/CtaBand";
 import {
   products,
@@ -398,11 +397,8 @@ export default async function ProductDetailPage({
         </div>
       </Section>
 
-      {/* ============= PROCESO ============= */}
-      <ProcessSection process={dict.process} tone="light" />
-
       {/* ============= FAQ ============= */}
-      <Section tone="mesh">
+      <Section tone="light">
         <SectionHeading
           eyebrow="FAQ"
           title={t.detail.faqsTitle}
@@ -420,7 +416,7 @@ export default async function ProductDetailPage({
       </Section>
 
       {/* ============= RELACIONADOS ============= */}
-      <Section tone="light">
+      <Section tone="mesh">
         <SectionHeading
           eyebrow={t.intro.eyebrow}
           title={t.detail.relatedTitle}

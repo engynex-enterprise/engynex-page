@@ -51,7 +51,7 @@ export function Navbar({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openPanel, setOpenPanel] = useState<PanelKey | null>(null);
   const [mobileSection, setMobileSection] = useState<PanelKey | null>(null);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -89,28 +89,23 @@ export function Navbar({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  useEffect(() => () => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-  }, []);
+  // El mega menú abre y cierra solo con clic. Un clic fuera de la cabecera
+  // (o en cualquier punto que no sea el panel abierto) lo cierra.
+  useEffect(() => {
+    if (openPanel === null) return;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (target && headerRef.current?.contains(target)) return;
+      setOpenPanel(null);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [openPanel]);
 
-  const cancelClose = useCallback(() => {
-    if (closeTimer.current) {
-      clearTimeout(closeTimer.current);
-      closeTimer.current = null;
-    }
-  }, []);
-
-  const scheduleClose = useCallback(() => {
-    cancelClose();
-    closeTimer.current = setTimeout(() => setOpenPanel(null), 160);
-  }, [cancelClose]);
-
-  const hoverPanel = useCallback(
-    (key: PanelKey | null) => {
-      cancelClose();
-      setOpenPanel(key);
-    },
-    [cancelClose],
+  const togglePanel = useCallback(
+    (key: PanelKey) =>
+      setOpenPanel((current) => (current === key ? null : key)),
+    [],
   );
 
   const closeMobile = () => {
@@ -132,7 +127,7 @@ export function Navbar({
   ];
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
+    <header ref={headerRef} className="fixed inset-x-0 top-0 z-50">
       {/* Barra superior: horario, contacto y redes */}
       <div
         className={cn(
@@ -194,8 +189,6 @@ export function Navbar({
             ? "border-b border-navy-900/10 bg-white/85 backdrop-blur-lg supports-[backdrop-filter]:bg-white/70 dark:border-white/10 dark:bg-navy-950/85 dark:supports-[backdrop-filter]:bg-navy-950/70"
             : "border-b border-transparent bg-transparent",
         )}
-        onMouseEnter={cancelClose}
-        onMouseLeave={scheduleClose}
       >
         <Container>
           <div className="flex h-18 items-center justify-between gap-4">
@@ -236,8 +229,6 @@ export function Navbar({
                       key={route.key}
                       href={localizedHref(locale, route.path)}
                       className={itemClass}
-                      onMouseEnter={() => hoverPanel(null)}
-                      onFocus={() => setOpenPanel(null)}
                     >
                       {nav[route.key]}
                     </Link>
@@ -252,13 +243,7 @@ export function Navbar({
                     id={`mega-trigger-${panelKey}`}
                     aria-expanded={expanded}
                     aria-controls={`mega-panel-${panelKey}`}
-                    onMouseEnter={() => hoverPanel(panelKey)}
-                    onFocus={() => hoverPanel(panelKey)}
-                    onClick={() =>
-                      setOpenPanel((current) =>
-                        current === panelKey ? null : panelKey,
-                      )
-                    }
+                    onClick={() => togglePanel(panelKey)}
                     className={cn(itemClass, expanded && "bg-brand-green/10")}
                   >
                     {nav[route.key]}

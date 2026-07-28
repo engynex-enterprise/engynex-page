@@ -3,19 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Pause,
-  Play,
-  Sparkles,
-  Check,
-} from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { buttonClasses } from "@/components/ui/Button";
-import { iconRegistry, fallbackIcon } from "@/components/icons";
-import type { HeroSlide, SlideChip } from "@/lib/heroSlides";
+import type { HeroSlide } from "@/lib/heroSlides";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +21,13 @@ export interface HeroSliderControls {
   slideLabel: string;
 }
 
+/**
+ * Hero editorial a sangre completa.
+ *
+ * Un solo mensaje por slide (kicker, titular, una línea de apoyo y una acción)
+ * sobre la fotografía, sin adornos flotantes: la jerarquía la marca la
+ * tipografía y el espacio en blanco, no la decoración.
+ */
 export function HeroSlider({
   slides,
   controls,
@@ -55,8 +53,6 @@ export function HeroSlider({
   const next = useCallback(() => goTo(current + 1), [current, goTo]);
   const prev = useCallback(() => goTo(current - 1), [current, goTo]);
 
-  // Autoplay: se detiene al pausar, al pasar el mouse/foco y con
-  // `prefers-reduced-motion`.
   useEffect(() => {
     if (paused || reduceMotion || total < 2) return;
     const timer = window.setTimeout(next, SLIDE_DURATION);
@@ -86,8 +82,6 @@ export function HeroSlider({
     touchStart.current = null;
   };
 
-  const activeAccent = slides[current]?.accent ?? "green";
-
   return (
     <section
       aria-roledescription="carousel"
@@ -99,15 +93,15 @@ export function HeroSlider({
       onKeyDown={onKeyDown}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
-      className="relative isolate overflow-hidden bg-navy-950 text-ink-100"
+      className="relative isolate flex min-h-[38rem] flex-col overflow-hidden bg-navy-950 text-white lg:min-h-[86vh]"
     >
-      {/* Fondos con cross-fade + zoom lento */}
+      {/* Fotografía a sangre con fundido cruzado y zoom lento */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
         {slides.map((slide, i) => (
           <div
             key={slide.key}
             className={cn(
-              "absolute inset-0 transition-opacity duration-1000 ease-out",
+              "absolute inset-0 transition-opacity duration-[1200ms] ease-out",
               i === current ? "opacity-100" : "opacity-0",
             )}
           >
@@ -122,32 +116,22 @@ export function HeroSlider({
                 reduceMotion
                   ? "scale-105"
                   : cn(
-                      "transition-transform duration-[9000ms] ease-out",
-                      i === current ? "scale-115" : "scale-100",
+                      "transition-transform duration-[10000ms] ease-out",
+                      i === current ? "scale-110" : "scale-100",
                     ),
               )}
             />
           </div>
         ))}
 
-        {/* Velos y luces de marca */}
-        <div className="absolute inset-0 bg-navy-950/78" />
-        <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/85 to-navy-950/45" />
-        <div className="bg-grid absolute inset-0 opacity-35" />
-        <div
-          className={cn(
-            "animate-pulse-slow absolute -left-32 top-0 h-[34rem] w-[34rem] rounded-full blur-[140px] transition-colors duration-1000",
-            activeAccent === "green" ? "bg-brand-green/25" : "bg-brand-blue/28",
-          )}
-        />
-        <div className="animate-pulse-slow absolute right-0 top-32 h-[26rem] w-[26rem] rounded-full bg-brand-blue/20 blur-[130px]" />
-        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-navy-950" />
+        {/* Un único velo direccional: legibilidad sin ensuciar la foto. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/85 to-navy-950/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/20 to-navy-950/55" />
       </div>
 
-      <Container className="relative">
-        {/* Todos los slides comparten la misma celda del grid: la altura la
-            marca el más alto, así que no hay saltos al cambiar. */}
-        <div className="grid min-w-0 grid-cols-1 pt-32 pb-14 sm:pt-40 lg:pb-20">
+      {/* Contenido */}
+      <Container className="relative flex flex-1 items-center">
+        <div className="grid w-full min-w-0 grid-cols-1 pt-36 pb-16 sm:pt-44 lg:pt-40 lg:pb-24">
           {slides.map((slide, i) => (
             <Slide
               key={slide.key}
@@ -160,128 +144,103 @@ export function HeroSlider({
         </div>
       </Container>
 
-      {/* Flechas */}
+      {/* Barra inferior: indicadores numerados + controles */}
       {total > 1 && (
-        <>
-          <ArrowButton
-            side="left"
-            label={controls.prev}
-            onClick={prev}
-            icon={<ChevronLeft className="h-6 w-6" />}
-          />
-          <ArrowButton
-            side="right"
-            label={controls.next}
-            onClick={next}
-            icon={<ChevronRight className="h-6 w-6" />}
-          />
-        </>
-      )}
+        <Container className="relative pb-8 sm:pb-10">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div
+              role="tablist"
+              aria-label={controls.slideLabel}
+              className="no-scrollbar -mx-1 flex min-w-0 gap-6 overflow-x-auto px-1 sm:gap-8"
+            >
+              {slides.map((slide, i) => {
+                const isActive = i === current;
+                return (
+                  <button
+                    key={slide.key}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-label={`${controls.slideLabel} ${i + 1}: ${slide.navLabel}`}
+                    onClick={() => goTo(i)}
+                    className="group flex shrink-0 flex-col gap-2.5 pt-1 text-left"
+                  >
+                    <span className="flex items-baseline gap-2">
+                      <span
+                        className={cn(
+                          "text-[0.62rem] font-semibold tabular-nums transition-colors",
+                          isActive ? "text-brand-green" : "text-white/35",
+                        )}
+                      >
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span
+                        className={cn(
+                          "text-[0.8rem] font-semibold tracking-tight transition-colors",
+                          isActive
+                            ? "text-white"
+                            : "text-white/50 group-hover:text-white/80",
+                        )}
+                      >
+                        {slide.navLabel}
+                      </span>
+                    </span>
+                    {/* Riel finísimo: el progreso solo se dibuja en el activo */}
+                    <span
+                      aria-hidden
+                      className="block h-px w-24 overflow-hidden bg-white/20 sm:w-28"
+                    >
+                      {isActive && (
+                        <span
+                          key={current}
+                          data-paused={paused}
+                          style={
+                            {
+                              "--slide-duration": `${SLIDE_DURATION}ms`,
+                            } as React.CSSProperties
+                          }
+                          className="slide-progress block h-full w-full bg-brand-green"
+                        />
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
 
-      {/* Pestañas de navegación + progreso */}
-      {total > 1 && (
-        <div className="relative border-t border-white/10 bg-navy-950/55 backdrop-blur">
-          <Container>
-            <div className="flex items-center gap-3 py-3">
-              <button
-                type="button"
+            <div className="flex shrink-0 items-center gap-2">
+              <ControlButton
+                label={userPaused ? controls.play : controls.pause}
                 onClick={() => setUserPaused((value) => !value)}
-                aria-label={userPaused ? controls.play : controls.pause}
-                title={userPaused ? controls.play : controls.pause}
-                className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/5 text-ink-200 ring-1 ring-white/15 transition-colors hover:bg-white/10 hover:text-white sm:inline-flex"
               >
                 {userPaused ? (
                   <Play className="h-4 w-4" />
                 ) : (
                   <Pause className="h-4 w-4" />
                 )}
-              </button>
-
-              <div
-                role="tablist"
-                aria-label={controls.slideLabel}
-                className="no-scrollbar flex flex-1 items-stretch gap-1.5 overflow-x-auto"
-              >
-                {slides.map((slide, i) => {
-                  const isActive = i === current;
-                  return (
-                    <button
-                      key={slide.key}
-                      type="button"
-                      role="tab"
-                      aria-selected={isActive}
-                      aria-label={`${controls.slideLabel} ${i + 1}: ${slide.navLabel}`}
-                      onClick={() => goTo(i)}
-                      className={cn(
-                        // `min-w-36` evita que la etiqueta quede truncada en
-                        // móvil; en desktop `flex-1` reparte el ancho igual.
-                        "group relative flex min-w-36 flex-1 flex-col justify-center overflow-hidden rounded-xl px-3 py-2 text-left transition-colors sm:px-4",
-                        isActive ? "bg-white/10" : "hover:bg-white/[0.06]",
-                      )}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span
-                          className={cn(
-                            "text-[0.62rem] font-extrabold tabular-nums transition-colors",
-                            isActive ? "text-brand-green" : "text-ink-400",
-                          )}
-                        >
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        <span
-                          className={cn(
-                            "truncate text-xs font-bold transition-colors sm:text-[0.8rem]",
-                            isActive
-                              ? "text-white"
-                              : "text-ink-300 group-hover:text-white",
-                          )}
-                        >
-                          {slide.navLabel}
-                        </span>
-                      </span>
-
-                      {/* Riel + barra de progreso del slide activo */}
-                      <span
-                        aria-hidden
-                        className="mt-2 block h-0.5 w-full overflow-hidden rounded-full bg-white/12"
-                      >
-                        {isActive && (
-                          <span
-                            key={current}
-                            data-paused={paused}
-                            style={
-                              {
-                                "--slide-duration": `${SLIDE_DURATION}ms`,
-                              } as React.CSSProperties
-                            }
-                            className="slide-progress block h-full w-full rounded-full bg-gradient-to-r from-brand-green to-brand-blue"
-                          />
-                        )}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              </ControlButton>
+              <ControlButton label={controls.prev} onClick={prev}>
+                <ChevronLeft className="h-5 w-5" />
+              </ControlButton>
+              <ControlButton label={controls.next} onClick={next}>
+                <ChevronRight className="h-5 w-5" />
+              </ControlButton>
             </div>
-          </Container>
-        </div>
+          </div>
+        </Container>
       )}
     </section>
   );
 }
 
-/* ========================================================================== */
-
-function ArrowButton({
-  side,
+function ControlButton({
   label,
   onClick,
-  icon,
+  children,
 }: {
-  side: "left" | "right";
   label: string;
   onClick: () => void;
-  icon: React.ReactNode;
+  children: React.ReactNode;
 }) {
   return (
     <button
@@ -289,12 +248,9 @@ function ArrowButton({
       onClick={onClick}
       aria-label={label}
       title={label}
-      className={cn(
-        "absolute top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/5 text-ink-200 ring-1 ring-white/15 backdrop-blur transition-all hover:bg-brand-green hover:text-navy-950 hover:ring-brand-green xl:inline-flex",
-        side === "left" ? "left-4 2xl:left-8" : "right-4 2xl:right-8",
-      )}
+      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors hover:border-white/60 hover:text-white"
     >
-      {icon}
+      {children}
     </button>
   );
 }
@@ -310,16 +266,13 @@ function Slide({
   index: number;
   total: number;
 }) {
-  const isGreen = slide.accent === "green";
-
-  // Entrada escalonada: misma transición para todos los bloques, con un
-  // retardo creciente. Al salir el retardo es 0 para que se apague en bloque.
+  // Entrada escalonada: un mismo desplazamiento corto para todos los bloques.
   const anim = cn(
-    "transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
-    active ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0",
+    "transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
+    active ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
   );
   const delay = (order: number): React.CSSProperties => ({
-    transitionDelay: active ? `${110 + order * 90}ms` : "0ms",
+    transitionDelay: active ? `${100 + order * 110}ms` : "0ms",
   });
 
   return (
@@ -334,429 +287,118 @@ function Slide({
         active ? "opacity-100" : "pointer-events-none opacity-0",
       )}
     >
-      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-16">
-        {/* -------- Texto -------- */}
-        <div className="min-w-0 text-center lg:text-left">
-          <div
-            style={delay(0)}
-            className={cn(
-              anim,
-              "flex flex-wrap items-center justify-center gap-2 lg:justify-start",
-            )}
-          >
-            <span
-              className={cn(
-                "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider ring-1",
-                isGreen
-                  ? "bg-brand-green/10 text-brand-green-light ring-brand-green/30"
-                  : "bg-brand-blue/10 text-brand-blue-light ring-brand-blue/30",
-              )}
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              {slide.eyebrow}
-            </span>
-            {slide.badge && (
-              <span className="inline-flex items-center rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-3 py-1 text-[0.68rem] font-extrabold uppercase tracking-wider text-navy-950">
-                {slide.badge}
-              </span>
-            )}
-          </div>
-
-          <h1
-            style={delay(1)}
-            className={cn(
-              anim,
-              "mt-6 text-4xl font-extrabold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-6xl",
-            )}
-          >
-            {slide.titleLead}{" "}
-            <span className="text-gradient">{slide.titleHighlight}</span>
-            {slide.titleTail ? ` ${slide.titleTail}` : ""}
-          </h1>
-
-          <p
-            style={delay(2)}
-            className={cn(
-              anim,
-              "mx-auto mt-6 max-w-xl text-lg leading-relaxed text-ink-300 lg:mx-0",
-            )}
-          >
-            {slide.subtitle}
-          </p>
-
-          {/* En el slide de promoción los beneficios ya se listan dentro de la
-              tarjeta de precio: repetirlos aquí sería redundante. */}
-          {slide.kind !== "promo" && slide.bullets && slide.bullets.length > 0 && (
-            <ul
-              style={delay(3)}
-              className={cn(
-                anim,
-                "mx-auto mt-6 grid max-w-xl gap-2 text-left sm:grid-cols-2 lg:mx-0",
-              )}
-            >
-              {slide.bullets.map((bullet) => (
-                <li key={bullet} className="flex items-start gap-2">
-                  <span
-                    className={cn(
-                      "mt-0.5 inline-flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full",
-                      isGreen
-                        ? "bg-brand-green/20 text-brand-green"
-                        : "bg-brand-blue/20 text-brand-blue-light",
-                    )}
-                  >
-                    <Check className="h-3 w-3" strokeWidth={3} aria-hidden />
-                  </span>
-                  <span className="text-sm leading-snug text-ink-200">
-                    {bullet}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <div
-            style={delay(4)}
-            className={cn(
-              anim,
-              "mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start",
-            )}
-          >
-            <Link
-              href={slide.primary.href}
-              className={buttonClasses(
-                isGreen ? "primary" : "secondary",
-                "lg",
-                "w-full sm:w-auto",
-              )}
-            >
-              {slide.primary.label}
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-            {slide.secondary && (
-              <Link
-                href={slide.secondary.href}
-                className={buttonClasses("ghost", "lg", "w-full sm:w-auto")}
-              >
-                {slide.secondary.label}
-              </Link>
-            )}
-          </div>
-
-          {slide.stats && (
-            <dl
-              style={delay(5)}
-              className={cn(
-                anim,
-                "mx-auto mt-12 grid max-w-lg grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4 lg:mx-0",
-              )}
-            >
-              {slide.stats.map((stat) => (
-                <div key={stat.label} className="text-center lg:text-left">
-                  <dt className="sr-only">{stat.label}</dt>
-                  <dd className="text-3xl font-extrabold text-white">
-                    {stat.value}
-                  </dd>
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-ink-400">
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
-            </dl>
-          )}
-        </div>
-
-        {/* -------- Visual -------- */}
-        <div
-          style={delay(3)}
-          className={cn(anim, "relative mx-auto hidden w-full max-w-lg lg:block")}
-        >
-          <SlideVisual slide={slide} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ========================================================================== */
-
-function ChipIcon({
-  name,
-  accent,
-  size = "md",
-}: {
-  name: string;
-  accent: "green" | "blue";
-  size?: "sm" | "md";
-}) {
-  const Icon = iconRegistry[name] ?? fallbackIcon;
-  return (
-    <span
-      className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-xl",
-        size === "sm" ? "h-8 w-8" : "h-11 w-11",
-        accent === "green"
-          ? "bg-brand-green/18 text-brand-green"
-          : "bg-brand-blue/20 text-brand-blue-light",
-      )}
-    >
-      <Icon
-        className={size === "sm" ? "h-4.5 w-4.5" : "h-5.5 w-5.5"}
-        strokeWidth={1.75}
-        aria-hidden
-      />
-    </span>
-  );
-}
-
-function SlideVisual({ slide }: { slide: HeroSlide }) {
-  switch (slide.kind) {
-    case "intro":
-      return <IntroVisual chips={slide.chips ?? []} />;
-    case "services":
-      return <ChipGridVisual chips={slide.chips ?? []} />;
-    case "products":
-      return <ChipListVisual chips={slide.chips ?? []} />;
-    case "promo":
-      return <PriceVisual slide={slide} />;
-    case "rental":
-      return <RackVisual slide={slide} />;
-  }
-}
-
-/** Slide 1 — maqueta de aplicación con chips de servicio flotando. */
-function IntroVisual({ chips }: { chips: SlideChip[] }) {
-  const positions = [
-    "left-0 top-8",
-    "right-0 top-20",
-    "left-2 bottom-28",
-    "right-2 bottom-10",
-    "left-1/2 -top-2 -translate-x-1/2",
-    "left-1/2 -bottom-3 -translate-x-1/2",
-  ];
-
-  return (
-    <div className="relative aspect-square">
-      <div className="absolute left-1/2 top-1/2 w-76 -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-white/12 bg-gradient-to-br from-navy-800 to-navy-900 p-5 shadow-2xl shadow-brand-blue/20">
-        <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-brand-green" />
-          <span className="h-2.5 w-2.5 rounded-full bg-brand-blue" />
-          <span className="h-2.5 w-2.5 rounded-full bg-white/30" />
-          <span className="ml-auto h-2 w-16 rounded-full bg-white/10" />
-        </div>
-        <div className="mt-5 space-y-3">
-          <div className="h-2.5 w-3/4 rounded-full bg-gradient-to-r from-brand-green to-brand-blue" />
-          <div className="h-2.5 w-1/2 rounded-full bg-white/15" />
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
-              <div className="h-8 w-8 rounded-lg bg-brand-green/25" />
-              <div className="mt-3 h-2 w-full rounded-full bg-white/10" />
-              <div className="mt-2 h-2 w-2/3 rounded-full bg-white/10" />
-            </div>
-            <div className="rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
-              <div className="h-8 w-8 rounded-lg bg-brand-blue/30" />
-              <div className="mt-3 h-2 w-full rounded-full bg-white/10" />
-              <div className="mt-2 h-2 w-2/3 rounded-full bg-white/10" />
-            </div>
-          </div>
-          {/* Mini gráfico de barras */}
-          <div className="flex h-10 items-end gap-1.5 pt-2">
-            {[38, 62, 46, 78, 58, 92, 70].map((height, i) => (
-              <span
-                key={i}
-                style={{ height: `${height}%` }}
-                className={cn(
-                  "flex-1 rounded-t-sm",
-                  i % 2 === 0 ? "bg-brand-green/60" : "bg-brand-blue/60",
-                )}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {chips.slice(0, 6).map((chip, i) => (
-        <div
-          key={chip.title}
-          style={{ animationDelay: `${i * 0.6}s` }}
+      {/* Kicker */}
+      <div style={delay(0)} className={cn(anim, "flex items-center gap-3")}>
+        <span
+          aria-hidden
           className={cn(
-            "animate-float absolute flex items-center gap-2 rounded-2xl border border-white/12 bg-navy-800/90 px-3 py-2 shadow-lg backdrop-blur",
-            positions[i],
+            "h-1.5 w-1.5 rounded-full",
+            slide.accent === "green" ? "bg-brand-green" : "bg-brand-blue-light",
           )}
-        >
-          <ChipIcon name={chip.icon} accent={chip.accent} size="sm" />
-          <span className="text-xs font-bold text-white">{chip.title}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/** Slide 2 — rejilla de servicios. */
-function ChipGridVisual({ chips }: { chips: SlideChip[] }) {
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      {chips.slice(0, 8).map((chip, i) => (
-        <Link
-          key={chip.title}
-          href={chip.href ?? "#"}
-          style={{ animationDelay: `${i * 0.35}s` }}
-          className="animate-float rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur transition-colors hover:border-brand-green/40 hover:bg-white/[0.09]"
-        >
-          <ChipIcon name={chip.icon} accent={chip.accent} size="sm" />
-          <p className="mt-3 text-sm font-extrabold leading-tight text-white">
-            {chip.title}
-          </p>
-          {chip.desc && (
-            <p className="mt-1 line-clamp-2 text-[0.72rem] leading-snug text-ink-400">
-              {chip.desc}
-            </p>
-          )}
-        </Link>
-      ))}
-    </div>
-  );
-}
-
-/** Slide 3 — lista de productos destacados. */
-function ChipListVisual({ chips }: { chips: SlideChip[] }) {
-  return (
-    <div className="space-y-3">
-      {chips.map((chip, i) => (
-        <Link
-          key={chip.title}
-          href={chip.href ?? "#"}
-          style={{ animationDelay: `${i * 0.5}s` }}
-          className="group animate-float flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur transition-colors hover:border-brand-green/40 hover:bg-white/[0.09]"
-        >
-          <ChipIcon name={chip.icon} accent={chip.accent} />
-          <span className="min-w-0 flex-1">
-            <span className="block text-sm font-extrabold text-white">
-              {chip.title}
+        />
+        <span className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-white/70">
+          {slide.eyebrow}
+        </span>
+        {slide.badge && (
+          <>
+            <span aria-hidden className="h-3 w-px bg-white/25" />
+            <span className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-brand-green">
+              {slide.badge}
             </span>
-            {chip.desc && (
-              <span className="mt-0.5 block truncate text-xs text-ink-400">
-                {chip.desc}
-              </span>
-            )}
-          </span>
-          <ArrowRight className="h-4 w-4 shrink-0 text-ink-400 transition-all group-hover:translate-x-1 group-hover:text-brand-green" />
-        </Link>
-      ))}
-    </div>
-  );
-}
+          </>
+        )}
+      </div>
 
-/** Slide 4 — tarjeta de precio de la promoción. */
-function PriceVisual({ slide }: { slide: HeroSlide }) {
-  if (!slide.price) return null;
-  return (
-    <div className="relative mx-auto max-w-sm">
-      <div
-        aria-hidden
-        className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-brand-green/25 to-brand-blue/25 blur-2xl"
-      />
-      <div className="relative overflow-hidden rounded-[2rem] border border-white/12 bg-navy-900/85 p-8 text-center backdrop-blur">
-        <div className="bg-grid absolute inset-0 opacity-25" aria-hidden />
-        <div className="relative">
-          <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-ink-400">
+      {/* Titular. Usa la tipografía de cuerpo (no la display) para lograr el
+          aire de titular editorial; el resto del sitio conserva OpenDyslexic. */}
+      <h1
+        style={delay(1)}
+        className={cn(
+          anim,
+          "mt-7 max-w-4xl font-sans text-[clamp(2.4rem,6vw,4.75rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white",
+        )}
+      >
+        {slide.titleLead}{" "}
+        <span className="text-white/55">{slide.titleHighlight}</span>
+      </h1>
+
+      {/* Línea de apoyo */}
+      <p
+        style={delay(2)}
+        className={cn(
+          anim,
+          "mt-7 max-w-xl text-lg leading-relaxed text-white/65 sm:text-xl",
+        )}
+      >
+        {slide.subtitle}
+      </p>
+
+      {/* Precio, cuando el slide es una oferta concreta */}
+      {slide.price && (
+        <p
+          style={delay(3)}
+          className={cn(anim, "mt-8 flex flex-wrap items-baseline gap-x-3")}
+        >
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
             {slide.price.label}
-          </p>
-          <p className="mt-2 text-5xl font-extrabold tracking-tight text-white">
+          </span>
+          <span className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             {slide.price.value}
-          </p>
-          <p className="mt-1 text-sm font-bold text-brand-green">
+          </span>
+          <span className="text-sm font-medium text-white/60">
             {slide.price.note}
-          </p>
-          <div className="mt-7 space-y-2.5 text-left">
-            {(slide.bullets ?? []).map((bullet) => (
-              <div key={bullet} className="flex items-start gap-2.5">
-                <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-green/20 text-brand-green">
-                  <Check className="h-3 w-3" strokeWidth={3} aria-hidden />
-                </span>
-                <span className="text-[0.82rem] leading-snug text-ink-200">
-                  {bullet}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+          </span>
+        </p>
+      )}
 
-/** Slide 5 — rack de servidores + equipos de cómputo. */
-function RackVisual({ slide }: { slide: HeroSlide }) {
-  return (
-    <div className="relative mx-auto max-w-md">
+      {/* Acciones */}
       <div
-        aria-hidden
-        className="absolute -inset-6 rounded-[3rem] bg-gradient-to-br from-brand-blue/25 to-brand-green/20 blur-3xl"
-      />
-      <div className="relative flex items-end gap-4">
-        {/* Rack */}
-        <div className="w-40 shrink-0 rounded-2xl border border-white/12 bg-navy-900/85 p-3 shadow-2xl backdrop-blur">
-          <div className="flex items-center justify-between px-1 pb-2">
-            <span className="text-[0.6rem] font-extrabold uppercase tracking-wider text-ink-400">
-              RACK
-            </span>
-            <span className="flex gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-green" />
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-green/50" />
-            </span>
-          </div>
-          <div className="space-y-1.5">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-1.5 rounded-md bg-white/[0.06] px-2 py-1.5 ring-1 ring-white/[0.08]"
-              >
-                <span
-                  style={{ animationDelay: `${i * 0.35}s` }}
-                  className={cn(
-                    "animate-pulse-slow h-1.5 w-1.5 rounded-full",
-                    i % 3 === 0 ? "bg-brand-blue-light" : "bg-brand-green",
-                  )}
-                />
-                <span className="h-1 flex-1 rounded-full bg-white/12" />
-                <span className="h-1 w-3 rounded-full bg-white/20" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Portátil + tarjeta de precio */}
-        <div className="flex-1 space-y-3">
-          <div>
-            <div className="rounded-t-xl border border-white/12 bg-gradient-to-br from-navy-800 to-navy-900 p-3">
-              <div className="space-y-1.5">
-                <div className="h-1.5 w-2/3 rounded-full bg-gradient-to-r from-brand-green to-brand-blue" />
-                <div className="h-1.5 w-1/2 rounded-full bg-white/12" />
-                <div className="mt-2 grid grid-cols-3 gap-1.5">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <span key={i} className="h-5 rounded bg-white/[0.07]" />
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="h-1.5 rounded-b-xl bg-white/15" />
-          </div>
-
-          {slide.price && (
-            <div className="rounded-2xl border border-white/12 bg-navy-900/85 px-4 py-3 backdrop-blur">
-              <p className="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-ink-400">
-                {slide.price.label}
-              </p>
-              <p className="text-2xl font-extrabold tracking-tight text-white">
-                {slide.price.value}
-              </p>
-              <p className="text-[0.68rem] font-semibold text-brand-green">
-                {slide.price.note}
-              </p>
-            </div>
-          )}
-        </div>
+        style={delay(4)}
+        className={cn(
+          anim,
+          "mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6",
+        )}
+      >
+        <Link
+          href={slide.primary.href}
+          className={buttonClasses("primary", "lg", "w-full sm:w-auto")}
+        >
+          {slide.primary.label}
+          <ArrowRight className="h-5 w-5" />
+        </Link>
+        {slide.secondary && (
+          <Link
+            href={slide.secondary.href}
+            className="group inline-flex items-center gap-2 text-base font-semibold text-white/85 underline-offset-8 transition-colors hover:text-white hover:underline"
+          >
+            {slide.secondary.label}
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+        )}
       </div>
+
+      {/* Cifras en una sola línea, sin protagonismo */}
+      {slide.stats && (
+        <dl
+          style={delay(5)}
+          className={cn(
+            anim,
+            "mt-12 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-white/12 pt-6 sm:gap-x-10",
+          )}
+        >
+          {slide.stats.map((stat) => (
+            <div key={stat.label} className="flex items-baseline gap-2">
+              <dt className="sr-only">{stat.label}</dt>
+              <dd className="text-lg font-extrabold tracking-tight text-white">
+                {stat.value}
+              </dd>
+              <span className="text-xs font-medium text-white/55">
+                {stat.label}
+              </span>
+            </div>
+          ))}
+        </dl>
+      )}
     </div>
   );
 }

@@ -281,10 +281,14 @@ body {
 
 /* Títulos con OpenDyslexic (mezcla con Nunito del cuerpo).
    OpenDyslexic tiene una altura-x grande y se ve enorme: normalizamos su
-   tamaño visual con font-size-adjust para equilibrarlo con Nunito. */
-h1,
-h2,
-h3,
+   tamaño visual con font-size-adjust para equilibrarlo con Nunito.
+
+   El `:not(.font-sans)` es la vía de escape: esta regla va fuera de capa y por
+   tanto le gana a cualquier utilidad de Tailwind, así que un título que deba ir
+   en la tipografía de cuerpo (el titular del hero) se marca con `font-sans`. */
+h1:not(.font-sans),
+h2:not(.font-sans),
+h3:not(.font-sans),
 .font-display {
   font-family: var(--font-display);
   font-size-adjust: 0.47;

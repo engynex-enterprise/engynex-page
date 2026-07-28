@@ -1,53 +1,36 @@
 import { services } from "@/content/services";
-import { products } from "@/content/products";
 import { servicePlans, formatCOP } from "@/content/pricing";
 import { getDictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { localizedHref } from "./site";
 
-/** Tipo de composición visual que dibuja el slide. */
-export type SlideKind =
-  | "intro"
-  | "services"
-  | "products"
-  | "promo"
-  | "rental";
-
-export interface SlideChip {
-  icon: string;
-  title: string;
-  desc?: string;
-  accent: "green" | "blue";
-  href?: string;
-}
-
 export interface HeroSlide {
   key: string;
-  kind: SlideKind;
   accent: "green" | "blue";
   image: string;
   /** Etiqueta corta de la pestaña de navegación. */
   navLabel: string;
+  /** Kicker sobre el titular. */
   eyebrow: string;
+  /** Distintivo corto opcional ("Nuevo", "Más solicitado"). */
   badge?: string;
   titleLead: string;
   titleHighlight: string;
-  titleTail?: string;
   subtitle: string;
   primary: { label: string; href: string };
   secondary?: { label: string; href: string };
+  /** Solo el primer slide: cifras en una línea. */
   stats?: { value: string; label: string }[];
-  chips?: SlideChip[];
-  bullets?: string[];
+  /** Precio de arranque, cuando el slide es una oferta concreta. */
   price?: { label: string; value: string; note: string };
 }
 
 /**
  * Construye los slides del hero en el servidor.
  *
- * Todo lo que se devuelve es serializable (los iconos viajan como nombre y se
- * resuelven en el cliente con `iconRegistry`), de modo que el bundle del
- * navegador no arrastra el contenido completo de servicios y productos.
+ * Cada slide lleva un solo mensaje: kicker, titular, una línea de apoyo y una
+ * acción. Todo lo que se devuelve es serializable, así que el bundle del
+ * navegador no arrastra el contenido completo de servicios ni productos.
  */
 export function buildHeroSlides(locale: Locale): HeroSlide[] {
   const dict = getDictionary(locale);
@@ -59,7 +42,6 @@ export function buildHeroSlides(locale: Locale): HeroSlide[] {
   const slides: HeroSlide[] = [
     {
       key: "intro",
-      kind: "intro",
       accent: "green",
       image: "/images/hero-abstract.jpg",
       navLabel: t.intro.navLabel,
@@ -73,15 +55,9 @@ export function buildHeroSlides(locale: Locale): HeroSlide[] {
         href: localizedHref(locale, "servicios"),
       },
       stats: dict.hero.stats.map((stat) => ({ ...stat })),
-      chips: services.slice(0, 6).map((service) => ({
-        icon: service.icon,
-        title: service[locale].title,
-        accent: service.accent,
-      })),
     },
     {
       key: "services",
-      kind: "services",
       accent: "blue",
       image: "/images/svc-plataformas-web.jpg",
       navLabel: t.services.navLabel,
@@ -94,17 +70,9 @@ export function buildHeroSlides(locale: Locale): HeroSlide[] {
         href: localizedHref(locale, "servicios"),
       },
       secondary: { label: t.common.quote, href: contactHref },
-      chips: services.slice(0, 8).map((service) => ({
-        icon: service.icon,
-        title: service[locale].title,
-        desc: service[locale].tagline,
-        accent: service.accent,
-        href: localizedHref(locale, `servicios/${service.slug}`),
-      })),
     },
     {
       key: "products",
-      kind: "products",
       accent: "green",
       image: "/images/svc-data-analytics.jpg",
       navLabel: t.products.navLabel,
@@ -118,14 +86,6 @@ export function buildHeroSlides(locale: Locale): HeroSlide[] {
         href: localizedHref(locale, "productos"),
       },
       secondary: { label: t.common.demo, href: contactHref },
-      chips: products.slice(0, 4).map((product) => ({
-        icon: product.icon,
-        title: product[locale].title,
-        desc: product[locale].tagline,
-        accent: product.accent,
-        href: localizedHref(locale, `productos/${product.slug}`),
-      })),
-      bullets: t.products.bullets,
     },
   ];
 
@@ -133,7 +93,6 @@ export function buildHeroSlides(locale: Locale): HeroSlide[] {
   if (webPlan?.price != null) {
     slides.push({
       key: "promo",
-      kind: "promo",
       accent: "green",
       image: "/images/svc-desarrollo-web.jpg",
       navLabel: t.promo.navLabel,
@@ -152,15 +111,14 @@ export function buildHeroSlides(locale: Locale): HeroSlide[] {
         value: formatCOP(webPlan.price),
         note: dict.subscriptionBand.priceNote,
       },
-      bullets: webPlan[locale].features.slice(0, 4),
     });
   }
 
   // Nuevo servicio: alquiler de equipos y servidores.
   if (rental) {
+    const rentalPlan = servicePlans["alquiler-equipos"]?.[0];
     slides.push({
       key: "rental",
-      kind: "rental",
       accent: "blue",
       image: rental.image,
       navLabel: t.rental.navLabel,
@@ -174,17 +132,14 @@ export function buildHeroSlides(locale: Locale): HeroSlide[] {
         href: localizedHref(locale, "servicios/alquiler-equipos"),
       },
       secondary: { label: t.common.quote, href: contactHref },
-      bullets: rental[locale].features.slice(0, 4),
-      price: (() => {
-        const plan = servicePlans["alquiler-equipos"]?.[0];
-        return plan?.price != null
+      price:
+        rentalPlan?.price != null
           ? {
               label: dict.servicesPage.plans.from,
-              value: formatCOP(plan.price),
+              value: formatCOP(rentalPlan.price),
               note: t.rental.priceNote,
             }
-          : undefined;
-      })(),
+          : undefined,
     });
   }
 

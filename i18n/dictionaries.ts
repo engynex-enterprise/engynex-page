@@ -390,6 +390,42 @@ const es = {
       ctaCustom: "Hablar con un asesor",
       note: "Los valores están en pesos colombianos (COP) y no incluyen IVA. El precio final depende del alcance acordado; la cotización y la asesoría no tienen costo.",
     },
+    /** Secciones exclusivas de cada familia de servicio. */
+    extras: {
+      stack: {
+        eyebrow: "Con qué lo construimos",
+        title: "Tecnología estándar de la industria, no inventos",
+        subtitle:
+          "Usamos herramientas maduras y con comunidad detrás. Si mañana cambias de proveedor, cualquier equipo puede continuar el trabajo.",
+      },
+      gallery: {
+        eyebrow: "Nuestro trabajo",
+        title: "Piezas que hemos producido",
+        subtitle:
+          "Una muestra del acabado que puedes esperar en tu propio proyecto.",
+      },
+      sla: {
+        eyebrow: "Compromisos de servicio",
+        title: "Lo que garantizamos por escrito",
+        subtitle:
+          "Un servicio de operación se mide en tiempos y disponibilidad. Estos son los nuestros, y quedan en el contrato.",
+      },
+      useCases: {
+        eyebrow: "Casos de uso",
+        title: "Dónde se nota primero",
+        subtitle:
+          "Empezamos por lo que da resultado rápido y se puede medir desde el primer mes.",
+      },
+      catalog: {
+        eyebrow: "Catálogo",
+        title: "Qué puedes alquilar",
+        subtitle:
+          "Desde un puesto de trabajo hasta el rack completo. Si no está en la lista, pregúntanos: lo conseguimos.",
+      },
+    },
+    /** Cierre del proceso cíclico (familia de operación). */
+    opsLoop: "Y vuelve a empezar: este servicio no termina, se sostiene mes a mes.",
+    status: { operational: "Operativo", monitored: "Monitoreo 24/7" },
     commonFaqsTitle: "Sobre trabajar con Engynex",
     commonFaqs: [
       {
@@ -1099,6 +1135,42 @@ const en = {
       ctaCustom: "Talk to an advisor",
       note: "Values are in Colombian pesos (COP) and exclude VAT. The final price depends on the agreed scope; quotes and advice are always free.",
     },
+    /** Sections exclusive to each service family. */
+    extras: {
+      stack: {
+        eyebrow: "What we build it with",
+        title: "Industry-standard technology, no inventions",
+        subtitle:
+          "We use mature tools with a community behind them. If you change vendors tomorrow, any team can pick up the work.",
+      },
+      gallery: {
+        eyebrow: "Our work",
+        title: "Pieces we've produced",
+        subtitle:
+          "A sample of the finish you can expect on your own project.",
+      },
+      sla: {
+        eyebrow: "Service commitments",
+        title: "What we guarantee in writing",
+        subtitle:
+          "An operations service is measured in response times and availability. These are ours, and they go in the contract.",
+      },
+      useCases: {
+        eyebrow: "Use cases",
+        title: "Where you'll notice it first",
+        subtitle:
+          "We start with what pays off fast and can be measured from the first month.",
+      },
+      catalog: {
+        eyebrow: "Catalog",
+        title: "What you can rent",
+        subtitle:
+          "From a single workstation to a full rack. If it's not on the list, ask us: we'll source it.",
+      },
+    },
+    /** Closing line for the cyclical process (operations family). */
+    opsLoop: "And it starts over: this service doesn't end, it's sustained month after month.",
+    status: { operational: "Operational", monitored: "24/7 monitoring" },
     commonFaqsTitle: "About working with Engynex",
     commonFaqs: [
       {
