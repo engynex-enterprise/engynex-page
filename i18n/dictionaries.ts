@@ -56,6 +56,7 @@ const es = {
     whatsapp: "Escríbenos por WhatsApp",
     backToTop: "Volver arriba",
     exploreServices: "Explorar servicios",
+    servicesCount: "servicios",
     toggleTheme: "Cambiar tema",
   },
   chat: {
@@ -166,6 +167,13 @@ const es = {
   },
   techStrip: {
     title: "Tecnologías con las que construimos",
+    subtitle: "Stack estándar de la industria, sin inventos",
+    groups: {
+      product: "Producto y frontend",
+      backend: "Backend y datos",
+      cloud: "Nube e infraestructura",
+      commerce: "Móvil y comercio",
+    },
   },
   servicesSection: {
     eyebrow: "Qué hacemos",
@@ -841,6 +849,7 @@ const en = {
     whatsapp: "Message us on WhatsApp",
     backToTop: "Back to top",
     exploreServices: "Explore services",
+    servicesCount: "services",
     toggleTheme: "Toggle theme",
   },
   chat: {
@@ -951,6 +960,13 @@ const en = {
   },
   techStrip: {
     title: "Technologies we build with",
+    subtitle: "An industry-standard stack, no inventions",
+    groups: {
+      product: "Product & frontend",
+      backend: "Backend & data",
+      cloud: "Cloud & infrastructure",
+      commerce: "Mobile & commerce",
+    },
   },
   servicesSection: {
     eyebrow: "What we do",

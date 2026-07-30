@@ -55,9 +55,10 @@ export default async function HomePage({
         copy={dict.servicesSection}
         ctaLabel={dict.common.learnMore}
         moreLabel={dict.common.exploreServices}
+        countLabel={dict.common.servicesCount}
       />
 
-      <TechStrip title={dict.techStrip.title} />
+      <TechStrip copy={dict.techStrip} />
 
       <Industries industries={dict.industries} />
 

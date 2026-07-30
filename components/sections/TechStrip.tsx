@@ -1,46 +1,69 @@
 import { Container } from "@/components/ui/Container";
-import { Eyebrow } from "@/components/ui/SectionHeading";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { Backdrop } from "@/components/ui/Backdrop";
 import { TechLogo } from "@/components/TechLogo";
-import { technologies } from "@/content/tech";
+import { technologies, techGroups } from "@/content/tech";
+import type { Dictionary } from "@/i18n/dictionaries";
 
 /**
- * Franja de tecnologías.
+ * Tecnologías, agrupadas por capa.
  *
- * Mismo lenguaje de retícula que el muro de clientes —celdas separadas por una
- * línea de un píxel dentro de un contenedor con borde—, pero a todo el ancho y
- * con los logotipos en su color de marca: aquí el color sí es información.
+ * Una rejilla suelta de dieciséis logos solo dice "usamos muchas cosas".
+ * Organizadas en filas —producto, backend, nube, comercio— la sección explica
+ * de qué está hecho el trabajo, con el aire de una tabla de especificaciones.
  */
-export function TechStrip({ title }: { title: string }) {
+export function TechStrip({ copy }: { copy: Dictionary["techStrip"] }) {
+  const rows = techGroups.map((key) => ({
+    key,
+    label: copy.groups[key],
+    items: technologies.filter((tech) => tech.group === key),
+  }));
+
   return (
     <section className="relative isolate overflow-hidden border-y border-line bg-surface-soft py-20 sm:py-24">
       <Backdrop variant="grid" />
 
       <Container className="relative">
-        <div className="flex items-center gap-6">
-          <Eyebrow>{title}</Eyebrow>
-          <span aria-hidden className="h-px flex-1 bg-line" />
-        </div>
+        <SectionHeading
+          eyebrow={copy.title}
+          title={copy.subtitle}
+          align="left"
+        />
 
-        <ul className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4 lg:grid-cols-8">
-          {technologies.map((tech, i) => (
-            <Reveal
-              key={tech.name}
-              as="li"
-              delay={(i % 8) * 40}
-              className="group flex h-28 flex-col items-center justify-center gap-3 bg-card px-3 transition-colors duration-300 hover:bg-accent-soft/40"
+        <div className="mt-12 overflow-hidden rounded-3xl border border-line">
+          {rows.map((row, r) => (
+            <div
+              key={row.key}
+              className="grid gap-px bg-line sm:grid-cols-[minmax(0,13rem)_minmax(0,1fr)]"
             >
-              <TechLogo
-                tech={tech}
-                className="h-7 w-7 opacity-80 transition-all duration-300 group-hover:scale-110 group-hover:opacity-100"
-              />
-              <span className="text-center text-xs font-bold leading-tight text-muted transition-colors group-hover:text-heading">
-                {tech.name}
-              </span>
-            </Reveal>
+              {/* Etiqueta de la capa */}
+              <p className="flex items-center bg-card px-6 py-4 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-muted sm:py-6">
+                {row.label}
+              </p>
+
+              {/* Logotipos de esa capa */}
+              <ul className="flex flex-wrap items-center gap-x-8 gap-y-5 bg-card px-6 py-6">
+                {row.items.map((tech, i) => (
+                  <Reveal
+                    key={tech.name}
+                    as="li"
+                    delay={(r * 2 + (i % 4)) * 45}
+                    className="group flex items-center gap-2.5"
+                  >
+                    <TechLogo
+                      tech={tech}
+                      className="h-7 w-7 shrink-0 opacity-85 transition-all duration-300 group-hover:scale-110 group-hover:opacity-100"
+                    />
+                    <span className="text-sm font-bold text-body transition-colors group-hover:text-heading">
+                      {tech.name}
+                    </span>
+                  </Reveal>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       </Container>
     </section>
   );

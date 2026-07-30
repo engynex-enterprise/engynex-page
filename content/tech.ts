@@ -13,23 +13,31 @@ export interface Tech {
   logo?: string;
   /** Color del monograma de reserva. */
   color?: string;
-  /** Agrupación mostrada como etiqueta. */
-  group: "frontend" | "backend" | "mobile" | "cloud" | "design" | "commerce";
+  /** Capa a la que pertenece; se muestra como etiqueta de fila. */
+  group: "product" | "backend" | "cloud" | "commerce";
 }
 
+/** Orden de las capas en la tabla. */
+export const techGroups = [
+  "product",
+  "backend",
+  "cloud",
+  "commerce",
+] as const;
+
 export const technologies: Tech[] = [
-  { name: "Next.js", mark: "nextjs", group: "frontend" },
-  { name: "React", mark: "react", group: "frontend" },
-  { name: "TypeScript", mark: "typescript", group: "frontend" },
-  { name: "Tailwind CSS", mark: "tailwind", group: "frontend" },
+  { name: "Next.js", mark: "nextjs", group: "product" },
+  { name: "React", mark: "react", group: "product" },
+  { name: "TypeScript", mark: "typescript", group: "product" },
+  { name: "Tailwind CSS", mark: "tailwind", group: "product" },
   { name: "Node.js", mark: "nodejs", group: "backend" },
   { name: "PostgreSQL", mark: "postgres", group: "backend" },
   { name: "Docker", mark: "docker", group: "cloud" },
   { name: "AWS", mark: "aws", group: "cloud" },
   { name: "Vercel", mark: "vercel", group: "cloud" },
-  { name: "Flutter", mark: "flutter", group: "mobile" },
-  { name: "React Native", mark: "react", group: "mobile" },
-  { name: "Figma", mark: "figma", group: "design" },
+  { name: "Flutter", mark: "flutter", group: "commerce" },
+  { name: "React Native", mark: "react", group: "commerce" },
+  { name: "Figma", mark: "figma", group: "product" },
   { name: "OpenAI", mark: "openai", group: "backend" },
   { name: "Shopify", mark: "shopify", group: "commerce" },
   { name: "WordPress", mark: "wordpress", group: "commerce" },
