@@ -39,7 +39,7 @@ export function ProductsPreview({
         action={
           <Link
             href={productsHref}
-            className="group inline-flex items-center gap-2 text-base font-medium text-accent underline-offset-8 hover:underline"
+            className="group inline-flex items-center gap-2 text-base font-bold text-accent underline-offset-8 hover:underline"
           >
             {copy.cta}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -73,11 +73,11 @@ export function ProductsPreview({
 
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                    <span className="text-base font-medium text-heading">
+                    <span className="text-base font-bold text-heading">
                       {productCopy.title}
                     </span>
                     {product.badge && (
-                      <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[0.7rem] font-medium text-accent">
+                      <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[0.7rem] font-bold text-accent">
                         {badges[product.badge]}
                       </span>
                     )}

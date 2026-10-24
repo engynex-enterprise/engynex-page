@@ -42,7 +42,7 @@ export function PortfolioPreview({
         action={
           <Link
             href={portfolioHref}
-            className="group inline-flex items-center gap-2 text-base font-medium text-accent underline-offset-8 hover:underline"
+            className="group inline-flex items-center gap-2 text-base font-bold text-accent underline-offset-8 hover:underline"
           >
             {featured.cta}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -69,7 +69,7 @@ export function PortfolioPreview({
             {/* Velo: el texto va sobre la foto, tiene que leerse sí o sí */}
             <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/40 to-transparent" />
 
-            <span className="absolute left-6 top-6 rounded-full bg-white px-3 py-1 text-xs font-medium text-heading sm:left-8 sm:top-8">
+            <span className="absolute left-6 top-6 rounded-full bg-white px-3 py-1 text-xs font-bold text-heading sm:left-8 sm:top-8">
               {categoryLabels[lead.category][locale]}
             </span>
             <span className="absolute right-6 top-6 grid h-11 w-11 place-items-center rounded-full bg-white/95 text-navy-900 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:right-8 sm:top-8">
@@ -77,13 +77,13 @@ export function PortfolioPreview({
             </span>
 
             <div className="relative p-6 sm:p-10">
-              <h3 className="text-2xl font-medium text-white sm:text-3xl">
+              <h3 className="text-2xl font-extrabold text-white sm:text-3xl">
                 {leadCopy.title}
               </h3>
               <p className="mt-3 max-w-md leading-relaxed text-white/80">
                 {leadCopy.summary}
               </p>
-              <p className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-heading">
+              <p className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-heading">
                 <TrendingUp className="h-4 w-4 text-brand-green-dark" strokeWidth={2.5} aria-hidden />
                 {leadCopy.result}
               </p>
@@ -114,13 +114,13 @@ export function PortfolioPreview({
                   <span className="text-xs text-muted">
                     {categoryLabels[project.category][locale]}
                   </span>
-                  <h3 className="flex items-start gap-2 text-lg font-medium text-heading">
+                  <h3 className="flex items-start gap-2 text-lg font-extrabold text-heading">
                     {copy.title}
                     <ArrowUpRight className="mt-0.5 h-4 w-4 shrink-0 text-muted transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
                   </h3>
                   <p className="text-sm">
                     <span className="text-muted">{resultLabel}: </span>
-                    <span className="font-medium text-heading">
+                    <span className="font-bold text-heading">
                       {copy.result}
                     </span>
                   </p>

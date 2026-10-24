@@ -146,3 +146,111 @@ export function DotGrid({
     </svg>
   );
 }
+
+/**
+ * Anillos orbitales: el motivo de esfera del isotipo, en trazo fino.
+ * Toma el color de `currentColor`, así que el tono se da con `text-*`.
+ */
+export function OrbitRings({
+  className,
+  spin = false,
+}: {
+  className?: string;
+  /** Giro muy lento (se detiene con prefers-reduced-motion). */
+  spin?: boolean;
+}) {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 200 200"
+      fill="none"
+      className={cn(
+        "pointer-events-none absolute",
+        spin && "animate-spin-slow",
+        className,
+      )}
+    >
+      <g stroke="currentColor" strokeWidth="1.2">
+        <circle cx="100" cy="100" r="94" />
+        <ellipse cx="100" cy="100" rx="94" ry="40" />
+        <ellipse cx="100" cy="100" rx="40" ry="94" />
+        <circle cx="100" cy="100" r="62" strokeDasharray="3 6" />
+      </g>
+      {/* Satélites sobre las órbitas */}
+      <circle cx="194" cy="100" r="4" fill="var(--color-brand-green)" />
+      <circle cx="100" cy="6" r="3" fill="var(--color-brand-blue)" />
+      <circle cx="56" cy="144" r="2.5" fill="var(--color-brand-green)" />
+    </svg>
+  );
+}
+
+/**
+ * Mancha orgánica con el degradado de marca (verde → azul). Se usa detrás de
+ * imágenes y tarjetas para darles profundidad sin recurrir a halos borrosos.
+ */
+export function GradientBlob({
+  className,
+  opacity = 0.18,
+}: {
+  className?: string;
+  opacity?: number;
+}) {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 600 600"
+      className={cn("pointer-events-none absolute", className)}
+    >
+      <defs>
+        <linearGradient id="blobGrad" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stopColor="var(--color-brand-green)" />
+          <stop offset="100%" stopColor="var(--color-brand-blue)" />
+        </linearGradient>
+      </defs>
+      <path
+        fill="url(#blobGrad)"
+        opacity={opacity}
+        d="M421.5 76.3c55.4 35.6 108.4 92.3 115 156.6 6.7 64.3-33 136.2-86.3 186.4-53.3 50.2-120.2 78.6-186.6 74.4-66.4-4.2-132.3-40.9-165-97.7C66 339.2 66.6 262.3 98 199.6 129.5 137 191.8 88.6 256.6 66.2c64.8-22.4 109.5-25.5 164.9 10.1Z"
+      />
+    </svg>
+  );
+}
+
+/** Cruz pequeña, para salpicar esquinas. Toma `currentColor`. */
+export function PlusMark({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      className={cn("pointer-events-none absolute", className)}
+    >
+      <path
+        d="M12 3v18M3 12h18"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Arcos concéntricos (cuarto de círculo) para anclar una esquina de sección.
+ * Toma `currentColor`.
+ */
+export function CornerArcs({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 200 200"
+      fill="none"
+      className={cn("pointer-events-none absolute", className)}
+    >
+      <g stroke="currentColor" strokeWidth="1.2">
+        {[60, 100, 140, 180].map((r) => (
+          <path key={r} d={`M${200 - r} 200A${r} ${r} 0 0 1 200 ${200 - r}`} />
+        ))}
+      </g>
+    </svg>
+  );
+}

@@ -3,9 +3,24 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Pause,
+  Play,
+  TrendingUp,
+} from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { buttonClasses } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/SectionHeading";
+import {
+  DotGrid,
+  GradientBlob,
+  OrbitRings,
+  PlusMark,
+} from "@/components/ui/Backdrop";
 import type { HeroSlide } from "@/lib/heroSlides";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { cn } from "@/lib/utils";
@@ -96,6 +111,11 @@ export function HeroSlider({
       onTouchEnd={onTouchEnd}
       className="relative isolate overflow-hidden bg-surface"
     >
+      {/* Retícula fina de fondo, desvanecida hacia la izquierda */}
+      <div
+        aria-hidden
+        className="bg-grid-ink pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_75%_40%,black,transparent_65%)]"
+      />
       <Container className="relative pt-36 pb-12 sm:pt-40 lg:pt-44 lg:pb-16">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-16">
           {/* Mensaje de cada slide, apilados en la misma celda */}
@@ -111,34 +131,76 @@ export function HeroSlider({
             ))}
           </div>
 
-          {/* Imagen del slide en una tarjeta redondeada, con fundido cruzado */}
-          <div
-            aria-hidden
-            className="relative aspect-[16/11] overflow-hidden rounded-[2rem] bg-card-soft lg:aspect-[5/4]"
-          >
-            {slides.map((slide, i) => (
-              <div
-                key={slide.key}
-                className={cn(
-                  "absolute inset-0 transition-opacity duration-[1000ms] ease-out",
-                  i === current ? "opacity-100" : "opacity-0",
-                )}
-              >
-                <Image
-                  src={slide.image}
-                  alt=""
-                  fill
-                  priority={i === 0}
-                  sizes="(max-width: 1024px) 100vw, 45vw"
+          {/* Imagen del slide en una tarjeta redondeada, con fundido cruzado,
+              rodeada de figuras de marca y dos tarjetas flotantes de interfaz */}
+          <div aria-hidden className="relative">
+            <GradientBlob
+              opacity={0.22}
+              className="-bottom-16 -left-20 h-[26rem] w-[26rem] sm:-left-24"
+            />
+            <OrbitRings
+              spin
+              className="-right-14 -top-14 h-48 w-48 text-brand-blue/25 sm:-right-16 sm:-top-16 sm:h-56 sm:w-56"
+            />
+            <DotGrid className="-bottom-8 -right-6 h-24 w-24 text-brand-green/40" />
+            <PlusMark className="-left-6 top-10 h-5 w-5 text-brand-green" />
+            <PlusMark className="-top-8 left-1/3 h-3.5 w-3.5 text-brand-blue/60" />
+
+            <div className="relative aspect-[16/11] overflow-hidden rounded-[2rem] bg-card-soft shadow-card-hover lg:aspect-[5/4]">
+              {slides.map((slide, i) => (
+                <div
+                  key={slide.key}
                   className={cn(
-                    "object-cover",
-                    !reduceMotion &&
-                      "transition-transform duration-[8000ms] ease-out",
-                    i === current && !reduceMotion ? "scale-105" : "scale-100",
+                    "absolute inset-0 transition-opacity duration-[1000ms] ease-out",
+                    i === current ? "opacity-100" : "opacity-0",
                   )}
-                />
+                >
+                  <Image
+                    src={slide.image}
+                    alt=""
+                    fill
+                    priority={i === 0}
+                    sizes="(max-width: 1024px) 100vw, 45vw"
+                    className={cn(
+                      "object-cover",
+                      !reduceMotion &&
+                        "transition-transform duration-[8000ms] ease-out",
+                      i === current && !reduceMotion ? "scale-105" : "scale-100",
+                    )}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Tarjeta flotante: mini gráfico de crecimiento */}
+            <div className="animate-float absolute -left-4 bottom-8 hidden w-44 rounded-2xl bg-card/95 p-4 shadow-card-hover ring-1 ring-line backdrop-blur sm:block lg:-left-10">
+              <div className="flex items-center gap-2">
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-green/15 text-brand-green-dark dark:text-brand-green">
+                  <TrendingUp className="h-3.5 w-3.5" strokeWidth={2.5} />
+                </span>
+                <span className="h-1.5 w-16 rounded-full bg-line-strong" />
               </div>
-            ))}
+              <div className="mt-3 flex h-12 items-end gap-1.5">
+                {[35, 55, 45, 70, 62, 90].map((h, i) => (
+                  <span
+                    key={i}
+                    className="flex-1 rounded-t-sm bg-gradient-to-t from-brand-green to-brand-blue"
+                    style={{ height: `${h}%`, opacity: 0.45 + i * 0.1 }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Tarjeta flotante: tarea completada */}
+            <div className="animate-float-slow absolute -right-3 top-10 hidden items-center gap-3 rounded-2xl bg-card/95 py-3 pl-3 pr-5 shadow-card-hover ring-1 ring-line backdrop-blur sm:flex lg:-right-8">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-green text-navy-950">
+                <Check className="h-5 w-5" strokeWidth={3} />
+              </span>
+              <span className="space-y-1.5">
+                <span className="block h-1.5 w-20 rounded-full bg-heading/70" />
+                <span className="block h-1.5 w-12 rounded-full bg-line-strong" />
+              </span>
+            </div>
           </div>
         </div>
 
@@ -161,7 +223,7 @@ export function HeroSlider({
                     aria-label={`${controls.slideLabel} ${i + 1}: ${slide.navLabel}`}
                     onClick={() => goTo(i)}
                     className={cn(
-                      "relative h-9 shrink-0 overflow-hidden rounded-full px-4 text-sm font-medium transition-colors",
+                      "relative h-9 shrink-0 overflow-hidden rounded-full px-4 text-sm font-bold transition-colors",
                       isActive
                         ? "bg-accent-soft text-accent"
                         : "text-body hover:bg-card-soft hover:text-heading",
@@ -272,11 +334,9 @@ function Slide({
     >
       {/* Kicker */}
       <div style={delay(0)} className={cn(anim, "flex items-center gap-3")}>
-        <span className="text-sm font-medium text-accent">
-          {slide.eyebrow}
-        </span>
+        <Eyebrow>{slide.eyebrow}</Eyebrow>
         {slide.badge && (
-          <span className="rounded-full bg-brand-green/15 px-2.5 py-0.5 text-xs font-medium text-brand-green-dark dark:text-brand-green">
+          <span className="rounded-full bg-brand-green/15 px-2.5 py-0.5 text-xs font-bold text-brand-green-dark dark:text-brand-green">
             {slide.badge}
           </span>
         )}
@@ -287,11 +347,11 @@ function Slide({
         style={delay(1)}
         className={cn(
           anim,
-          "mt-5 max-w-2xl text-balance text-[clamp(2.4rem,5vw,4rem)] font-medium leading-[1.08] tracking-[-0.03em] text-heading",
+          "mt-6 max-w-2xl text-balance text-[clamp(2.1rem,4vw,3.2rem)] font-extrabold text-heading",
         )}
       >
         {slide.titleLead}{" "}
-        <span className="text-brand-blue dark:text-brand-blue-light">
+        <span className="text-gradient-ink">
           {slide.titleHighlight}
         </span>
       </h1>
@@ -314,10 +374,10 @@ function Slide({
           className={cn(anim, "mt-7 flex flex-wrap items-baseline gap-x-3")}
         >
           <span className="text-sm text-muted">{slide.price.label}</span>
-          <span className="text-3xl font-medium tracking-tight text-heading sm:text-4xl">
+          <span className="font-display text-3xl font-extrabold text-heading sm:text-4xl">
             {slide.price.value}
           </span>
-          <span className="text-sm text-muted">{slide.price.note}</span>
+          <span className="text-sm font-bold text-accent">{slide.price.note}</span>
         </p>
       )}
 
@@ -358,7 +418,7 @@ function Slide({
           {slide.stats.map((stat) => (
             <div key={stat.label}>
               <dt className="sr-only">{stat.label}</dt>
-              <dd className="text-2xl font-medium tracking-tight text-heading">
+              <dd className="font-display text-2xl font-extrabold text-heading">
                 {stat.value}
               </dd>
               <span className="mt-1 block text-xs leading-snug text-muted">

@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
+import { CornerArcs, DotGrid, PlusMark } from "@/components/ui/Backdrop";
 import { ServiceIcon } from "@/components/ServiceIcon";
 import { services, getService } from "@/content/services";
 import { serviceGroups } from "@/content/navigation";
@@ -41,7 +42,11 @@ export function ServicesBento({
   const [featureA, featureB] = services;
 
   return (
-    <Section tone="light" id="servicios" className="relative">
+    <Section tone="light" id="servicios" className="relative overflow-hidden">
+      <CornerArcs className="-right-10 -top-10 -z-10 h-72 w-72 rotate-180 text-brand-green/25" />
+      <DotGrid className="right-[8%] top-28 -z-10 hidden h-20 w-20 text-brand-blue/25 lg:block" />
+      <PlusMark className="left-[46%] top-24 -z-10 hidden h-4 w-4 text-brand-green/70 lg:block" />
+
       <SectionHeading
         eyebrow={copy.eyebrow}
         title={copy.title}
@@ -51,7 +56,7 @@ export function ServicesBento({
         action={
           <Link
             href={localizedHref(locale, "servicios")}
-            className="group inline-flex items-center gap-2 text-base font-medium text-accent underline-offset-8 hover:underline"
+            className="group inline-flex items-center gap-2 text-base font-bold text-accent underline-offset-8 hover:underline"
           >
             {moreLabel}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -93,13 +98,13 @@ export function ServicesBento({
                   >
                     <ServiceIcon name={service.icon} className="h-6 w-6" />
                   </span>
-                  <h3 className="text-2xl font-medium text-heading sm:text-3xl">
+                  <h3 className="text-2xl font-extrabold text-heading sm:text-3xl">
                     {c.title}
                   </h3>
                   <p className="max-w-md leading-relaxed text-body">
                     {c.description}
                   </p>
-                  <span className="mt-1 inline-flex items-center gap-2 text-sm font-medium text-accent">
+                  <span className="mt-1 inline-flex items-center gap-2 text-sm font-bold text-accent">
                     {ctaLabel}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </span>
@@ -118,7 +123,7 @@ export function ServicesBento({
             className="flex min-w-0 flex-col rounded-[1.75rem] border border-line bg-card p-6 sm:p-7"
           >
             <p className="flex items-baseline justify-between gap-3 border-b border-line pb-4">
-              <span className="text-base font-medium text-heading">
+              <span className="text-base font-bold text-heading">
                 {group[locale].title}
               </span>
               <span className="shrink-0 text-xs tabular-nums text-muted">
@@ -151,7 +156,7 @@ export function ServicesBento({
                         <ServiceIcon name={service.icon} className="h-4.5 w-4.5" />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-medium text-heading">
+                        <span className="block text-sm font-bold text-heading">
                           {c.title}
                         </span>
                         <span className="mt-0.5 block truncate text-xs text-muted">

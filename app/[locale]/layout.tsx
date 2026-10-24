@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Google_Sans } from "next/font/google";
+import localFont from "next/font/local";
+import { Nunito } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -10,10 +11,20 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { siteConfig } from "@/lib/site";
 import { buildMegaMenu } from "@/lib/menu";
 
-// Google Sans — titulares y cuerpo (lenguaje corporativo, sobrio y legible).
-const googleSans = Google_Sans({
+// OpenDyslexic — títulos (lectura fácil, autoalojada).
+const opendyslexic = localFont({
+  src: [
+    { path: "../fonts/opendyslexic-400.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/opendyslexic-700.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-opendyslexic",
+  display: "swap",
+});
+
+// Nunito — cuerpo de texto (redondeada y muy legible).
+const nunito = Nunito({
   subsets: ["latin"],
-  variable: "--font-google-sans",
+  variable: "--font-nunito",
   display: "swap",
 });
 
@@ -93,7 +104,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${googleSans.variable} h-full`}
+      className={`${opendyslexic.variable} ${nunito.variable} h-full`}
     >
       <body className="flex min-h-full flex-col bg-white font-sans antialiased dark:bg-navy-950">
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

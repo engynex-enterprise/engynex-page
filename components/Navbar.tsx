@@ -137,7 +137,7 @@ export function Navbar({
         )}
       >
         <Container>
-          <div className="flex h-10 items-center justify-between gap-3 text-xs font-medium">
+          <div className="flex h-10 items-center justify-between gap-3 text-xs font-bold">
             <span className="hidden items-center gap-1.5 truncate whitespace-nowrap sm:inline-flex">
               <Clock className="h-3.5 w-3.5 shrink-0 text-muted" />
               <span className="hidden lg:inline">{siteConfig.hours[locale]}</span>
@@ -188,7 +188,7 @@ export function Navbar({
           "relative transition-all duration-300",
           "border-b bg-white/90 backdrop-blur-lg supports-[backdrop-filter]:bg-white/80 dark:bg-navy-950/90 dark:supports-[backdrop-filter]:bg-navy-950/80",
           scrolled || openPanel !== null
-            ? "border-line shadow-[0_1px_2px_rgba(60,64,67,0.08)]"
+            ? "border-line shadow-sm shadow-navy-900/5"
             : "border-line",
         )}
       >
@@ -215,7 +215,7 @@ export function Navbar({
                 const panelKey = panelForRoute[route.key];
                 const active = isActive(route.path);
                 const itemClass = cn(
-                  "inline-flex h-10 items-center gap-1 rounded-full px-2.5 text-sm font-medium transition-colors xl:px-4",
+                  "inline-flex h-10 items-center gap-1 rounded-full px-2.5 text-sm font-bold transition-colors xl:px-4",
                   active
                     ? "text-accent"
                     : "text-body hover:bg-card-soft hover:text-heading dark:hover:bg-white/5",

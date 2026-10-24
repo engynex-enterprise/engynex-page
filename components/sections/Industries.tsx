@@ -12,6 +12,7 @@ import {
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
+import { CornerArcs, OrbitRings } from "@/components/ui/Backdrop";
 import { hueAt, hue } from "@/lib/accents";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { cn } from "@/lib/utils";
@@ -42,7 +43,9 @@ export function Industries({
   industries: Dictionary["industries"];
 }) {
   return (
-    <Section tone="muted" className="relative">
+    <Section tone="muted" className="relative overflow-hidden">
+      <CornerArcs className="-bottom-12 -left-12 -z-10 h-80 w-80 rotate-90 text-brand-blue/20" />
+      <OrbitRings className="-right-16 top-16 -z-10 h-56 w-56 text-brand-green/20" />
 
       <SectionHeading
         eyebrow={industries.eyebrow}
@@ -73,7 +76,7 @@ export function Industries({
               </span>
 
               <div>
-                <p className="text-lg font-medium text-heading">{item.name}</p>
+                <p className="text-lg font-bold text-heading">{item.name}</p>
                 <p className="mt-1.5 text-sm leading-relaxed text-body">
                   {item.desc}
                 </p>

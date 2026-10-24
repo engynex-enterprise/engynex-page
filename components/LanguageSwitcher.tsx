@@ -44,7 +44,7 @@ export function LanguageSwitcher({
             className={cn(
               "rounded-full px-2.5 py-1 uppercase transition-colors",
               active
-                ? "bg-brand-blue text-white"
+                ? "bg-brand-green text-navy-950"
                 : tone === "dark"
                   ? "text-ink-300 hover:text-white"
                   : "text-slate-500 hover:text-navy-900 dark:text-ink-300 dark:hover:text-white",

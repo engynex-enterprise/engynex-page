@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ArrowRight, Check } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import { CornerArcs, OrbitRings, PlusMark } from "@/components/ui/Backdrop";
 import { formatCOP, type Plan } from "@/content/pricing";
 import { localizedHref } from "@/lib/site";
 import type { Locale } from "@/i18n/config";
@@ -34,15 +35,21 @@ export function SubscriptionBand({
   return (
     <section className="isolate bg-surface py-20 sm:py-28">
       <Container>
-        <div className="overflow-hidden rounded-[2rem] bg-accent-soft">
+        <div className="relative isolate overflow-hidden rounded-[2rem] bg-accent-soft">
+          <CornerArcs className="-bottom-6 -right-6 -z-10 h-72 w-72 text-brand-green/30" />
+          <OrbitRings
+            spin
+            className="-left-20 -top-24 -z-10 h-64 w-64 text-brand-blue/15"
+          />
+          <PlusMark className="left-[48%] top-10 -z-10 hidden h-4 w-4 text-brand-blue/50 lg:block" />
           <div className="grid items-center gap-12 p-8 sm:p-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-16 lg:p-16">
             {/* Oferta */}
             <div className="min-w-0">
-              <span className="inline-flex items-center rounded-full bg-surface px-3 py-1 text-xs font-medium text-accent">
+              <span className="inline-flex items-center rounded-full bg-surface px-3 py-1 text-xs font-bold text-accent">
                 {copy.eyebrow}
               </span>
 
-              <h2 className="mt-5 text-balance text-[clamp(1.9rem,3.2vw,2.75rem)] font-medium tracking-[-0.025em] text-heading">
+              <h2 className="mt-5 text-balance text-[clamp(1.8rem,3vw,2.6rem)] font-extrabold text-heading">
                 {copy.title}
               </h2>
               <p className="mt-4 max-w-md text-lg leading-relaxed text-body">
@@ -52,10 +59,10 @@ export function SubscriptionBand({
               {/* Precio */}
               <p className="mt-8 flex flex-wrap items-baseline gap-x-3">
                 <span className="text-sm text-muted">{fromLabel}</span>
-                <span className="text-[clamp(2.2rem,4vw,3.25rem)] font-medium leading-none tracking-[-0.03em] text-heading">
+                <span className="font-display text-[clamp(2.2rem,4vw,3.25rem)] font-extrabold leading-none text-heading">
                   {formatCOP(plan.price)}
                 </span>
-                <span className="text-sm text-muted">{copy.priceNote}</span>
+                <span className="text-sm font-bold text-accent">{copy.priceNote}</span>
               </p>
 
               <ul className="mt-7 grid gap-3 sm:grid-cols-2">

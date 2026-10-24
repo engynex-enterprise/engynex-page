@@ -24,12 +24,12 @@ export function ClientLogos({
     <section className="isolate border-y border-line bg-surface-soft py-16 sm:py-20">
       <Container>
         <div className="mx-auto max-w-2xl text-center">
-          <Eyebrow>{copy.eyebrow}</Eyebrow>
-          <h2 className="mt-3 text-balance text-2xl font-medium text-heading sm:text-3xl">
+          <Eyebrow className="justify-center">{copy.eyebrow}</Eyebrow>
+          <h2 className="mt-4 text-balance text-2xl font-extrabold text-heading sm:text-3xl">
             {copy.title}
           </h2>
           <p className="mt-3 text-sm text-muted">
-            <span className="font-medium text-heading">{copy.count}</span>{" "}
+            <span className="font-bold text-heading">{copy.count}</span>{" "}
             {copy.countLabel}
           </p>
         </div>

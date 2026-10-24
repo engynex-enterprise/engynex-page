@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Compass, PenTool, Code2, Rocket, type LucideIcon } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { DotGrid, PlusMark } from "@/components/ui/Backdrop";
 import { hue, type AccentHue } from "@/lib/accents";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -50,7 +51,9 @@ export function ProcessShowcase({
   }, [current, paused, reduceMotion, next, total]);
 
   return (
-    <section className="relative overflow-hidden bg-surface py-20 sm:py-28 lg:py-32">
+    <section className="relative isolate overflow-hidden bg-surface py-20 sm:py-28 lg:py-32">
+      <DotGrid className="right-[6%] top-20 -z-10 hidden h-24 w-24 text-brand-green/30 lg:block" />
+      <PlusMark className="right-[30%] top-36 -z-10 hidden h-4 w-4 text-brand-blue/50 lg:block" />
 
       <Container className="relative">
         <SectionHeading
@@ -105,7 +108,7 @@ export function ProcessShowcase({
                         </span>
                         <span
                           className={cn(
-                            "text-lg font-medium tracking-[-0.015em] transition-colors",
+                            "text-lg font-bold tracking-[-0.015em] transition-colors",
                             active
                               ? "text-heading"
                               : "text-heading/55 group-hover:text-heading",
