@@ -7,7 +7,15 @@ import { products } from "@/content/products";
 /** Rutas que no están en la barra principal pero sí deben indexarse. */
 const extraPaths = [
   "ayuda",
+  "soporte",
+  "planes",
   "preguntas-frecuentes",
+  "legal",
+  "legal/terminos",
+  "legal/privacidad",
+  "legal/cookies",
+  "legal/aviso-privacidad",
+  "legal/uso-aceptable",
   "cotizar",
   "nosotros/mision-vision",
   "nosotros/valores",

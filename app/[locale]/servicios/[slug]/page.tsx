@@ -38,6 +38,7 @@ import {
 import { getDictionary } from "@/i18n/dictionaries";
 import { locales, isLocale, type Locale } from "@/i18n/config";
 import { localizedHref, siteConfig } from "@/lib/site";
+import { signatures } from "@/components/services/signatures";
 import { cn } from "@/lib/utils";
 
 export function generateStaticParams() {
@@ -451,8 +452,24 @@ export default async function ServiceDetailPage({
         )
       : null;
 
+  // Diseño propio del servicio: cabecera y sección insignia.
+  const signature = signatures[slug];
+  const Showcase = signature?.Showcase;
+  const showcase: Builder = Showcase
+    ? (tone) => (
+        <Showcase
+          key="signature"
+          service={service}
+          locale={locale}
+          dict={dict}
+          tone={tone}
+        />
+      )
+    : null;
+
   const byKey: Record<string, Builder> = {
     overview,
+    signature: showcase,
     extra,
     benefits,
     process: processSection,
@@ -463,24 +480,38 @@ export default async function ServiceDetailPage({
   };
 
   // Solo las secciones con contenido cuentan para alternar el fondo.
-  const sections = sectionOrder[family]
+  // La sección insignia va siempre justo después de la visión general.
+  const order = sectionOrder[family].flatMap((key) =>
+    key === "overview" ? ["overview", "signature"] : [key],
+  );
+  const replaced = new Set<string>(signature?.replaces ?? []);
+  const sections = order
+    .filter((key) => !replaced.has(key))
     .map((key) => byKey[key])
     .filter((build): build is NonNullable<Builder> => build !== null);
 
   return (
     <>
-      <ServiceHero
-        service={service}
-        locale={locale}
-        backLabel={t.detail.back}
-        backHref={localizedHref(locale, "servicios")}
-        primary={{ label: t.ctaService, href: contactHref }}
-        secondary={{
-          label: dict.common.talkToUs,
-          href: `https://wa.me/${siteConfig.whatsapp}`,
-          external: true,
-        }}
-      />
+      {(() => {
+        const heroProps = {
+          service,
+          locale,
+          dict,
+          backLabel: t.detail.back,
+          backHref: localizedHref(locale, "servicios"),
+          primary: { label: t.ctaService, href: contactHref },
+          secondary: {
+            label: dict.common.talkToUs,
+            href: `https://wa.me/${siteConfig.whatsapp}`,
+            external: true,
+          },
+        };
+        return signature ? (
+          <signature.Hero {...heroProps} />
+        ) : (
+          <ServiceHero {...heroProps} />
+        );
+      })()}
 
       <StickyBar
         title={copy.title}

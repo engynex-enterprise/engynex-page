@@ -25,23 +25,36 @@ export function LegalToc({
     const sections = items
       .map((item) => document.getElementById(item.id))
       .filter((el): el is HTMLElement => el !== null);
-    if (!sections.length || !("IntersectionObserver" in window)) return;
+    if (!sections.length) return;
 
-    const visible = new Set<string>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) visible.add(entry.target.id);
-          else visible.delete(entry.target.id);
+    // La sección activa es la última cuyo inicio ya pasó bajo la barra
+    // superior; al llegar al final de la página, la última.
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const atBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 4;
+      let current = sections[0].id;
+      if (atBottom) current = sections[sections.length - 1].id;
+      else
+        for (const section of sections) {
+          if (section.getBoundingClientRect().top <= 140) current = section.id;
+          else break;
         }
-        // La primera sección visible en el orden del documento.
-        const first = items.find((item) => visible.has(item.id));
-        if (first) setActive(first.id);
-      },
-      { rootMargin: "-112px 0px -55% 0px" },
-    );
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+      setActive(current);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, [items]);
 
   const closeDisclosure = (event: MouseEvent<HTMLAnchorElement>) => {

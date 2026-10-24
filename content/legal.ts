@@ -444,7 +444,7 @@ function buildDocs(locale: Locale): LegalDoc[] {
                   "Datos de tu solicitud: servicio o producto de interés, presupuesto estimado, mensaje y archivos que adjuntes en los formularios de contacto, cotización o soporte.",
                   "Conversaciones: el número, el nombre de perfil y los mensajes que intercambias con nosotros por WhatsApp, correo electrónico o redes sociales.",
                   "Datos de clientes y proveedores: documento de identificación o NIT, datos de facturación, información de pagos y la necesaria para ejecutar el contrato.",
-                  "Datos de navegación: preferencias que el sitio guarda en tu navegador (tema claro u oscuro y país) y datos técnicos como la dirección IP, el tipo de navegador y las páginas visitadas, que los servidores registran por seguridad. Si en el futuro habilitamos herramientas de analítica, se aplicará lo descrito en la [Política de cookies](doc:cookies).",
+                  "Datos de navegación: preferencias que el sitio guarda en tu navegador (tema claro u oscuro y país) y datos técnicos como la dirección IP, el tipo de navegador y las páginas visitadas, que los servidores registran por seguridad. El uso de cookies se explica en la [Política de cookies](doc:cookies).",
                 ],
               },
               "Los pagos con tarjeta o PSE se procesan a través de las plataformas de pago correspondientes, que tratan los datos financieros según sus propias políticas.",
@@ -601,14 +601,16 @@ function buildDocs(locale: Locale): LegalDoc[] {
             id: "que-usamos",
             title: "2. Qué usamos en este sitio",
             body: [
-              "Hoy este sitio no usa cookies publicitarias ni de seguimiento de terceros. Solo usa:",
+              "Clasificamos las cookies en cuatro categorías. Las necesarias siempre están activas; las demás son opcionales y solo se usan si las aceptas:",
               {
                 list: [
-                  "Estrictamente necesarias: las técnicas que el sitio y su infraestructura de alojamiento pueden requerir para funcionar de forma correcta y segura. No pueden desactivarse desde el sitio.",
-                  "De preferencias (almacenamiento local): «theme», que recuerda si elegiste el modo claro u oscuro, y «engynex-country», que recuerda el país o región que seleccionaste. Se guardan solo en tu navegador, no se envían a nuestros servidores y no sirven para identificarte.",
-                  "De analítica: no están activas. Si en el futuro habilitamos herramientas de medición de audiencia, actualizaremos esta política indicando cuáles son y para qué se usan y, cuando corresponda, pediremos tu consentimiento antes de activarlas.",
+                  "Necesarias: permiten navegar, recordar el idioma, el país y el tema que elegiste, enviar formularios de forma segura y guardar tu decisión sobre cookies. Incluyen, en el almacenamiento local de tu navegador, «theme» (modo claro u oscuro), «engynex-country» (país o región seleccionado) y «engynex-cookie-consent» (las categorías que aceptaste o rechazaste y la fecha). Se guardan solo en tu navegador, no se envían a nuestros servidores y no sirven para identificarte.",
+                  "Preferencias: recuerdan ajustes opcionales para personalizar tu experiencia en próximas visitas.",
+                  "Analítica: nos ayudarían a entender, de forma agregada, qué páginas se visitan para mejorar el sitio.",
+                  "Marketing: permitirían medir campañas y mostrarte anuncios relevantes en otros sitios.",
                 ],
               },
+              "A la fecha de esta política, el sitio no carga herramientas de analítica ni de marketing de terceros. Si las incorporamos, solo se activarán con tu consentimiento y actualizaremos esta política indicando cuáles son y para qué se usan.",
               "Cuando sigues un enlace a servicios de terceros, como WhatsApp o nuestras redes sociales, esos sitios pueden usar sus propias cookies, que se rigen por sus políticas.",
             ],
           },
@@ -616,8 +618,9 @@ function buildDocs(locale: Locale): LegalDoc[] {
             id: "gestionar",
             title: "3. Cómo gestionarlas",
             body: [
-              "Puedes consultar, bloquear o eliminar las cookies y el almacenamiento local desde la configuración de tu navegador, normalmente en las secciones de privacidad o datos de sitios. Encontrarás las instrucciones en la ayuda de Chrome, Safari, Firefox, Edge y los demás navegadores.",
-              "Si borras los datos del sitio, se perderán tus preferencias de tema y país, y el sitio volverá a usar los valores predeterminados. Bloquear las cookies estrictamente necesarias puede hacer que algunas funciones no operen correctamente.",
+              "En tu primera visita te mostramos un aviso para aceptar todas las cookies, rechazar las opcionales o elegir cuáles permitir. Puedes cambiar tu decisión cuando quieras desde el enlace «Configuración de cookies» que está al pie de cada página.",
+              "También puedes consultar, bloquear o eliminar las cookies y el almacenamiento local desde la configuración de tu navegador, normalmente en las secciones de privacidad o datos de sitios. Encontrarás las instrucciones en la ayuda de Chrome, Safari, Firefox, Edge y los demás navegadores.",
+              "Si borras los datos del sitio, se perderán tus preferencias de tema y país y tu decisión sobre cookies, y el aviso volverá a aparecer. Bloquear las cookies necesarias puede hacer que algunas funciones no operen correctamente.",
             ],
           },
           {
@@ -1090,7 +1093,7 @@ function buildDocs(locale: Locale): LegalDoc[] {
                 "Request data: service or product of interest, estimated budget, message and any files you attach in the contact, quote or support forms.",
                 "Conversations: the number, profile name and messages you exchange with us via WhatsApp, email or social networks.",
                 "Client and supplier data: ID document or tax ID (NIT), billing details, payment information and whatever is needed to perform the contract.",
-                "Browsing data: preferences the site stores in your browser (light or dark theme and country) and technical data such as IP address, browser type and pages visited, which servers log for security. If we enable analytics tools in the future, the [Cookie Policy](doc:cookies) will apply.",
+                "Browsing data: preferences the site stores in your browser (light or dark theme and country) and technical data such as IP address, browser type and pages visited, which servers log for security. Our use of cookies is explained in the [Cookie Policy](doc:cookies).",
               ],
             },
             "Card and PSE payments are processed through the relevant payment platforms, which handle financial data under their own policies.",
@@ -1246,14 +1249,16 @@ function buildDocs(locale: Locale): LegalDoc[] {
           id: "que-usamos",
           title: "2. What this site uses",
           body: [
-            "Today this site does not use advertising cookies or third-party tracking. It only uses:",
+            "We group cookies into four categories. Necessary cookies are always active; the others are optional and are only used if you accept them:",
             {
               list: [
-                "Strictly necessary: technical cookies the site and its hosting infrastructure may require to work correctly and securely. They cannot be switched off from the site.",
-                "Preferences (local storage): “theme”, which remembers whether you chose light or dark mode, and “engynex-country”, which remembers the country or region you selected. They are stored only in your browser, are not sent to our servers and cannot be used to identify you.",
-                "Analytics: not active. If we enable audience measurement tools in the future, we will update this policy to state which ones and what they are used for and, where applicable, ask for your consent before enabling them.",
+                "Necessary: they let you browse, remember the language, country and theme you chose, submit forms securely and store your cookie choice. In your browser's local storage they include “theme” (light or dark mode), “engynex-country” (selected country or region) and “engynex-cookie-consent” (the categories you accepted or rejected and the date). They are stored only in your browser, are not sent to our servers and cannot be used to identify you.",
+                "Preferences: they remember optional settings to personalize your experience on future visits.",
+                "Analytics: they would help us understand, in aggregate, which pages are visited so we can improve the site.",
+                "Marketing: they would let us measure campaigns and show you relevant ads on other sites.",
               ],
             },
+            "As of the date of this policy, the site does not load any third-party analytics or marketing tools. If we add them, they will only be enabled with your consent and we will update this policy to state which ones and what they are used for.",
             "When you follow a link to third-party services, such as WhatsApp or our social networks, those sites may use their own cookies, governed by their policies.",
           ],
         },
@@ -1261,8 +1266,9 @@ function buildDocs(locale: Locale): LegalDoc[] {
           id: "gestionar",
           title: "3. How to manage them",
           body: [
-            "You can view, block or delete cookies and local storage in your browser settings, usually under privacy or site data. You'll find instructions in the help pages of Chrome, Safari, Firefox, Edge and other browsers.",
-            "If you clear the site's data, your theme and country preferences will be lost and the site will go back to its defaults. Blocking strictly necessary cookies may prevent some features from working properly.",
+            "On your first visit we show you a notice to accept all cookies, reject the optional ones or choose which to allow. You can change your choice at any time from the “Cookie settings” link at the bottom of every page.",
+            "You can also view, block or delete cookies and local storage in your browser settings, usually under privacy or site data. You'll find instructions in the help pages of Chrome, Safari, Firefox, Edge and other browsers.",
+            "If you clear the site's data, your theme and country preferences and your cookie choice will be lost, and the notice will appear again. Blocking necessary cookies may prevent some features from working properly.",
           ],
         },
         {
