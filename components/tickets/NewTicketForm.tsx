@@ -33,6 +33,7 @@ export function NewTicketForm({
   accounts = [],
   employees = [],
   meId,
+  initialAccount,
 }: {
   locale: Locale;
   categories: { value: string; label: string }[];
@@ -41,6 +42,8 @@ export function NewTicketForm({
   accounts?: Account[];
   employees?: Person[];
   meId?: string;
+  /** Cuenta preseleccionada (desde la ficha del cliente). */
+  initialAccount?: string;
 }) {
   const t = ticketsCopy[locale];
   const n = supportNewCopy[locale];
@@ -53,7 +56,7 @@ export function NewTicketForm({
   const [files, setFiles] = useState<File[]>([]);
   const [drag, setDrag] = useState(false);
   // Solo equipo
-  const [account, setAccount] = useState("");
+  const [account, setAccount] = useState(initialAccount ?? "");
   const [person, setPerson] = useState({ name: "", email: "", phone: "", company: "" });
   const [channel, setChannel] = useState("phone");
   const [assignee, setAssignee] = useState(meId ?? "");

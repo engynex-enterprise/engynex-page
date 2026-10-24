@@ -11,8 +11,15 @@ import { listEmployees } from "@/lib/employees";
 import { ticketCategories } from "@/lib/ticketCategories";
 import type { SupportConfig } from "@/lib/supabase/types";
 
-export default async function NewTicketPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function NewTicketPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ cliente?: string }>;
+}) {
   const { locale } = await params;
+  const { cliente } = await searchParams;
   if (!isLocale(locale)) notFound();
   const { supabase, profile } = await requireProfile(locale, ["client", "provider", "admin", "support", "sales"]);
   const t = ticketsCopy[locale];
@@ -42,6 +49,7 @@ export default async function NewTicketPage({ params }: { params: Promise<{ loca
         sla={sla}
         staff={staff}
         meId={profile.id}
+        initialAccount={staff && accounts?.some((a) => a.id === cliente) ? cliente : undefined}
         employees={employees}
         accounts={(accounts ?? []).map((a) => ({ id: a.id, name: a.full_name ?? a.email, email: a.email, company: a.company }))}
       />
