@@ -235,7 +235,8 @@ function Hero({ service, locale, ...props }: SignatureHeroProps) {
           <HeroActions
             primary={props.primary}
             secondary={props.secondary}
-            className="mt-9 justify-center"
+            /* El gris del botón secundario coincide con el fondo: lo pasamos a tarjeta. */
+            className="mt-9 justify-center [&>a+a]:bg-card [&>a+a]:ring-1 [&>a+a]:ring-line [&>a+a]:hover:bg-line"
           />
         </div>
 
@@ -244,12 +245,16 @@ function Hero({ service, locale, ...props }: SignatureHeroProps) {
           aria-hidden
           className="relative mx-auto mt-14 flex h-[22rem] max-w-3xl items-start justify-center sm:mt-16 sm:h-[30rem] lg:h-[34rem]"
         >
-          <Phone className="absolute top-12 w-[38%] max-w-[13rem] -translate-x-[62%] -rotate-[8deg] motion-safe:animate-slide-up sm:w-[30%]">
-            <ListScreen image={service.image} sizes="200px" />
-          </Phone>
-          <Phone className="absolute top-12 w-[38%] max-w-[13rem] translate-x-[62%] rotate-[8deg] motion-safe:animate-slide-up sm:w-[30%]">
-            <SettingsScreen />
-          </Phone>
+          <div className="absolute left-1/2 top-12 w-[38%] max-w-[13rem] -translate-x-[118%] -rotate-[8deg] motion-safe:animate-slide-up sm:w-[30%]">
+            <Phone>
+              <ListScreen image={service.image} sizes="200px" />
+            </Phone>
+          </div>
+          <div className="absolute left-1/2 top-12 w-[38%] max-w-[13rem] translate-x-[18%] rotate-[8deg] motion-safe:animate-slide-up sm:w-[30%]">
+            <Phone>
+              <SettingsScreen />
+            </Phone>
+          </div>
           <div className="relative z-10 w-[46%] max-w-[16rem] motion-safe:animate-slide-up sm:w-[36%]">
             <Phone>
               <HomeScreen image={service.image} sizes="260px" />

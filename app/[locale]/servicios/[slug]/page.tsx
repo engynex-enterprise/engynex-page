@@ -39,6 +39,7 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { locales, isLocale, type Locale } from "@/i18n/config";
 import { localizedHref, siteConfig } from "@/lib/site";
 import { signatures } from "@/components/services/signatures";
+import { deliverablesDesigns } from "@/components/services/deliverables";
 import { cn } from "@/lib/utils";
 
 export function generateStaticParams() {
@@ -278,12 +279,7 @@ export default async function ServiceDetailPage({
       case "ops":
         return sla.length > 0
           ? (tone: Tone) => (
-              <SlaGrid
-                key="extra"
-                rows={sla}
-                copy={t.extras.sla}
-                tone={tone}
-              />
+              <SlaGrid key="extra" rows={sla} copy={t.extras.sla} tone={tone} />
             )
           : null;
       case "data":
@@ -345,33 +341,45 @@ export default async function ServiceDetailPage({
       )
     : null;
 
-  const deliverables: Builder = (tone) => (
-    <Section key="deliverables" tone={tone}>
-      <CenteredTitle title={t.detail.deliverablesTitle} />
-      <ul className="mx-auto mt-12 grid max-w-5xl gap-3 sm:mt-16 sm:grid-cols-2">
-        {copy.deliverables.map((item, i) => (
-          <Reveal
-            key={item}
-            as="li"
-            delay={(i % 4) * 60}
-            className={cn(
-              "flex items-start gap-4 rounded-3xl p-6",
-              cardSurface(tone),
-            )}
-          >
-            <Check
-              className="mt-0.5 h-5 w-5 shrink-0 text-accent"
-              strokeWidth={2.5}
-              aria-hidden
-            />
-            <span className="text-base font-bold leading-snug text-heading">
-              {item}
-            </span>
-          </Reveal>
-        ))}
-      </ul>
-    </Section>
-  );
+  const DeliverablesDesign = deliverablesDesigns[slug];
+  const deliverables: Builder = DeliverablesDesign
+    ? (tone) => (
+        <DeliverablesDesign
+          key="deliverables"
+          service={service}
+          locale={locale}
+          dict={dict}
+          tone={tone}
+          title={t.detail.deliverablesTitle}
+        />
+      )
+    : (tone) => (
+        <Section key="deliverables" tone={tone}>
+          <CenteredTitle title={t.detail.deliverablesTitle} />
+          <ul className="mx-auto mt-12 grid max-w-5xl gap-3 sm:mt-16 sm:grid-cols-2">
+            {copy.deliverables.map((item, i) => (
+              <Reveal
+                key={item}
+                as="li"
+                delay={(i % 4) * 60}
+                className={cn(
+                  "flex items-start gap-4 rounded-3xl p-6",
+                  cardSurface(tone),
+                )}
+              >
+                <Check
+                  className="mt-0.5 h-5 w-5 shrink-0 text-accent"
+                  strokeWidth={2.5}
+                  aria-hidden
+                />
+                <span className="text-base font-bold leading-snug text-heading">
+                  {item}
+                </span>
+              </Reveal>
+            ))}
+          </ul>
+        </Section>
+      );
 
   const plansSection: Builder =
     plans.length > 0

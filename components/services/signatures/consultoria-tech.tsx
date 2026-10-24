@@ -224,4 +224,9 @@ function Showcase({ service, locale, tone }: SignatureProps & { tone: Tone }) {
   );
 }
 
-export const signature: ServiceSignature = { Hero, Showcase };
+export const signature: ServiceSignature = {
+  Hero,
+  Showcase,
+  // Los compromisos de servicio ya están en la cabecera / sección insignia.
+  replaces: ["extra"],
+};

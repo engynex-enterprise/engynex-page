@@ -79,7 +79,7 @@ export function CheckoutStepper({
         role="tablist"
         aria-label={labels.steps}
         onKeyDown={onKeyDown}
-        className="mx-auto grid max-w-4xl grid-cols-4 gap-2 sm:gap-3"
+        className="mx-auto grid max-w-4xl grid-cols-4"
       >
         {steps.map((s, i) => {
           const selected = i === active;

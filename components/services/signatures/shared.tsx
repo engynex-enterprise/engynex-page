@@ -41,7 +41,8 @@ export function HeroActions({
   dark?: boolean;
   className?: string;
 }) {
-  const secondaryClass = buttonClasses(dark ? "glass" : "secondary", "lg");
+  // En claro va con contorno: un botón gris se pierde sobre fondos grises.
+  const secondaryClass = buttonClasses(dark ? "glass" : "outline", "lg");
   return (
     <div className={cn("flex flex-wrap gap-3", className)}>
       <Link href={primary.href} className={buttonClasses("primary", "lg")}>
