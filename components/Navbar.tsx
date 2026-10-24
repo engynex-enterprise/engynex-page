@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { InstagramIcon, FacebookIcon, TiktokIcon } from "./SocialIcons";
-import { LanguageSwitcher } from "./LanguageSwitcher";
+import { RegionLanguage } from "./RegionLanguage";
 import { ThemeToggle } from "./ThemeToggle";
 import { Container } from "./ui/Container";
 import { buttonClasses } from "./ui/Button";
@@ -43,11 +43,13 @@ export function Navbar({
   nav,
   themeLabel,
   menu,
+  region,
 }: {
   locale: Locale;
   nav: Dictionary["nav"];
   themeLabel: string;
   menu: MegaMenu;
+  region: Dictionary["region"];
 }) {
   const pathname = usePathname() || `/${locale}`;
   const [scrolled, setScrolled] = useState(false);
@@ -203,6 +205,8 @@ export function Navbar({
       >
         <Container>
           <div className="flex h-16 items-center justify-between gap-4">
+            {/* Logo y navegación juntos a la izquierda, como en meta.com */}
+            <div className="flex min-w-0 items-center gap-6 xl:gap-10">
             <Link
               href={localizedHref(locale)}
               aria-label="Engynex Colombia"
@@ -219,15 +223,13 @@ export function Navbar({
             </Link>
 
             {/* Navegación desktop */}
-            <nav className="hidden items-center gap-0.5 lg:flex">
+            <nav className="hidden items-center gap-1 lg:flex xl:gap-2">
               {navRoutes.map((route) => {
                 const panelKey = panelForRoute[route.key];
                 const active = isActive(route.path);
                 const itemClass = cn(
-                  "inline-flex h-9 items-center gap-1 rounded-full px-3 text-[0.9rem] font-medium text-heading transition-colors xl:px-4",
-                  active
-                    ? "bg-card-soft"
-                    : "hover:bg-card-soft dark:hover:bg-white/5",
+                  "inline-flex h-10 items-center gap-1 rounded-full px-2.5 text-[0.95rem] text-heading transition-colors hover:bg-card-soft dark:hover:bg-white/5 xl:px-3",
+                  active && "font-semibold",
                 );
 
                 if (!panelKey) {
@@ -251,7 +253,7 @@ export function Navbar({
                     aria-expanded={expanded}
                     aria-controls={`mega-panel-${panelKey}`}
                     onClick={() => togglePanel(panelKey)}
-                    className={cn(itemClass, expanded && "bg-accent-soft text-accent")}
+                    className={cn(itemClass, expanded && "bg-card-soft")}
                   >
                     {nav[route.key]}
                     <ChevronDown
@@ -265,13 +267,22 @@ export function Navbar({
                 );
               })}
             </nav>
+            </div>
 
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1 sm:gap-2">
+              {/* Utilidades, como "Ayuda" y el globo de idioma en meta.com */}
+              <Link
+                href={localizedHref(locale, "contacto")}
+                className="hidden h-10 items-center rounded-full px-3 text-[0.95rem] text-heading transition-colors hover:bg-card-soft xl:inline-flex dark:hover:bg-white/5"
+              >
+                {region.help}
+              </Link>
+              <RegionLanguage
+                locale={locale}
+                copy={region}
+                className="hidden sm:inline-flex"
+              />
               <ThemeToggle label={themeLabel} tone="light" />
-              {/* Oculto entre lg y xl: ahí la barra ya lleva 6 enlaces + CTA. */}
-              <div className="hidden sm:max-lg:block xl:block">
-                <LanguageSwitcher locale={locale} tone="light" />
-              </div>
               {/* El wrapper evita mezclar `hidden` con el `inline-flex` del
                   botón: en móvil el CTA desbordaba la barra. */}
               <div className="hidden sm:block">
@@ -434,10 +445,10 @@ export function Navbar({
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <div className="flex items-center justify-between gap-3">
-                <LanguageSwitcher
+                <RegionLanguage
                   locale={locale}
-                  tone="light"
-                  onNavigate={closeMobile}
+                  copy={region}
+                  onDone={closeMobile}
                 />
                 <a
                   href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}

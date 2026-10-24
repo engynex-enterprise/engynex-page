@@ -104,6 +104,7 @@ export default async function LocaleLayout({
           nav={dict.nav}
           themeLabel={dict.common.toggleTheme}
           menu={buildMegaMenu(locale)}
+          region={dict.region}
         />
         <main className="flex-1">{children}</main>
         <QuickStart locale={locale} copy={dict.quickStart} />
