@@ -17,6 +17,7 @@ import { Logo } from "./Logo";
 import { InstagramIcon, FacebookIcon, TiktokIcon } from "./SocialIcons";
 import { RegionLanguage } from "./RegionLanguage";
 import { AccessibilityWidget } from "./AccessibilityWidget";
+import { UserMenu } from "./auth/UserMenu";
 import { ThemeToggle } from "./ThemeToggle";
 import { Container } from "./ui/Container";
 import { buttonClasses } from "./ui/Button";
@@ -276,7 +277,7 @@ export function Navbar({
               {/* Utilidades, como "Ayuda" y el globo de idioma en meta.com */}
               <Link
                 href={localizedHref(locale, "ayuda")}
-                className="hidden h-10 items-center rounded-full px-3 text-[0.95rem] text-heading transition-colors hover:bg-card-soft xl:inline-flex dark:hover:bg-white/5"
+                className="hidden h-10 items-center rounded-full px-3 text-[0.95rem] text-heading transition-colors hover:bg-card-soft 2xl:inline-flex dark:hover:bg-white/5"
               >
                 {region.help}
               </Link>
@@ -287,12 +288,13 @@ export function Navbar({
               />
               <AccessibilityWidget copy={a11y} />
               <ThemeToggle label={themeLabel} tone="light" />
+              <UserMenu locale={locale} />
               {/* El wrapper evita mezclar `hidden` con el `inline-flex` del
                   botón: en móvil el CTA desbordaba la barra. */}
               <div className="hidden sm:block">
                 <Link
                   href={localizedHref(locale, "contacto")}
-                  className={buttonClasses("primary", "md")}
+                  className={buttonClasses("primary", "md", "whitespace-nowrap")}
                 >
                   {nav.cta}
                   <ArrowRight className="h-4 w-4" />

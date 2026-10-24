@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { supportIssues } from "@/content/support";
+import { createClient } from "@/lib/supabase/server";
 
 const PRIORITIES = ["critical", "high", "medium", "low"] as const;
 
 /**
  * Solicitudes del centro de soporte (/soporte).
  *
- * Igual que /api/contact: valida y registra en el log del servidor. Para
- * crear tickets reales, conecta aquí la mesa de ayuda o el envío de correo
- * (ver el TODO de app/api/contact/route.ts).
+ * Valida y crea el ticket en la base de datos (submit_ticket). Si la persona
+ * inició sesión en el portal, el ticket queda en su cuenta y lo sigue desde
+ * "Mis solicitudes". Devuelve el número del ticket.
  */
 export async function POST(request: Request) {
   let data: Record<string, unknown>;
@@ -40,16 +41,23 @@ export async function POST(request: Request) {
     );
   }
 
-  // TODO: crear el ticket en la mesa de ayuda o notificar por correo.
-  console.info("[support] Nueva solicitud:", {
-    name,
-    email,
-    company: data.company,
-    phone: data.phone,
-    category,
-    priority,
-    affected: data.affected,
+  const supabase = await createClient();
+  const { data: ticket, error } = await supabase.rpc("submit_ticket", {
+    p: {
+      name,
+      email,
+      company: String(data.company ?? ""),
+      phone: String(data.phone ?? ""),
+      category,
+      priority,
+      affected: String(data.affected ?? ""),
+      description,
+    },
   });
+  if (error) {
+    const limited = error.message.includes("rate_limited");
+    return NextResponse.json({ error: limited ? "rate_limited" : "failed" }, { status: limited ? 429 : 500 });
+  }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, number: (ticket as { number: number }).number });
 }

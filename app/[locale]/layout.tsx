@@ -2,17 +2,10 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Figtree } from "next/font/google";
 import { notFound } from "next/navigation";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { QuickStart } from "@/components/QuickStart";
-import { CookieConsent } from "@/components/CookieConsent";
 import { A11Y_BOOT_SCRIPT } from "@/lib/a11yConfig";
-import { FloatingActions } from "@/components/FloatingActions";
-import { WhatsAppWidget } from "@/components/WhatsAppWidget";
 import { locales, isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { siteConfig } from "@/lib/site";
-import { buildMegaMenu } from "@/lib/menu";
 
 // Figtree — titulares y cuerpo. Es la alternativa libre más cercana a la
 // tipografía geométrica-humanista de meta.com (Optimistic, propietaria).
@@ -104,8 +97,6 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
 
-  const dict = getDictionary(locale);
-
   return (
     <html
       lang={locale}
@@ -116,27 +107,7 @@ export default async function LocaleLayout({
         <script
           dangerouslySetInnerHTML={{ __html: themeScript + A11Y_BOOT_SCRIPT }}
         />
-        <Navbar
-          locale={locale}
-          nav={dict.nav}
-          themeLabel={dict.common.toggleTheme}
-          menu={buildMegaMenu(locale)}
-          region={dict.region}
-          a11y={dict.a11y}
-        />
-        <main className="flex-1">{children}</main>
-        <QuickStart
-          locale={locale}
-          copy={dict.quickStart}
-          privacyLabel={dict.consent.link}
-        />
-        <Footer locale={locale} dict={dict} />
-        <CookieConsent
-          copy={dict.cookies}
-          policyHref={`/${locale}/legal/cookies`}
-        />
-        <FloatingActions topLabel={dict.common.backToTop} />
-        <WhatsAppWidget chat={dict.chat} locale={locale} />
+        {children}
       </body>
     </html>
   );

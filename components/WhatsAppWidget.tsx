@@ -21,6 +21,8 @@ import { WhatsappIcon } from "./SocialIcons";
 import { buttonClasses } from "@/components/ui/Button";
 import { siteConfig } from "@/lib/site";
 import { saveWhatsAppSide, useWhatsAppSide } from "@/lib/sideTabs";
+import { OPEN_CHAT_EVENT, liveChatCopy } from "@/content/liveChat";
+import { trackContact } from "@/lib/tracking";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { cn } from "@/lib/utils";
@@ -277,6 +279,17 @@ export function WhatsAppWidget({
                   </li>
                 ))}
               </ul>
+              {/* Alternativa sin salir del sitio */}
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  window.dispatchEvent(new Event(OPEN_CHAT_EVENT));
+                }}
+                className="mt-4 w-full text-center text-sm font-semibold text-accent hover:underline"
+              >
+                {liveChatCopy[locale].widget.preferHere}
+              </button>
             </>
           ) : (
             <>
@@ -328,6 +341,7 @@ export function WhatsAppWidget({
                   href={desktop ? waWebLink(text) : waLink(text)}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackContact("whatsapp")}
                   // Verde de WhatsApp: se arma aparte porque `cn` no resuelve
                   // clases en conflicto con el verde del botón primario.
                   className="inline-flex h-13 w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-8 text-[0.95rem] font-semibold text-deep-950 transition-colors hover:bg-[#1fbe5b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-deep-700 focus-visible:ring-offset-2"
@@ -340,6 +354,7 @@ export function WhatsAppWidget({
                     href={waLink(text)}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackContact("whatsapp")}
                     className={buttonClasses("outline", "md", "w-full")}
                   >
                     {chat.openDesktop}

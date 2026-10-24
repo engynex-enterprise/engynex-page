@@ -42,6 +42,7 @@ export function SupportDesk({
   const [priority, setPriority] = useState("medium");
   const [affected, setAffected] = useState("");
   const [status, setStatus] = useState<Status>("idle");
+  const [ticketNumber, setTicketNumber] = useState<number | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const formRef = useRef<HTMLDivElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
@@ -85,6 +86,8 @@ export function SupportDesk({
         }),
       });
       if (!response.ok) throw new Error(String(response.status));
+      const result = (await response.json()) as { number?: number };
+      setTicketNumber(result.number ?? null);
       setStatus("sent");
       form.reset();
       setCategory("");
@@ -195,7 +198,12 @@ export function SupportDesk({
             {status === "sent" ? (
               <div role="status" className="flex flex-col items-center py-8 text-center">
                 <CheckCircle2 className="h-12 w-12 text-accent" aria-hidden />
-                <p className="mt-5 max-w-md text-lg text-heading">{f.success}</p>
+                {ticketNumber && (
+                  <p className="mt-5 text-sm font-semibold text-muted">
+                    {f.ticket} <span className="text-2xl font-bold text-heading">#{ticketNumber}</span>
+                  </p>
+                )}
+                <p className="mt-3 max-w-md text-lg text-heading">{f.success}</p>
                 <button
                   type="button"
                   onClick={() => setStatus("idle")}

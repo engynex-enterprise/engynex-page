@@ -53,8 +53,12 @@ export function Select({
   /** Texto cuando aún no hay valor. */
   placeholder?: string;
   invalid?: boolean;
-  /** `lg` es el campo grande del modal; `md`, el de formularios. */
-  size?: "md" | "lg";
+  /**
+   * `lg` es el campo grande del modal; `md`, el de formularios; `sm`, una
+   * píldora compacta para barras de filtros (la etiqueta queda solo para
+   * lectores de pantalla).
+   */
+  size?: "sm" | "md" | "lg";
   className?: string;
 }) {
   const baseId = useId();
@@ -210,6 +214,7 @@ export function Select({
   };
 
   const big = size === "lg";
+  const small = size === "sm";
 
   return (
     <div className={cn("relative", className)}>
@@ -228,8 +233,13 @@ export function Select({
         onClick={() => (open ? setOpen(false) : openList())}
         onKeyDown={onKeyDown}
         className={cn(
-          "relative flex w-full flex-col items-start justify-center rounded-2xl border bg-surface text-left outline-none transition-colors dark:bg-card",
-          big ? "h-[4.75rem] pl-5 pr-14 sm:pl-8" : "h-16 pl-4 pr-12",
+          "relative flex w-full flex-col items-start justify-center border bg-surface text-left outline-none transition-colors dark:bg-card",
+          small ? "rounded-full" : "rounded-2xl",
+          big
+            ? "h-[4.75rem] pl-5 pr-14 sm:pl-8"
+            : small
+              ? "h-9 pl-4 pr-10"
+              : "h-16 pl-4 pr-12",
           invalid
             ? "border-red-500"
             : "border-line-strong hover:border-muted",
@@ -244,14 +254,14 @@ export function Select({
       >
         <span
           id={labelId}
-          className={cn("text-muted", big ? "text-sm" : "text-xs")}
+          className={cn(small ? "sr-only" : "text-muted", big ? "text-sm" : "text-xs")}
         >
           {label}
         </span>
         <span
           className={cn(
-            "mt-0.5 block w-full truncate",
-            big ? "text-xl" : "text-base",
+            "block w-full truncate",
+            big ? "mt-0.5 text-xl" : small ? "text-sm font-semibold" : "mt-0.5 text-base",
             selected ? "text-heading" : "text-muted",
           )}
         >
@@ -262,7 +272,11 @@ export function Select({
           strokeWidth={1.6}
           className={cn(
             "pointer-events-none absolute top-1/2 -translate-y-1/2 text-heading transition-transform duration-200",
-            big ? "right-5 h-6 w-6 sm:right-8" : "right-4 h-5 w-5",
+            big
+              ? "right-5 h-6 w-6 sm:right-8"
+              : small
+                ? "right-3 h-4 w-4"
+                : "right-4 h-5 w-5",
             open && "rotate-180",
           )}
         />

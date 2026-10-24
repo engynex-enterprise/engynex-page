@@ -269,6 +269,7 @@ export const supportCopy = {
         "Ej.: desde esta mañana el sitio muestra un error 500 al entrar al carrito…",
       submit: "Enviar solicitud",
       sending: "Enviando…",
+      ticket: "Tu número de solicitud es",
       success:
         "Recibimos tu solicitud. Un especialista te contactará por correo o WhatsApp según la prioridad.",
       error:
@@ -334,6 +335,7 @@ export const supportCopy = {
         "E.g.: since this morning the site shows a 500 error when opening the cart…",
       submit: "Send request",
       sending: "Sending…",
+      ticket: "Your request number is",
       success:
         "We received your request. A specialist will contact you by email or WhatsApp according to its priority.",
       error:
