@@ -49,13 +49,13 @@ export default async function FollowupsPage({
   const fmt = (iso: string | null) =>
     iso ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "America/Bogota" }).format(new Date(iso)) : "—";
   const base = `/${locale}/portal/seguimiento`;
-  const card = "rounded-3xl bg-surface ring-1 ring-line dark:bg-card";
+  const card = "rounded-lg bg-surface shadow-meta dark:bg-card";
 
   return (
     <>
       <PageHeader title={t.title} subtitle={t.subtitle} />
       {!emailReady && (
-        <p className="mb-6 rounded-3xl bg-amber-50 p-5 text-sm font-semibold text-amber-900 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:ring-amber-500/30">
+        <p className="mb-6 rounded-lg bg-amber-50 p-5 text-sm font-semibold text-amber-900 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:ring-amber-500/30">
           {t.notConfigured}{" "}
           <Link href={`/${locale}/portal/integraciones`} className="underline">
             →

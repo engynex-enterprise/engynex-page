@@ -23,10 +23,10 @@ export default async function ProfilePage({
         subtitle={`${t.kindLabel[profile.kind]} · ${t.roleLabel[profile.role]}`}
       />
       <div className="grid gap-6 xl:grid-cols-2">
-        <section className="rounded-3xl bg-surface p-6 ring-1 ring-line sm:p-8 dark:bg-card">
+        <section className="rounded-lg bg-surface p-6 shadow-meta sm:p-8 dark:bg-card">
           <ProfileForm locale={locale} profile={profile} />
         </section>
-        <section className="rounded-3xl bg-surface p-6 ring-1 ring-line sm:p-8 dark:bg-card">
+        <section className="rounded-lg bg-surface p-6 shadow-meta sm:p-8 dark:bg-card">
           <h2 className="mb-6 text-lg text-heading">{t.profile.passwordTitle}</h2>
           <NewPasswordForm
             locale={locale}

@@ -111,7 +111,7 @@ export function ChatAlerts({
         <div
           key={a.id}
           role="status"
-          className="flex items-start gap-3 rounded-2xl bg-surface p-4 shadow-[0_16px_40px_-12px_rgba(11,16,32,0.45)] ring-1 ring-line dark:bg-card"
+          className="flex items-start gap-3 rounded-lg bg-surface p-4 shadow-[0_16px_40px_-12px_rgba(11,16,32,0.45)] shadow-meta dark:bg-card"
         >
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-deep-700 text-white dark:bg-brand-green dark:text-deep-950">
             <MessagesSquare className="h-5 w-5" aria-hidden />

@@ -136,7 +136,7 @@ export function ChatContext({
       <div className={block}>
         <p className={label}>{ctx.lead}</p>
         {lead ? (
-          <Link href={`/${locale}/portal/crm/${lead.id}`} className="mt-2 flex items-center gap-2 rounded-2xl bg-surface-soft p-3 hover:bg-card-soft dark:bg-white/[0.05]">
+          <Link href={`/${locale}/portal/crm/${lead.id}`} className="mt-2 flex items-center gap-2 rounded-lg bg-surface-soft p-3 hover:bg-card-soft dark:bg-white/[0.05]">
             <span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", tierStyles[lead.tier].dot)} aria-hidden />
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-bold text-heading">{lead.name}</span>

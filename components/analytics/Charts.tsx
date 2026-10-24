@@ -25,7 +25,7 @@ export function StatTile({
   hint?: string;
 }) {
   return (
-    <div className="rounded-3xl bg-surface p-5 ring-1 ring-line sm:p-6 dark:bg-card">
+    <div className="rounded-lg bg-surface p-5 shadow-meta sm:p-6 dark:bg-card">
       <dt className="text-sm text-muted">{label}</dt>
       <dd className="mt-2 text-[2rem] font-bold leading-none tabular-nums text-heading">{value}</dd>
       {hint && <dd className="mt-2 text-xs text-muted">{hint}</dd>}
@@ -61,7 +61,7 @@ export function DailyBars({
   const labelEvery = Math.max(1, Math.ceil(data.length / 7));
 
   return (
-    <figure className="rounded-3xl bg-surface p-5 ring-1 ring-line sm:p-6 dark:bg-card">
+    <figure className="rounded-lg bg-surface p-5 shadow-meta sm:p-6 dark:bg-card">
       <figcaption className="text-sm font-bold text-heading">{title}</figcaption>
       <div className="mt-4 flex gap-3">
         {/* Eje Y */}
@@ -152,7 +152,7 @@ export function BarList({
 }) {
   const max = Math.max(1, ...rows.map((r) => r.value));
   return (
-    <section className="rounded-3xl bg-surface p-5 ring-1 ring-line sm:p-6 dark:bg-card">
+    <section className="rounded-lg bg-surface p-5 shadow-meta sm:p-6 dark:bg-card">
       <h2 className="text-sm font-bold text-heading">{title}</h2>
       {rows.length === 0 ? (
         <p className="mt-4 text-sm text-muted">{empty}</p>

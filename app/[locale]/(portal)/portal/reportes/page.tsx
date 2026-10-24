@@ -57,7 +57,7 @@ export default async function ReportsPage({
         action={profile.role === "admin" ? <GenerateReportButton weekStart={lastMonday(new Date())} label={t.generate} busyLabel={t.generating} /> : undefined}
       />
       {!selected ? (
-        <p className="rounded-3xl bg-surface p-10 text-center text-sm text-muted ring-1 ring-line dark:bg-card">{t.empty}</p>
+        <p className="rounded-lg bg-surface p-10 text-center text-sm text-muted shadow-meta dark:bg-card">{t.empty}</p>
       ) : (
         <div className="grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
           <nav aria-label={t.title} className="flex gap-1.5 overflow-x-auto xl:flex-col">
@@ -67,7 +67,7 @@ export default async function ReportsPage({
                 href={`?r=${x.id}`}
                 aria-current={x.id === selected.id ? "page" : undefined}
                 className={cn(
-                  "shrink-0 rounded-2xl px-4 py-2.5 text-sm font-semibold",
+                  "shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold",
                   x.id === selected.id ? "bg-deep-700 text-white dark:bg-white dark:text-deep-700" : "text-heading hover:bg-surface",
                 )}
               >

@@ -234,7 +234,7 @@ export function Select({
         onKeyDown={onKeyDown}
         className={cn(
           "relative flex w-full flex-col items-start justify-center border bg-surface text-left outline-none transition-colors dark:bg-card",
-          small ? "rounded-full" : "rounded-2xl",
+          small ? "rounded-[var(--btn-radius,9999px)]" : "rounded-[var(--field-radius,1rem)]",
           big
             ? "h-[4.75rem] pl-5 pr-14 sm:pl-8"
             : small
@@ -300,7 +300,7 @@ export function Select({
               }
             : undefined
         }
-        className="fixed z-[100] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-surface py-1 shadow-[0_12px_40px_-12px_rgba(11,16,32,0.35)] dark:bg-card"
+        className="fixed z-[100] overflow-y-auto overscroll-contain rounded-[var(--field-radius,1rem)] border border-line bg-surface py-1 shadow-[0_12px_40px_-12px_rgba(11,16,32,0.35)] dark:bg-card"
       >
         {options.map((option, i) => {
           const isSelected = i === selectedIndex;

@@ -48,7 +48,7 @@ export function NewTicketForm({
   };
 
   return (
-    <form onSubmit={submit} className="grid max-w-3xl gap-5 rounded-3xl bg-surface p-6 ring-1 ring-line sm:p-8 dark:bg-card" noValidate>
+    <form onSubmit={submit} className="grid max-w-3xl gap-5 rounded-lg bg-surface p-6 shadow-meta sm:p-8 dark:bg-card" noValidate>
       <div className="grid gap-4 sm:grid-cols-2">
         <Select size="md" label={t.form.category} value={category} onChange={setCategory} options={categories} placeholder="—" />
         <Select

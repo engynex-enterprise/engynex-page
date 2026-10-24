@@ -168,13 +168,13 @@ export function UsersManager({
       </div>
 
       {error && (
-        <p role="alert" className="mb-4 rounded-2xl bg-red-500/10 px-4 py-3 text-sm font-medium text-red-700 dark:text-red-300">
+        <p role="alert" className="mb-4 rounded-lg bg-red-500/10 px-4 py-3 text-sm font-medium text-red-700 dark:text-red-300">
           {error}
         </p>
       )}
 
       {/* Tabla */}
-      <div className="overflow-x-auto rounded-3xl bg-surface ring-1 ring-line dark:bg-card">
+      <div className="overflow-x-auto rounded-lg bg-surface shadow-meta dark:bg-card">
         <table className="w-full min-w-[46rem] text-left text-sm">
           <thead>
             <tr className="border-b border-line text-xs text-muted">
@@ -317,7 +317,7 @@ function RowActions({
         <MoreHorizontal className="h-5 w-5" />
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 top-full z-20 mt-1 w-60 rounded-2xl bg-surface p-1.5 text-left shadow-[0_16px_40px_-12px_rgba(11,16,32,0.35)] ring-1 ring-line dark:bg-card">
+        <div role="menu" className="absolute right-0 top-full z-20 mt-1 w-60 rounded-lg bg-surface p-1.5 text-left shadow-[0_16px_40px_-12px_rgba(11,16,32,0.35)] shadow-meta dark:bg-card">
           <button role="menuitem" type="button" className={item} onClick={() => { setOpen(false); onEdit(); }}>
             <ShieldCheck className="h-4 w-4 text-muted" aria-hidden />
             {labels.edit}
@@ -504,7 +504,7 @@ function UserDialog({
           <p className="mt-2 text-xs text-muted">{u.roleHelp[values.role]}</p>
         </div>
         {error && (
-          <p role="alert" className="rounded-2xl bg-red-500/10 px-4 py-3 text-sm font-medium text-red-700 dark:text-red-300">
+          <p role="alert" className="rounded-lg bg-red-500/10 px-4 py-3 text-sm font-medium text-red-700 dark:text-red-300">
             {error}
           </p>
         )}
@@ -538,7 +538,7 @@ function TempPasswordDialog({
   return (
     <Modal title={u.tempTitle} onClose={onClose}>
       <p className="text-sm leading-relaxed text-body">{u.tempText.replace("{name}", name)}</p>
-      <div className="mt-5 flex items-center gap-2 rounded-2xl bg-surface-soft p-2 pl-5 dark:bg-white/[0.06]">
+      <div className="mt-5 flex items-center gap-2 rounded-lg bg-surface-soft p-2 pl-5 dark:bg-white/[0.06]">
         <code className="min-w-0 flex-1 truncate font-mono text-lg font-bold tracking-wide text-heading">
           {password}
         </code>

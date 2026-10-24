@@ -54,9 +54,9 @@ export function SavedRepliesManager({ locale, initial }: { locale: Locale; initi
 
   return (
     <div className="grid max-w-4xl gap-4">
-      {rows.length === 0 && <p className="rounded-3xl bg-surface p-8 text-center text-sm text-muted ring-1 ring-line dark:bg-card">{t.empty}</p>}
+      {rows.length === 0 && <p className="rounded-lg bg-surface p-8 text-center text-sm text-muted shadow-meta dark:bg-card">{t.empty}</p>}
       {rows.map((r, i) => (
-        <div key={r.id ?? `new-${i}`} className="grid gap-3 rounded-3xl bg-surface p-5 ring-1 ring-line sm:grid-cols-[minmax(0,1fr)_10rem] dark:bg-card">
+        <div key={r.id ?? `new-${i}`} className="grid gap-3 rounded-lg bg-surface p-5 shadow-meta sm:grid-cols-[minmax(0,1fr)_10rem] dark:bg-card">
           <label>
             <span className="mb-1 block text-xs font-semibold text-muted">{t.titleLabel}</span>
             <input value={r.title} onChange={(event) => set(i, { title: event.target.value })} maxLength={80} className={cn(inputClass, "h-10 text-sm")} />

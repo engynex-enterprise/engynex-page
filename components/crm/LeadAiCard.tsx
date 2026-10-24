@@ -70,7 +70,7 @@ export function LeadAiCard({
   const label = "text-xs font-semibold text-muted";
 
   return (
-    <section className="rounded-3xl bg-surface p-6 ring-1 ring-line dark:bg-card">
+    <section className="rounded-lg bg-surface p-6 shadow-meta dark:bg-card">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="flex items-center gap-2 text-lg text-heading">
@@ -163,7 +163,7 @@ export function LeadAiCard({
             <p className={label}>{t.nextStep}</p>
             <p className="mt-1 text-sm font-semibold text-heading">{insights.next_step}</p>
           </div>
-          <div className="rounded-2xl bg-surface-soft p-4 dark:bg-white/[0.05]">
+          <div className="rounded-lg bg-surface-soft p-4 dark:bg-white/[0.05]">
             <div className="flex items-center justify-between gap-2">
               <p className={label}>{t.opening}</p>
               <button

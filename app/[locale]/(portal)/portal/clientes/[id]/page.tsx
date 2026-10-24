@@ -32,7 +32,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
   const names = { ...Object.fromEntries(employees.map((e) => [e.id, e.name])), [account.id]: account.full_name ?? account.email };
   const fmt = (iso: string) =>
     new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "America/Bogota" }).format(new Date(iso));
-  const card = "rounded-3xl bg-surface p-6 ring-1 ring-line dark:bg-card";
+  const card = "rounded-lg bg-surface p-6 shadow-meta dark:bg-card";
 
   return (
     <>
@@ -87,7 +87,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
               <ul className="mt-3 grid gap-2">
                 {(tickets as Ticket[]).map((x) => (
                   <li key={x.id}>
-                    <Link href={`/${locale}/portal/soporte/${x.id}`} className="flex items-center gap-2 rounded-2xl px-2 py-2 hover:bg-surface-soft dark:hover:bg-white/[0.05]">
+                    <Link href={`/${locale}/portal/soporte/${x.id}`} className="flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-surface-soft dark:hover:bg-white/[0.05]">
                       <span className="font-mono text-xs text-muted">#{x.number}</span>
                       <span className="min-w-0 flex-1 truncate text-sm font-semibold text-heading">{x.subject}</span>
                       <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[0.7rem] font-bold", ticketStatusTone[x.status])}>{t.staffStatus[x.status]}</span>
@@ -104,7 +104,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
             ) : (
               <ul className="mt-3 grid gap-2 text-sm">
                 {meetings.map((m) => (
-                  <li key={m.id} className="rounded-2xl bg-surface-soft px-3 py-2 dark:bg-white/[0.05]">
+                  <li key={m.id} className="rounded-lg bg-surface-soft px-3 py-2 dark:bg-white/[0.05]">
                     <span className="block font-semibold text-heading first-letter:uppercase">{fmt(m.starts_at)}</span>
                     <span className="text-xs text-muted">{t.home.channels[m.channel]}</span>
                   </li>

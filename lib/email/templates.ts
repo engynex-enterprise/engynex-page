@@ -205,3 +205,34 @@ export function weeklyReport(report: { week_start: string; data: Record<string, 
     text: `${subject}\n\n${rows.map(([k, v]) => `${k}: ${v}`).join("\n")}`,
   };
 }
+
+/** Correo escrito en una automatización (texto con saltos de línea). */
+export function customEmail(payload: {
+  subject?: string;
+  body?: string;
+  cta_label?: string | null;
+  cta_url?: string | null;
+  locale?: string | null;
+  email_token?: string | null;
+  internal?: boolean;
+}): Rendered {
+  const l = loc(payload.locale);
+  const subject = payload.subject?.trim() || "Engynex";
+  const paragraphs = (payload.body ?? "")
+    .split(/\n{2,}/)
+    .map((block) => p(esc(block).replace(/\n/g, "<br>")))
+    .join("");
+  const cta = payload.cta_label && payload.cta_url ? { label: payload.cta_label, url: payload.cta_url } : undefined;
+  const unsub = payload.email_token ? unsubscribe(l, payload.email_token) : null;
+  const footer = payload.internal
+    ? "Aviso interno de Engynex · Automatizaciones"
+    : unsub
+      ? leadFooter(l, unsub)
+      : `Engynex · ${siteConfig.url.replace("https://", "")}`;
+  return {
+    subject,
+    html: layout({ preheader: subject, title: subject, body: paragraphs, cta, footer }),
+    text: `${payload.body ?? ""}${cta ? `\n\n${cta.label}: ${cta.url}` : ""}${unsub ? `\n\n${l === "es" ? "Dejar de recibir correos" : "Unsubscribe"}: ${unsub}` : ""}`,
+    unsubscribeUrl: payload.email_token ? oneClick(l, payload.email_token) : undefined,
+  };
+}

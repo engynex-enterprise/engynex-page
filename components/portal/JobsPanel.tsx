@@ -63,7 +63,7 @@ export function JobsPanel({
   const fmt = (iso: string) => new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "medium" }).format(new Date(iso));
 
   return (
-    <div className="rounded-2xl bg-surface-soft p-4 dark:bg-white/[0.04]">
+    <div className="rounded-lg bg-surface-soft p-4 dark:bg-white/[0.04]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-heading">{t.schedule}</p>

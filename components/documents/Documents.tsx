@@ -108,7 +108,7 @@ export function Documents({
 
   return (
     <div className="grid gap-6">
-      <form onSubmit={upload} className="rounded-3xl bg-surface p-6 ring-1 ring-line dark:bg-card" noValidate>
+      <form onSubmit={upload} className="rounded-lg bg-surface p-6 shadow-meta dark:bg-card" noValidate>
         <h2 className="text-base text-heading">{t.upload}</h2>
         <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_14rem]">
           <div>
@@ -156,12 +156,12 @@ export function Documents({
       </form>
 
       {docs.length === 0 ? (
-        <p className="rounded-3xl bg-surface p-8 text-center text-sm text-muted ring-1 ring-line dark:bg-card">{t.empty}</p>
+        <p className="rounded-lg bg-surface p-8 text-center text-sm text-muted shadow-meta dark:bg-card">{t.empty}</p>
       ) : (
-        <ul className="divide-y divide-line overflow-hidden rounded-3xl bg-surface ring-1 ring-line dark:bg-card">
+        <ul className="divide-y divide-line overflow-hidden rounded-lg bg-surface shadow-meta dark:bg-card">
           {docs.map((doc) => (
             <li key={doc.id} className="flex flex-wrap items-center gap-4 px-5 py-4">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-surface-soft text-accent dark:bg-white/[0.06]">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-surface-soft text-accent dark:bg-white/[0.06]">
                 <FileText className="h-5 w-5" aria-hidden />
               </span>
               <div className="min-w-0 flex-1">

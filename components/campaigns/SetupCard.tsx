@@ -9,7 +9,7 @@ export function SetupCard({ locale, missing }: { locale: Locale; missing: string
   const t = campaignsCopy[locale].setup;
   if (missing.length === 0) {
     return (
-      <div className="flex items-start gap-3 rounded-3xl bg-surface p-5 ring-1 ring-line dark:bg-card">
+      <div className="flex items-start gap-3 rounded-lg bg-surface p-5 shadow-meta dark:bg-card">
         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden />
         <div>
           <p className="text-sm font-bold text-heading">{t.ready}</p>
@@ -19,7 +19,7 @@ export function SetupCard({ locale, missing }: { locale: Locale; missing: string
     );
   }
   return (
-    <div className="rounded-3xl bg-surface p-6 ring-1 ring-line dark:bg-card">
+    <div className="rounded-lg bg-surface p-6 shadow-meta dark:bg-card">
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
           <PlugZap className="h-5 w-5" aria-hidden />

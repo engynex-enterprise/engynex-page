@@ -247,7 +247,7 @@ export function LeadTimeline({
   return (
     <div>
       {canWrite && (
-        <form onSubmit={add} className="rounded-2xl bg-surface-soft p-3 dark:bg-white/[0.04]">
+        <form onSubmit={add} className="rounded-lg bg-surface-soft p-3 dark:bg-white/[0.04]">
           <div role="group" aria-label={t.lead.timelineTitle} className="flex flex-wrap gap-1.5">
             {composerTypes.map((k) => {
               const Icon = activityIcons[k];

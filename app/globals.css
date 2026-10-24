@@ -110,6 +110,8 @@
   --color-hue-indigo: var(--hue-indigo);
 
   --shadow-card: var(--shadow-card-value);
+  /* Tarjeta de la plataforma de Meta (capturada con REA de Meta Ad Library). */
+  --shadow-meta: var(--meta-shadow);
   --shadow-card-hover: var(--shadow-card-hover-value);
 }
 
@@ -287,6 +289,7 @@
    Base
    -------------------------------------------------------------------------- */
 :root {
+  --meta-shadow: 0 0 5px rgba(0, 0, 0, 0.1), 0 0 1px rgba(0, 0, 0, 0.1);
   --background: #ffffff;
   --foreground: #1f2a46;
   color-scheme: light;
@@ -761,4 +764,41 @@ h3,
   animation-iteration-count: 1 !important;
   transition-duration: 0.001ms !important;
   scroll-behavior: auto !important;
+}
+
+/* ==========================================================================
+   Portal — sistema visual de la plataforma de Meta (Business Suite / Ads
+   Library), medido con REA: fondo #F0F2F5, texto #1C1E21, secundario
+   #65676B, tarjetas blancas de 8 px con sombra suave y sin borde, campos con
+   radio de 6 px. Los colores de marca (verde y marino) hacen de acento.
+   ========================================================================== */
+.portal-theme {
+  --surface-soft: #f0f2f5;
+  --card-soft: #f0f2f5;
+  --line: #e4e6eb;
+  --line-strong: #ced0d4;
+  --heading: #1c1e21;
+  --body: #1c1e21;
+  --muted: #65676b;
+  --meta-shadow: 0 0 5px rgba(0, 0, 0, 0.1), 0 0 1px rgba(0, 0, 0, 0.1);
+  --meta-hover: #f2f2f2;
+  --meta-active: #ebf5df;
+  --btn-radius: 6px;
+  --field-radius: 6px;
+  font-size: 15px;
+}
+
+.dark .portal-theme {
+  --surface: #242526;
+  --surface-soft: #18191a;
+  --card: #242526;
+  --card-soft: #3a3b3c;
+  --line: #3e4042;
+  --line-strong: #4e4f50;
+  --heading: #e4e6eb;
+  --body: #e4e6eb;
+  --muted: #b0b3b8;
+  --meta-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --meta-hover: #3a3b3c;
+  --meta-active: color-mix(in oklab, #9fdb4f 16%, #242526);
 }

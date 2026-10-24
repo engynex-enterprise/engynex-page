@@ -161,7 +161,7 @@ export function DateTimePicker({
         aria-labelledby={`${id}-label ${id}-value`}
         className={cn(
           "relative flex w-full flex-col items-start justify-center border bg-surface pr-11 text-left outline-none transition-colors dark:bg-card",
-          small ? "h-11 rounded-xl pl-4" : "h-16 rounded-2xl pl-4",
+          small ? "h-11 rounded-[var(--field-radius,0.75rem)] pl-4" : "h-16 rounded-[var(--field-radius,1rem)] pl-4",
           open
             ? "border-deep-700 shadow-[inset_0_0_0_1px_var(--color-deep-700)] dark:border-brand-green dark:shadow-[inset_0_0_0_1px_var(--color-brand-green)]"
             : "border-line-strong hover:border-muted focus-visible:border-deep-700",

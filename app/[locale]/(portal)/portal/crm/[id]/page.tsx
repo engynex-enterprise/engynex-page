@@ -73,7 +73,7 @@ export default async function LeadPage({
     [t.lead.timeline, f.steps.timeline.options[l.timeline as keyof typeof f.steps.timeline.options] ?? l.timeline],
   ];
 
-  const card = "rounded-3xl bg-surface p-6 ring-1 ring-line dark:bg-card";
+  const card = "rounded-lg bg-surface p-6 shadow-meta dark:bg-card";
 
   return (
     <>
@@ -93,7 +93,7 @@ export default async function LeadPage({
               <span className={cn("h-2 w-2 rounded-full", tierStyles[l.tier].dot)} aria-hidden />
               {t.tier[l.tier]} · {t.tierHint[l.tier]}
             </span>
-            <span className="rounded-full bg-surface px-3 py-1 text-xs font-bold tabular-nums text-heading ring-1 ring-line dark:bg-card">
+            <span className="rounded-full bg-surface px-3 py-1 text-xs font-bold tabular-nums text-heading shadow-meta dark:bg-card">
               {t.lead.score} {l.score}/100
             </span>
           </div>
@@ -135,7 +135,7 @@ export default async function LeadPage({
               <h3 className="text-sm text-heading">{t.lead.breakdown}</h3>
               <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {(["problem", "budget", "decision", "timeline"] as const).map((k) => (
-                  <li key={k} className="rounded-2xl bg-surface-soft p-3 dark:bg-white/[0.05]">
+                  <li key={k} className="rounded-lg bg-surface-soft p-3 dark:bg-white/[0.05]">
                     <p className="text-xs text-muted">{t.lead[k]}</p>
                     <p className="text-lg font-bold tabular-nums text-heading">+{breakdown[k] ?? 0}</p>
                   </li>
@@ -207,7 +207,7 @@ export default async function LeadPage({
             ) : (
               <ul className="mt-3 grid gap-3">
                 {(meetings as Appointment[]).map((m) => (
-                  <li key={m.id} className="rounded-2xl bg-surface-soft p-3 dark:bg-white/[0.05]">
+                  <li key={m.id} className="rounded-lg bg-surface-soft p-3 dark:bg-white/[0.05]">
                     <p className="text-sm font-bold text-heading first-letter:uppercase">{fmt(m.starts_at)}</p>
                     <p className="text-xs text-muted">
                       {f.booking.channels[m.channel]} · {t.agenda.statuses[m.status]}

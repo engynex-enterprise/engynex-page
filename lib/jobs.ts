@@ -5,7 +5,7 @@ import { whatsappMissing } from "@/lib/whatsapp";
 import { dispatchWhatsApp } from "@/lib/whatsappDispatch";
 import { analyzeLead } from "@/lib/ai";
 import { sendEmail } from "@/lib/email/send";
-import { abandoned, bookingConfirmation, followup, newLeadAlert, weeklyReport, type Rendered } from "@/lib/email/templates";
+import { abandoned, bookingConfirmation, customEmail, followup, newLeadAlert, weeklyReport, type Rendered } from "@/lib/email/templates";
 
 export type JobsSummary = {
   whatsapp?: { sent: number; failed: number } | string;
@@ -22,6 +22,7 @@ type Claimed = {
   lead: Parameters<typeof followup>[1] & { opted_out: boolean } | null;
   draft: { name: string | null; email: string; token: string; locale: string | null; completed: boolean } | null;
   report: { week_start: string; data: Record<string, unknown> } | null;
+  payload: (Parameters<typeof customEmail>[0] & { internal?: boolean }) | null;
 };
 
 const errorText = (e: unknown) => (e instanceof Error ? e.message : String(e));
@@ -143,6 +144,13 @@ async function sendQueuedEmails(
         if (!row.draft || row.draft.completed) { await cancel("completed"); continue; }
         rendered = abandoned(row.draft);
         to = [row.draft.email];
+        break;
+      case "custom":
+        // Correos de las automatizaciones (recordatorios, respuestas, avisos).
+        if (!row.payload) { await cancel("no_content"); continue; }
+        if (row.lead?.opted_out && !row.payload.internal) { await cancel("opted_out"); continue; }
+        rendered = customEmail(row.payload);
+        to = row.payload.internal ? internal : row.to_email ? [row.to_email] : [];
         break;
       case "weekly_report":
         if (!row.report) { await cancel("no_report"); continue; }

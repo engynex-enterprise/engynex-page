@@ -243,6 +243,45 @@ export type LeadDraft = {
 
 export type WeeklyReport = { id: string; week_start: string; data: Json; created_at: string };
 
+export type AppNotification = {
+  id: number;
+  user_id: string;
+  kind: string;
+  title: string;
+  body: string | null;
+  link: string | null;
+  created_at: string;
+  read_at: string | null;
+};
+
+export type AutomationRule = {
+  id: string;
+  name: string;
+  description: string | null;
+  trigger: string;
+  params: Json;
+  conditions: Json;
+  actions: Json;
+  enabled: boolean;
+  template_key: string | null;
+  runs: number;
+  last_run_at: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AutomationRun = {
+  id: number;
+  rule_id: string;
+  entity: string;
+  entity_id: string;
+  run_key: string;
+  status: "done" | "failed";
+  detail: Json | null;
+  created_at: string;
+};
+
 export type TicketStatus = "open" | "in_progress" | "waiting" | "resolved" | "closed";
 export type TicketPriority = "critical" | "high" | "medium" | "low";
 
@@ -517,6 +556,24 @@ export type Database = {
         Update: Partial<WeeklyReport>;
         Relationships: [];
       };
+      notifications: {
+        Row: AppNotification;
+        Insert: Partial<AppNotification> & { user_id: string; kind: string; title: string };
+        Update: Partial<Pick<AppNotification, "read_at">>;
+        Relationships: [];
+      };
+      automation_rules: {
+        Row: AutomationRule;
+        Insert: Partial<AutomationRule> & { name: string; trigger: string };
+        Update: Partial<AutomationRule>;
+        Relationships: [];
+      };
+      automation_runs: {
+        Row: AutomationRun;
+        Insert: Partial<AutomationRun>;
+        Update: Partial<AutomationRun>;
+        Relationships: [];
+      };
       tickets: {
         Row: Ticket;
         // Se crean con submit_ticket; el equipo actualiza estado, prioridad y responsable.
@@ -682,6 +739,9 @@ export type Database = {
       ai_reset: { Args: { p_lead: string }; Returns: undefined };
       admin_jobs_schedule: { Args: { p_url: string; p_enabled: boolean }; Returns: Json };
       admin_jobs_status: { Args: Record<string, never>; Returns: Json };
+      notifications_mark_all_read: { Args: Record<string, never>; Returns: undefined };
+      global_search: { Args: { p_q: string }; Returns: Json };
+      automations_run_now: { Args: Record<string, never>; Returns: number };
       wa_audience_count: { Args: { p_segment: Json }; Returns: number };
       wa_campaign_queue: { Args: { p_campaign: string }; Returns: number };
       wa_claim_batch: {

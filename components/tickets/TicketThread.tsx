@@ -81,7 +81,7 @@ export function TicketThread({
   const closed = ticket.status === "resolved" || ticket.status === "closed";
 
   return (
-    <section className="rounded-3xl bg-surface p-6 ring-1 ring-line dark:bg-card">
+    <section className="rounded-lg bg-surface p-6 shadow-meta dark:bg-card">
       <h2 className="text-lg text-heading">{t.thread.conversation}</h2>
       <ol className="mt-5 grid gap-4">
         {messages.map((m) => {
@@ -105,7 +105,7 @@ export function TicketThread({
               </span>
               <p
                 className={cn(
-                  "max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-4 py-3 text-sm leading-relaxed",
+                  "max-w-[85%] whitespace-pre-wrap break-words rounded-lg px-4 py-3 text-sm leading-relaxed",
                   m.internal
                     ? "bg-amber-50 text-heading ring-1 ring-amber-200 dark:bg-amber-500/10 dark:ring-amber-500/30"
                     : mine
@@ -140,7 +140,7 @@ export function TicketThread({
           maxLength={5000}
           placeholder={staff ? t.thread.staffPlaceholder : t.thread.placeholder}
           className={cn(
-            "w-full resize-y rounded-2xl border bg-surface px-4 py-3 text-sm leading-relaxed text-heading outline-none focus:ring-2 dark:bg-card",
+            "w-full resize-y rounded-lg border bg-surface px-4 py-3 text-sm leading-relaxed text-heading outline-none focus:ring-2 dark:bg-card",
             internal
               ? "border-amber-300 focus:ring-amber-300/40 dark:border-amber-500/40"
               : "border-line-strong focus:border-deep-700 focus:ring-deep-700/15 dark:focus:border-brand-green dark:focus:ring-brand-green/20",

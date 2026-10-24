@@ -18,6 +18,7 @@ const es = {
       new_lead_alert: "Aviso interno: lead verde",
       abandoned: "Formulario sin terminar",
       weekly_report: "Informe semanal",
+      custom: "Automatización",
     } as Record<string, string>,
     statuses: { queued: "Programado", sending: "Enviando", sent: "Enviado", failed: "Falló", cancelled: "Cancelado" } as Record<string, string>,
     reasons: {
@@ -116,6 +117,7 @@ const en: AutomationCopy = {
       new_lead_alert: "Internal alert: green lead",
       abandoned: "Unfinished form",
       weekly_report: "Weekly report",
+      custom: "Automation",
     },
     statuses: { queued: "Scheduled", sending: "Sending", sent: "Sent", failed: "Failed", cancelled: "Cancelled" },
     reasons: {

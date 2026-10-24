@@ -53,9 +53,9 @@ export default async function SupportPage({
           }
         />
         {tickets.length === 0 ? (
-          <p className="rounded-3xl bg-surface p-10 text-center text-sm text-muted ring-1 ring-line dark:bg-card">{t.client.empty}</p>
+          <p className="rounded-lg bg-surface p-10 text-center text-sm text-muted shadow-meta dark:bg-card">{t.client.empty}</p>
         ) : (
-          <ul className="divide-y divide-line overflow-hidden rounded-3xl bg-surface ring-1 ring-line dark:bg-card">
+          <ul className="divide-y divide-line overflow-hidden rounded-lg bg-surface shadow-meta dark:bg-card">
             {tickets.map((x) => (
               <li key={x.id}>
                 <Link href={`${base}/${x.id}`} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-4 hover:bg-surface-soft/60 dark:hover:bg-white/[0.03]">
@@ -125,15 +125,15 @@ export default async function SupportPage({
             name="q"
             defaultValue={term}
             placeholder={t.staff.search}
-            className="h-10 w-full rounded-full bg-surface pl-10 pr-4 text-sm text-heading outline-none ring-1 ring-line focus:ring-deep-700/40 dark:bg-card"
+            className="h-10 w-full rounded-full bg-surface pl-10 pr-4 text-sm text-heading outline-none shadow-meta focus:ring-deep-700/40 dark:bg-card"
           />
         </form>
       </div>
 
       {tickets.length === 0 ? (
-        <p className="rounded-3xl bg-surface p-10 text-center text-sm text-muted ring-1 ring-line dark:bg-card">{t.staff.empty}</p>
+        <p className="rounded-lg bg-surface p-10 text-center text-sm text-muted shadow-meta dark:bg-card">{t.staff.empty}</p>
       ) : (
-        <div className="overflow-x-auto rounded-3xl bg-surface ring-1 ring-line dark:bg-card">
+        <div className="overflow-x-auto rounded-lg bg-surface shadow-meta dark:bg-card">
           <table className="w-full min-w-[56rem] text-left text-sm">
             <thead className="border-b border-line text-xs text-muted">
               <tr>

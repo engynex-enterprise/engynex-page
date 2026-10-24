@@ -64,7 +64,7 @@ export default async function AnalyticsPage({
         subtitle={t.subtitle}
         action={
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 text-xs font-semibold text-heading ring-1 ring-line dark:bg-card">
+            <span className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 text-xs font-semibold text-heading shadow-meta dark:bg-card">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60 motion-safe:animate-ping" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />

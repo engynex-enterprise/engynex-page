@@ -23,7 +23,7 @@ export interface ScoringShape {
   rules: { no_problem_is_red: boolean; browsing_max_tier: string | null };
 }
 
-const card = "rounded-3xl bg-surface p-6 ring-1 ring-line sm:p-8 dark:bg-card";
+const card = "rounded-lg bg-surface p-6 shadow-meta sm:p-8 dark:bg-card";
 
 function NumberField({
   label,
@@ -105,7 +105,7 @@ export function ScoringForm({ locale, initial }: { locale: Locale; initial: Scor
   };
 
   const group = (title: string, children: React.ReactNode) => (
-    <fieldset className="rounded-2xl border border-line p-4">
+    <fieldset className="rounded-lg border border-line p-4">
       <legend className="px-2 text-sm font-bold text-heading">{title}</legend>
       <div className="divide-y divide-line">{children}</div>
     </fieldset>

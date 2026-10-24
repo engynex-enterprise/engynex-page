@@ -38,11 +38,11 @@ export default async function IntegrationsPage({ params }: { params: Promise<{ l
       <PageHeader title={t.title} subtitle={t.subtitle} />
 
       <div className="mb-6 grid gap-4 lg:grid-cols-2">
-        <p className="flex items-start gap-3 rounded-3xl bg-surface p-5 text-sm text-body ring-1 ring-line dark:bg-card">
+        <p className="flex items-start gap-3 rounded-lg bg-surface p-5 text-sm text-body shadow-meta dark:bg-card">
           <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-accent" aria-hidden />
           {t.consentNote}
         </p>
-        <div className={cn("flex items-start gap-3 rounded-3xl p-5 text-sm ring-1", secretKey ? "bg-surface ring-line dark:bg-card" : "bg-amber-50 ring-amber-200 dark:bg-amber-500/10 dark:ring-amber-500/30")}>
+        <div className={cn("flex items-start gap-3 rounded-lg p-5 text-sm ring-1", secretKey ? "bg-surface ring-line dark:bg-card" : "bg-amber-50 ring-amber-200 dark:bg-amber-500/10 dark:ring-amber-500/30")}>
           {secretKey ? (
             <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden />
           ) : (
@@ -66,7 +66,7 @@ export default async function IntegrationsPage({ params }: { params: Promise<{ l
         jobs={(jobs ?? null) as unknown as JobsStatus | null}
       />
 
-      <section className="mt-6 rounded-3xl bg-surface p-6 ring-1 ring-line sm:p-8 dark:bg-card">
+      <section className="mt-6 rounded-lg bg-surface p-6 shadow-meta sm:p-8 dark:bg-card">
         <h2 className="text-lg text-heading">{t.preview}</h2>
         {!conversions?.length ? (
           <p className="mt-2 text-sm text-muted">{t.previewEmpty}</p>

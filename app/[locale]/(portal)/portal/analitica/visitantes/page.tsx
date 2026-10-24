@@ -55,7 +55,7 @@ export default async function VisitorsPage({
         <PageHeader title={t.visitorsTitle} subtitle={t.visitorsSubtitle} />
       </div>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <div className="overflow-x-auto rounded-3xl bg-surface ring-1 ring-line dark:bg-card">
+        <div className="overflow-x-auto rounded-lg bg-surface shadow-meta dark:bg-card">
           {rows.length === 0 ? (
             <p className="p-8 text-center text-sm text-muted">{t.empty}</p>
           ) : (
@@ -99,7 +99,7 @@ export default async function VisitorsPage({
           )}
         </div>
         {selected && (
-          <section className="h-fit rounded-3xl bg-surface p-6 ring-1 ring-line dark:bg-card">
+          <section className="h-fit rounded-lg bg-surface p-6 shadow-meta dark:bg-card">
             <h2 className="text-lg text-heading">{t.journeyTitle}</h2>
             <div className="mt-4">
               <Journey locale={locale} views={(views ?? []) as PageView[]} />

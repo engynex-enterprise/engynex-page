@@ -88,7 +88,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ local
       </dl>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <section className="overflow-x-auto rounded-3xl bg-surface ring-1 ring-line dark:bg-card">
+        <section className="overflow-x-auto rounded-lg bg-surface shadow-meta dark:bg-card">
           <h2 className="px-5 pt-5 text-base text-heading">{t.report.recipients}</h2>
           <table className="mt-3 w-full min-w-[40rem] text-left text-sm">
             <thead className="border-b border-line text-xs text-muted">

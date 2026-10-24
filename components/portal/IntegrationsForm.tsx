@@ -161,7 +161,7 @@ export function IntegrationsForm({
     if (toggleKeys.has(key)) {
       const on = toggled[key] ?? (stored[key]?.value ?? "on") !== "off";
       return (
-        <div key={key} className="flex items-start justify-between gap-4 rounded-2xl bg-surface-soft px-4 py-3 lg:col-span-2 dark:bg-white/[0.04]">
+        <div key={key} className="flex items-start justify-between gap-4 rounded-lg bg-surface-soft px-4 py-3 lg:col-span-2 dark:bg-white/[0.04]">
           <div>
             <p id={`int-${key}`} className="text-sm font-semibold text-heading">{f.label}</p>
             {f.help && <p className="mt-0.5 text-xs text-muted">{f.help}</p>}
@@ -297,7 +297,7 @@ export function IntegrationsForm({
         const Icon = b.icon;
         const dirty = (integrationSections[section] as readonly string[]).some(changed);
         return (
-          <section key={section} className="rounded-3xl bg-surface p-6 ring-1 ring-line sm:p-8 dark:bg-card" aria-labelledby={`sec-${section}`}>
+          <section key={section} className="rounded-lg bg-surface p-6 shadow-meta sm:p-8 dark:bg-card" aria-labelledby={`sec-${section}`}>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="max-w-2xl">
                 <h2 id={`sec-${section}`} className="text-lg text-heading">{s.title}</h2>

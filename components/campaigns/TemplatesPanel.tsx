@@ -64,11 +64,11 @@ export function TemplatesPanel({
       </div>
 
       {templates.length === 0 ? (
-        <p className="mt-6 rounded-3xl bg-surface p-8 text-center text-sm text-muted ring-1 ring-line dark:bg-card">{t.empty}</p>
+        <p className="mt-6 rounded-lg bg-surface p-8 text-center text-sm text-muted shadow-meta dark:bg-card">{t.empty}</p>
       ) : (
         <ul className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {templates.map((tpl) => (
-            <li key={tpl.id} className="flex flex-col rounded-3xl bg-surface p-5 ring-1 ring-line dark:bg-card">
+            <li key={tpl.id} className="flex flex-col rounded-lg bg-surface p-5 shadow-meta dark:bg-card">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="truncate font-mono text-sm font-bold text-heading">{tpl.name}</p>

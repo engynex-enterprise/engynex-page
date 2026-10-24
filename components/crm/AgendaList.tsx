@@ -83,7 +83,7 @@ export function AgendaList({
       </div>
 
       {list.length === 0 ? (
-        <p className="rounded-3xl bg-surface p-8 text-center text-sm text-muted ring-1 ring-line dark:bg-card">{t.empty}</p>
+        <p className="rounded-lg bg-surface p-8 text-center text-sm text-muted shadow-meta dark:bg-card">{t.empty}</p>
       ) : (
         <div className="grid gap-6">
           {[...groups.entries()].map(([day, items]) => (
@@ -91,7 +91,7 @@ export function AgendaList({
               <h2 className="mb-3 text-sm text-heading first-letter:uppercase">{day}</h2>
               <ul className="grid gap-3">
                 {items.map((row) => (
-                  <li key={row.id} className="flex flex-col gap-4 rounded-3xl bg-surface p-5 ring-1 ring-line sm:flex-row sm:items-center dark:bg-card">
+                  <li key={row.id} className="flex flex-col gap-4 rounded-lg bg-surface p-5 shadow-meta sm:flex-row sm:items-center dark:bg-card">
                     <div className="w-20 shrink-0">
                       <p className="text-xl font-bold tabular-nums text-heading">{time(row.starts_at)}</p>
                       <p className="text-xs text-muted">{channels[row.channel]}</p>

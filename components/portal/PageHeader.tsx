@@ -9,10 +9,10 @@ export function PageHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 className="text-[clamp(1.6rem,2.6vw,2.1rem)] leading-tight text-heading">{title}</h1>
-        {subtitle && <p className="mt-1.5 text-sm text-muted">{subtitle}</p>}
+        <h1 className="text-2xl font-bold leading-tight text-heading">{title}</h1>
+        {subtitle && <p className="mt-1 max-w-3xl text-[0.94rem] text-muted">{subtitle}</p>}
       </div>
       {action}
     </div>

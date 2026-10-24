@@ -80,9 +80,9 @@ export default async function CampaignsPage({
         {showTemplates ? (
           <TemplatesPanel locale={locale} templates={(templates ?? []) as WaTemplate[]} ready={missing.length === 0} />
         ) : !campaigns?.length ? (
-          <p className="rounded-3xl bg-surface p-10 text-center text-sm text-muted ring-1 ring-line dark:bg-card">{t.empty}</p>
+          <p className="rounded-lg bg-surface p-10 text-center text-sm text-muted shadow-meta dark:bg-card">{t.empty}</p>
         ) : (
-          <div className="overflow-x-auto rounded-3xl bg-surface ring-1 ring-line dark:bg-card">
+          <div className="overflow-x-auto rounded-lg bg-surface shadow-meta dark:bg-card">
             <table className="w-full min-w-[56rem] text-left text-sm">
               <thead className="border-b border-line text-xs text-muted">
                 <tr>

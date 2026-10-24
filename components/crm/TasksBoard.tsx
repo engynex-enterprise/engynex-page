@@ -83,12 +83,12 @@ export function TasksBoard({
       </div>
 
       {total === 0 ? (
-        <p className="rounded-3xl bg-surface p-8 text-center text-sm text-muted ring-1 ring-line dark:bg-card">{t.empty}</p>
+        <p className="rounded-lg bg-surface p-8 text-center text-sm text-muted shadow-meta dark:bg-card">{t.empty}</p>
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
           {(["overdue", "today", "upcoming", "noDate"] as const).map((key) =>
             groups[key].length === 0 ? null : (
-              <section key={key} className="rounded-3xl bg-surface p-6 ring-1 ring-line dark:bg-card">
+              <section key={key} className="rounded-lg bg-surface p-6 shadow-meta dark:bg-card">
                 <h2 className={cn("text-lg", key === "overdue" ? "text-red-600 dark:text-red-400" : "text-heading")}>
                   {t[key]} <span className="font-normal text-muted">· {groups[key].length}</span>
                 </h2>

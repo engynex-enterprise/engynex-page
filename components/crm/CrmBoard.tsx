@@ -228,7 +228,7 @@ export function CrmBoard({
               </>
             )}
           </p>
-          <div role="group" aria-label="Vista" className="flex rounded-full bg-surface p-1 ring-1 ring-line dark:bg-card">
+          <div role="group" aria-label="Vista" className="flex rounded-full bg-surface p-1 shadow-meta dark:bg-card">
             {(["board", "list"] as const).map((v) => {
               const Icon = v === "board" ? KanbanSquare : List;
               return (
@@ -252,7 +252,7 @@ export function CrmBoard({
       </div>
 
       {filtered.length === 0 && (
-        <p className="rounded-3xl bg-surface p-8 text-center text-sm text-muted ring-1 ring-line dark:bg-card">
+        <p className="rounded-lg bg-surface p-8 text-center text-sm text-muted shadow-meta dark:bg-card">
           {t.crm.empty}
         </p>
       )}
@@ -306,7 +306,7 @@ export function CrmBoard({
 
       {/* Lista */}
       {view === "list" && filtered.length > 0 && (
-        <div className="overflow-x-auto rounded-3xl bg-surface ring-1 ring-line dark:bg-card">
+        <div className="overflow-x-auto rounded-lg bg-surface shadow-meta dark:bg-card">
           <table className="w-full min-w-[52rem] text-left text-sm">
             <thead>
               <tr className="border-b border-line text-xs text-muted">
@@ -370,7 +370,7 @@ function Column({
       ref={setNodeRef}
       aria-label={title}
       className={cn(
-        "flex w-72 shrink-0 flex-col rounded-3xl p-3 transition-colors",
+        "flex w-72 shrink-0 flex-col rounded-lg p-3 transition-colors",
         isOver ? "bg-accent-soft ring-2 ring-action" : "bg-card-soft/60 dark:bg-white/[0.03]",
       )}
     >
@@ -410,7 +410,7 @@ function Card({
       style={{ transform: CSS.Translate.toString(transform) }}
       className={cn(isDragging && "opacity-40")}
     >
-      <div {...(draggable ? listeners : {})} {...(draggable ? attributes : {})} className={cn(draggable && "cursor-grab touch-none active:cursor-grabbing", "rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-deep-700")}>
+      <div {...(draggable ? listeners : {})} {...(draggable ? attributes : {})} className={cn(draggable && "cursor-grab touch-none active:cursor-grabbing", "rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-deep-700")}>
         <Link href={`/${locale}/portal/crm/${lead.id}`} className="block" draggable={false}>
           <CardBody lead={lead} ownerName={ownerName} problem={problem} scoreLabel={scoreLabel} />
         </Link>
@@ -435,7 +435,7 @@ function CardBody({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-surface p-4 ring-1 ring-line transition-shadow hover:shadow-card dark:bg-card",
+        "rounded-lg bg-surface p-4 shadow-meta transition-shadow hover:shadow-card dark:bg-card",
         lifted && "rotate-2 shadow-card-hover",
       )}
     >

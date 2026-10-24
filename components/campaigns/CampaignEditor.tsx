@@ -206,7 +206,7 @@ export function CampaignEditor({
     router.refresh();
   };
 
-  const card = "rounded-3xl bg-surface p-6 ring-1 ring-line dark:bg-card";
+  const card = "rounded-lg bg-surface p-6 shadow-meta dark:bg-card";
   const minDate = new Date().toISOString().slice(0, 10);
 
   return (
@@ -227,7 +227,7 @@ export function CampaignEditor({
           />
           <div className="mt-5">
             {templates.length === 0 ? (
-              <p className="rounded-2xl bg-surface-soft p-4 text-sm text-muted dark:bg-white/[0.05]">{t.noTemplates}</p>
+              <p className="rounded-lg bg-surface-soft p-4 text-sm text-muted dark:bg-white/[0.05]">{t.noTemplates}</p>
             ) : (
               <Select
                 size="md"
@@ -316,7 +316,7 @@ export function CampaignEditor({
               />
             </div>
           </div>
-          <p className="mt-6 flex items-center gap-2 rounded-2xl bg-surface-soft px-4 py-3 text-sm font-bold text-heading dark:bg-white/[0.05]" aria-live="polite">
+          <p className="mt-6 flex items-center gap-2 rounded-lg bg-surface-soft px-4 py-3 text-sm font-bold text-heading dark:bg-white/[0.05]" aria-live="polite">
             <Users className="h-4 w-4 text-accent" aria-hidden />
             {count === null ? "…" : count === 1 ? t.countOne : t.count.replace("{n}", count.toLocaleString(locale))}
           </p>
@@ -364,7 +364,7 @@ export function CampaignEditor({
         </section>
 
         {error && (
-          <p role="alert" className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:bg-red-500/10 dark:text-red-300">
+          <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:bg-red-500/10 dark:text-red-300">
             {error}
           </p>
         )}

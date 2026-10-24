@@ -30,7 +30,7 @@ export default async function TicketPage({ params }: { params: Promise<{ locale:
   const names = Object.fromEntries(employees.map((e) => [e.id, e.name]));
   const fmt = (iso: string) =>
     new Intl.DateTimeFormat(locale, { dateStyle: "long", timeStyle: "short", timeZone: "America/Bogota" }).format(new Date(iso));
-  const card = "rounded-3xl bg-surface p-6 ring-1 ring-line dark:bg-card";
+  const card = "rounded-lg bg-surface p-6 shadow-meta dark:bg-card";
 
   return (
     <>

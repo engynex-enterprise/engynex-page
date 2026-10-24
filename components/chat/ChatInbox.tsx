@@ -181,7 +181,7 @@ export function ChatInbox({
           {t.saved.title}
         </Link>
       </div>
-      <div className="grid h-[calc(100dvh-12rem)] min-h-[34rem] overflow-hidden rounded-3xl bg-surface ring-1 ring-line md:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)_19rem] dark:bg-card">
+      <div className="grid h-[calc(100dvh-12rem)] min-h-[34rem] overflow-hidden rounded-lg bg-surface shadow-meta md:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)_19rem] dark:bg-card">
         {/* ---------------- Lista ---------------- */}
         <section className={cn("flex min-h-0 flex-col border-line md:border-r", selected && "max-md:hidden")}>
           <div className="grid gap-3 border-b border-line p-4">
@@ -231,7 +231,7 @@ export function ChatInbox({
                   onClick={() => select(c.id)}
                   aria-current={c.id === selectedId ? "true" : undefined}
                   className={cn(
-                    "flex w-full items-start gap-3 rounded-2xl px-3 py-3 text-left transition-colors",
+                    "flex w-full items-start gap-3 rounded-lg px-3 py-3 text-left transition-colors",
                     c.id === selectedId ? "bg-surface-soft dark:bg-white/[0.08]" : "hover:bg-surface-soft/70 dark:hover:bg-white/[0.04]",
                   )}
                 >

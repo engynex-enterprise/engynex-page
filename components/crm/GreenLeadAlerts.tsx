@@ -42,7 +42,7 @@ export function GreenLeadAlerts({ locale }: { locale: Locale }) {
   return (
     <div aria-live="assertive" className="fixed right-4 top-20 z-[70] grid w-[min(22rem,calc(100vw-2rem))] gap-2">
       {alerts.map((a) => (
-        <div key={a.id} role="status" className="flex items-start gap-3 rounded-2xl bg-surface p-4 shadow-[0_16px_40px_-12px_rgba(11,16,32,0.45)] ring-2 ring-emerald-500 dark:bg-card">
+        <div key={a.id} role="status" className="flex items-start gap-3 rounded-lg bg-surface p-4 shadow-[0_16px_40px_-12px_rgba(11,16,32,0.45)] ring-2 ring-emerald-500 dark:bg-card">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emerald-500 text-white">
             <Flame className="h-5 w-5" aria-hidden />
           </span>
