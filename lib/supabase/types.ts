@@ -340,6 +340,9 @@ export type AutomationRule = {
   actions: Json;
   enabled: boolean;
   template_key: string | null;
+  delay_minutes: number;
+  max_per_day: number | null;
+  folder: string | null;
   runs: number;
   last_run_at: string | null;
   created_by: string | null;
@@ -844,6 +847,12 @@ export type Database = {
         Update: Partial<AutomationRule>;
         Relationships: [];
       };
+      automation_pending: {
+        Row: { id: number; rule_id: string; entity: string; entity_id: string; run_key: string; due_at: string; created_at: string };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       automation_runs: {
         Row: AutomationRun;
         Insert: Partial<AutomationRun>;
@@ -1059,6 +1068,11 @@ export type Database = {
       support_kpis: { Args: { p_days?: number }; Returns: Json };
       staff_create_ticket: { Args: { p: Json }; Returns: Json };
       accounts_list: { Args: Record<string, never>; Returns: Json };
+      automation_preview: { Args: { p_rule: Json; p_entity_id: string }; Returns: Json };
+      automation_samples: { Args: { p_trigger: string }; Returns: Json };
+      automation_run_manual: { Args: { p_rule: string; p_entity_id: string }; Returns: Json };
+      automation_stats: { Args: { p_days?: number; p_rule?: string | null }; Returns: Json };
+      automation_duplicate: { Args: { p_rule: string }; Returns: string };
       account_timeline: { Args: { p_account: string; p_limit?: number }; Returns: Json };
       my_appointments: {
         Args: Record<string, never>;

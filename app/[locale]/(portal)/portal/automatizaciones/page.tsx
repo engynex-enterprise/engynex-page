@@ -2,142 +2,120 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/portal/PageHeader";
+import { AutomationsNav, type AutomationsTab } from "@/components/automations/AutomationsNav";
+import { AutomationStats, type AutomationStatsData } from "@/components/automations/AutomationStats";
+import { AutomationsPending, type PendingRow } from "@/components/automations/AutomationsPending";
 import { RulesList } from "@/components/automations/RulesList";
-import { StatTile } from "@/components/analytics/Charts";
+import { RunsHistory } from "@/components/automations/RunsHistory";
 import { buttonClasses } from "@/components/ui/Button";
+import { automationsProCopy, shortSpan } from "@/content/automationsPro";
 import { rulesCopy } from "@/content/rules";
 import { isLocale } from "@/i18n/config";
 import { requireProfile } from "@/lib/auth";
-import { daysAgoIso } from "@/lib/dates";
+import { daysAgoIso, nowIso } from "@/lib/dates";
 import type { AutomationRule, AutomationRun } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 
-const ENTITY_PATH: Record<string, string> = { lead: "crm", ticket: "soporte", chat: "chat?c=" };
+const TABS: Record<string, AutomationsTab> = { historial: "history", estadisticas: "stats", espera: "pending" };
 
 export default async function AutomationsPage({
   params,
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; rule?: string; r?: string; e?: string; d?: string }>;
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const { supabase, profile } = await requireProfile(locale, ["admin", "sales", "marketing"]);
-  const t = rulesCopy;
-  const { tab } = await searchParams;
-  const history = tab === "historial";
+  const t = automationsProCopy[locale];
+  const sp = await searchParams;
+  const tab: AutomationsTab = TABS[sp.tab ?? ""] ?? "rules";
   const canEdit = profile.role === "admin" || profile.role === "marketing";
-  const since = daysAgoIso(30);
+  const days = ["7", "90"].includes(sp.d ?? "") ? Number(sp.d) : 30;
+  const now = nowIso();
+  const since30 = daysAgoIso(30);
+  const since7 = daysAgoIso(7);
 
-  const [{ data: rules }, { data: runs }, { count: runs30 }, { count: failed30 }] = await Promise.all([
-    supabase.from("automation_rules").select("*").order("enabled", { ascending: false }).order("created_at"),
-    history
-      ? supabase.from("automation_runs").select("*").order("created_at", { ascending: false }).limit(150)
-      : Promise.resolve({ data: [] as AutomationRun[] }),
-    supabase.from("automation_runs").select("id", { count: "exact", head: true }).gte("created_at", since),
-    supabase.from("automation_runs").select("id", { count: "exact", head: true }).gte("created_at", since).eq("status", "failed"),
+  let history = supabase.from("automation_runs").select("*").order("created_at", { ascending: false }).limit(200);
+  if (sp.rule) history = history.eq("rule_id", sp.rule);
+  if (sp.r === "done" || sp.r === "failed") history = history.eq("status", sp.r);
+  if (sp.e) history = history.eq("entity", sp.e);
+
+  const [{ data: rules }, { count: runs30 }, { count: failed30 }, { count: pendingCount }, { data: fails7 }, extra] = await Promise.all([
+    supabase.from("automation_rules").select("*").order("folder", { nullsFirst: false }).order("enabled", { ascending: false }).order("name"),
+    supabase.from("automation_runs").select("id", { count: "exact", head: true }).gte("created_at", since30),
+    supabase.from("automation_runs").select("id", { count: "exact", head: true }).gte("created_at", since30).eq("status", "failed"),
+    supabase.from("automation_pending").select("id", { count: "exact", head: true }),
+    supabase.from("automation_runs").select("rule_id").gte("created_at", since7).eq("status", "failed"),
+    tab === "history"
+      ? history.then((x) => ({ runs: (x.data ?? []) as AutomationRun[] }))
+      : tab === "stats"
+        ? supabase.rpc("automation_stats", { p_days: days }).then((x) => ({ stats: x.data as unknown as AutomationStatsData }))
+        : tab === "pending"
+          ? supabase
+              .from("automation_pending")
+              .select("id, rule_id, entity, entity_id, due_at, created_at")
+              .order("due_at")
+              .limit(300)
+              .then((x) => ({ pending: (x.data ?? []) as PendingRow[] }))
+          : Promise.resolve({}),
   ]);
   const list = (rules ?? []) as AutomationRule[];
-  const names = Object.fromEntries(list.map((r) => [r.id, r.name]));
+  const names = list.map((r) => ({ id: r.id, name: r.name }));
+  const errors7 = (fails7 ?? []).reduce<Record<string, number>>((acc, x) => {
+    acc[x.rule_id] = (acc[x.rule_id] ?? 0) + 1;
+    return acc;
+  }, {});
   const last = list.reduce<string | null>((m, r) => (r.last_run_at && (!m || r.last_run_at > m) ? r.last_run_at : m), null);
-  const fmt = (iso: string) =>
-    new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZone: "America/Bogota" }).format(new Date(iso));
+  const savedMin = (runs30 ?? 0) * 3;
+  const nowMs = new Date(now).getTime();
+
+  const kpis = [
+    { key: "active", value: `${list.filter((r) => r.enabled).length} / ${list.length}` },
+    { key: "runs", value: (runs30 ?? 0).toLocaleString(locale) },
+    { key: "failed", value: (failed30 ?? 0).toLocaleString(locale), alert: (failed30 ?? 0) > 0 },
+    { key: "pending", value: (pendingCount ?? 0).toLocaleString(locale) },
+    {
+      key: "saved",
+      value: savedMin >= 60 ? t.hours.replace("{n}", (savedMin / 60).toLocaleString(locale, { maximumFractionDigits: 1 })) : t.minutes.replace("{n}", String(savedMin)),
+      hint: t.kpis.savedHint,
+    },
+    { key: "last", value: last ? t.ago.replace("{t}", shortSpan(nowMs - new Date(last).getTime())) : "—" },
+  ] as { key: keyof typeof t.kpis; value: string; alert?: boolean; hint?: string }[];
+
   const base = `/${locale}/portal/automatizaciones`;
 
   return (
     <>
-      <PageHeader
-        title={t.title}
-        subtitle={t.subtitle}
-        action={
-          canEdit ? (
-            <Link href={`${base}/nueva`} className={buttonClasses("primary", "md")}>
-              <Plus className="h-4 w-4" aria-hidden />
-              {t.create}
-            </Link>
-          ) : undefined
-        }
-      />
-      <dl className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile label={t.stats.active} value={`${list.filter((r) => r.enabled).length} / ${list.length}`} />
-        <StatTile label={t.stats.runs} value={(runs30 ?? 0).toLocaleString(locale)} />
-        <StatTile label={t.stats.failed} value={(failed30 ?? 0).toLocaleString(locale)} />
-        <StatTile label={t.stats.last} value={last ? fmt(last) : "—"} />
-      </dl>
-
-      <nav aria-label={t.title} className="mb-4 flex gap-1 border-b border-line">
-        {([["rules", base], ["history", `${base}?tab=historial`]] as const).map(([key, href]) => {
-          const active = (key === "history") === history;
-          return (
-            <Link
-              key={key}
-              href={href}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "-mb-px border-b-[3px] px-4 py-3 text-[0.94rem] font-semibold",
-                active ? "border-deep-700 text-heading dark:border-brand-green" : "border-transparent text-muted hover:text-heading",
-              )}
-            >
-              {t.tabs[key]}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {!canEdit && <p className="mb-3 text-sm text-muted">{t.readOnly}</p>}
-
-      {!history ? (
-        <RulesList locale={locale} rules={list} canEdit={canEdit} />
-      ) : !runs?.length ? (
-        <p className="rounded-lg bg-surface p-10 text-center text-sm text-muted shadow-meta dark:bg-card">{t.history.empty}</p>
-      ) : (
-        <div className="overflow-x-auto rounded-lg bg-surface shadow-meta dark:bg-card">
-          <table className="w-full min-w-[44rem] text-left text-sm">
-            <thead className="border-b border-line text-xs text-muted">
-              <tr>
-                {(["when", "rule", "item", "result"] as const).map((k) => (
-                  <th key={k} scope="col" className="px-4 py-3 font-semibold">{t.history.cols[k]}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {(runs as AutomationRun[]).map((r) => {
-                const detail = (r.detail ?? {}) as { actions?: { type: string }[]; error?: string };
-                const path = ENTITY_PATH[r.entity];
-                return (
-                  <tr key={r.id}>
-                    <td className="whitespace-nowrap px-4 py-3 text-body">{fmt(r.created_at)}</td>
-                    <td className="px-4 py-3">
-                      <Link href={`${base}/${r.rule_id}`} className="font-semibold text-heading hover:underline">{names[r.rule_id] ?? "—"}</Link>
-                    </td>
-                    <td className="px-4 py-3 text-body">
-                      {path ? (
-                        <Link
-                          href={`/${locale}/portal/${path}${path.endsWith("=") ? "" : "/"}${r.entity_id}`}
-                          className="hover:underline"
-                        >
-                          {t.history.entities[r.entity] ?? r.entity}
-                        </Link>
-                      ) : (
-                        (t.history.entities[r.entity] ?? r.entity)
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={cn("rounded-full px-2.5 py-1 text-xs font-bold", r.status === "done" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300")}>
-                        {r.status === "done" ? t.history.done : t.history.failed}
-                      </span>
-                      <span className="ml-2 text-xs text-muted">
-                        {detail.error ?? (detail.actions ?? []).map((a) => t.actions.types[a.type as keyof typeof t.actions.types]?.label ?? a.type).join(" · ")}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      <PageHeader title={rulesCopy.title} count={list.length} />
+      <div className="-mx-4 -mt-6 sm:-mx-6">
+        <div className="grid border-b border-line sm:grid-cols-3 xl:grid-cols-6">
+          {kpis.map((k) => (
+            <div key={k.key} className="border-b border-line px-6 py-4 sm:border-r xl:border-b-0 xl:[&:nth-child(6n)]:border-r-0">
+              <p className="text-sm text-muted">{t.kpis[k.key]}</p>
+              <p className={cn("mt-1 text-[1.6rem] font-semibold leading-none tabular-nums", k.alert ? "text-red-600 dark:text-red-400" : "text-heading")}>{k.value}</p>
+              {k.hint && <p className="mt-1 text-xs text-muted">{k.hint}</p>}
+            </div>
+          ))}
         </div>
-      )}
+
+        <AutomationsNav locale={locale} tab={tab} pending={pendingCount ?? 0}>
+          {canEdit && (
+            <Link href={`${base}/nueva`} className={cn(buttonClasses("primary", "md"), "h-9 px-3.5")}>
+              <Plus className="h-4 w-4" aria-hidden />
+              {rulesCopy.create}
+            </Link>
+          )}
+        </AutomationsNav>
+
+        {tab === "rules" && <RulesList locale={locale} rules={list} canEdit={canEdit} errors7={errors7} now={now} />}
+        {tab === "history" && "runs" in extra && <RunsHistory locale={locale} runs={extra.runs} rules={names} />}
+        {tab === "stats" && "stats" in extra && extra.stats && <AutomationStats locale={locale} days={days} data={extra.stats} rules={names} />}
+        {tab === "pending" && "pending" in extra && (
+          <AutomationsPending locale={locale} rows={extra.pending} rules={names} canEdit={canEdit} now={now} />
+        )}
+      </div>
     </>
   );
 }

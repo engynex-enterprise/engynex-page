@@ -1,0 +1,50 @@
+import {
+  Bell,
+  Briefcase,
+  CalendarClock,
+  CheckSquare,
+  Flag,
+  Handshake,
+  Headphones,
+  Layers,
+  ListChecks,
+  Mail,
+  MessageCircle,
+  MessagesSquare,
+  Repeat,
+  StickyNote,
+  Tag,
+  TrendingUp,
+  UserPlus,
+  Users,
+  Webhook,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+import type { ActionType, RuleGroup } from "@/content/rules";
+
+export const ACTION_ICONS: Record<ActionType, LucideIcon> = {
+  assign: UserPlus,
+  task: ListChecks,
+  notify: Bell,
+  email: Mail,
+  whatsapp: MessageCircle,
+  status: Zap,
+  stage: Layers,
+  priority: Flag,
+  tag: Tag,
+  note: StickyNote,
+  followup: Repeat,
+  deal: Handshake,
+  webhook: Webhook,
+};
+
+export const GROUP_ICONS: Record<RuleGroup, LucideIcon> = {
+  sales: TrendingUp,
+  meetings: CalendarClock,
+  service: Headphones,
+  chat: MessagesSquare,
+  tasks: CheckSquare,
+  deals: Briefcase,
+  accounts: Users,
+};

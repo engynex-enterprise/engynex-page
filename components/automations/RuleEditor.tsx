@@ -2,345 +2,165 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Loader2, Plus, Trash2, X } from "lucide-react";
+import { Check, Copy, Hourglass, Loader2, Plus, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { AutomationRule, Json, WaTemplate } from "@/lib/supabase/types";
 import {
   ACTIONS_BY_ENTITY,
+  CONDITION_OPTIONS,
   rulesCopy,
   TRIGGERS,
   VARIABLES,
-  type ActionType,
   type ConditionKey,
   type RuleAction,
+  type RuleConditions as Conditions,
   type TriggerKey,
 } from "@/content/rules";
+import { ruleEditorCopy } from "@/content/ruleEditor";
 import { crmCopy, pipeline } from "@/content/crm";
 import { leadFormCopy, problemKeys } from "@/content/leadForm";
-import { ticketsCopy } from "@/content/tickets";
-import { ticketPriorities, ticketStatuses } from "@/lib/tickets";
-import { Select } from "@/components/ui/Select";
+import { ticketCategories } from "@/lib/ticketCategories";
 import { buttonClasses } from "@/components/ui/Button";
 import { inputClass } from "@/components/auth/inputClass";
-import { ACTION_ICONS, GROUP_ICONS } from "./RulesList";
 import type { Locale } from "@/i18n/config";
+import { RuleTriggerPicker } from "./RuleTriggerPicker";
+import { RuleConditions } from "./RuleConditions";
+import { RuleActionCard, defaultAction, type TextField } from "./RuleActionCard";
+import { RulePreview } from "./RulePreview";
+import { ACTION_ICONS } from "./icons";
 import { cn } from "@/lib/utils";
 
-type Conditions = Partial<Record<ConditionKey, string[]>>;
-const ROLE_KEYS = ["admin", "sales", "marketing", "support"];
-
-const defaultAction = (type: ActionType): RuleAction => {
-  switch (type) {
-    case "assign":
-      return { type, roles: ["sales"] };
-    case "task":
-      return { type, title: "Hacer seguimiento a {nombre}", due_minutes: 1440, assign_to: "owner" };
-    case "notify":
-      return { type, to: "owner", roles: ["admin"], title: "", body: "" };
-    case "email":
-      return { type, to: "contact", subject: "", body: "" };
-    case "whatsapp":
-      return { type, template_id: "", params: [] };
-    case "status":
-      return { type, status: "" };
-    case "tag":
-      return { type, tag: "" };
-  }
-};
-
-function Chips({ options, value, onChange }: { options: { value: string; label: string }[]; value: string[]; onChange: (v: string[]) => void }) {
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {options.map((o) => {
-        const on = value.includes(o.value);
-        return (
-          <button
-            key={o.value}
-            type="button"
-            aria-pressed={on}
-            onClick={() => onChange(on ? value.filter((v) => v !== o.value) : [...value, o.value])}
-            className={cn(
-              "inline-flex h-8 items-center gap-1 rounded-full px-3 text-sm font-semibold transition-colors",
-              on ? "bg-[var(--meta-active)] text-accent ring-1 ring-brand-green-dark/30" : "bg-card-soft text-heading hover:brightness-95",
-            )}
-          >
-            {on && <Check className="h-3.5 w-3.5" aria-hidden />}
-            {o.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
+const isEmpty = (v: unknown) => v === undefined || v === null || v === false || (Array.isArray(v) && v.length === 0);
 
 /**
- * Editor de una automatización, con el esquema de Meta Business Suite:
- * Cuando… → Solo si… → Entonces…, y un resumen a la derecha.
+ * Editor de una automatización, como un flujo: Cuando → Solo si… → Esperar →
+ * Entonces…, con ajustes, resumen y prueba sobre un elemento real a la derecha.
  */
 export function RuleEditor({
   locale,
   rule,
   employees,
   templates,
+  folders,
   canEdit,
+  extra,
 }: {
   locale: Locale;
   rule: AutomationRule | null;
   employees: { id: string; name: string }[];
   templates: WaTemplate[];
+  folders: string[];
   canEdit: boolean;
+  /** Paneles extra bajo la columna derecha (estadísticas, ejecuciones). */
+  extra?: React.ReactNode;
 }) {
   const t = rulesCopy;
+  const e = ruleEditorCopy;
   const crm = crmCopy[locale];
   const form = leadFormCopy[locale];
-  const tk = ticketsCopy[locale];
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
+  const initialTrigger = (rule?.trigger as TriggerKey) ?? "lead_created";
   const [name, setName] = useState(rule?.name ?? "");
   const [description, setDescription] = useState(rule?.description ?? "");
-  const [trigger, setTrigger] = useState<TriggerKey>((rule?.trigger as TriggerKey) ?? "lead_created");
-  const initialParams = (rule?.params ?? {}) as Record<string, number>;
+  const [trigger, setTrigger] = useState<TriggerKey>(initialTrigger);
   const [param, setParam] = useState<number | null>(() => {
-    const p = TRIGGERS[(rule?.trigger as TriggerKey) ?? "lead_created"].param;
-    return p ? (initialParams[p.key] ?? p.default) : null;
+    const p = TRIGGERS[initialTrigger].param;
+    return p ? (((rule?.params ?? {}) as Record<string, number>)[p.key] ?? p.default) : null;
   });
   const [conditions, setConditions] = useState<Conditions>((rule?.conditions ?? {}) as Conditions);
+  const [delay, setDelay] = useState(rule?.delay_minutes ?? 0);
   const [actions, setActions] = useState<RuleAction[]>((rule?.actions ?? []) as RuleAction[]);
   const [enabled, setEnabled] = useState(rule?.enabled ?? true);
+  const [folder, setFolder] = useState(rule?.folder ?? t.groups[TRIGGERS[initialTrigger].group]);
+  const [maxPerDay, setMaxPerDay] = useState<number | null>(rule?.max_per_day ?? null);
   const [adding, setAdding] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<false | "save" | "dup">(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
-  const lastField = useRef<{ index: number; field: keyof RuleAction } | null>(null);
+  const lastField = useRef<{ index: number; field: TextField } | null>(null);
 
   const meta = TRIGGERS[trigger];
   const entity = meta.entity;
   const allowed = ACTIONS_BY_ENTITY[entity];
 
+  // Opciones de cada condición con lista, según el tipo de elemento.
+  const listOptions = useMemo(() => {
+    const names = t.conditions;
+    const opts = (keys: readonly string[], dict: Record<string, string>) => keys.map((k) => ({ value: k, label: dict[k] ?? k }));
+    return {
+      tiers: opts(CONDITION_OPTIONS.tiers ?? [], { ...names.tierNames, ...crm.tier }),
+      statuses: pipeline.map((k) => ({ value: k, label: crm.status[k] })),
+      problems: problemKeys.map((k) => ({ value: k, label: form.steps.problem.options[k] })),
+      priorities: opts(entity === "task" ? ["urgent", "high", "medium", "low"] : ["critical", "high", "medium", "low"], names.priorityNames),
+      channels: opts(entity === "appointment" ? ["meet", "call", "whatsapp", "in_person"] : ["web", "whatsapp", "messenger", "instagram"], names.channelNames),
+      sources: opts(CONDITION_OPTIONS.sources ?? [], names.sourceNames),
+      categories: ticketCategories(locale),
+      stages: opts(entity === "deal" ? ["prospecting", "proposal", "negotiation", "won", "lost"] : ["onboarding", "active", "at_risk", "paused", "churned"], names.stageNames),
+      kinds: opts(CONDITION_OPTIONS.kinds ?? [], names.kindNames),
+    };
+  }, [entity, crm, form, locale, t.conditions]);
+
   const chooseTrigger = (key: TriggerKey) => {
     setTrigger(key);
     setParam(TRIGGERS[key].param?.default ?? null);
     // Solo las condiciones y acciones que tienen sentido para el nuevo disparador.
-    setConditions((c) => Object.fromEntries(Object.entries(c).filter(([k]) => TRIGGERS[key].conditions.includes(k as ConditionKey))));
+    setConditions((c) => Object.fromEntries(Object.entries(c).filter(([k]) => TRIGGERS[key].conditions.includes(k as ConditionKey))) as Conditions);
     setActions((list) => list.filter((a) => ACTIONS_BY_ENTITY[TRIGGERS[key].entity].includes(a.type)));
+    if (!rule && Object.values(t.groups).includes(folder)) setFolder(t.groups[TRIGGERS[key].group]);
   };
 
-  const setAction = (index: number, patch: Partial<RuleAction>) =>
-    setActions((list) => list.map((a, i) => (i === index ? { ...a, ...patch } : a)));
-
+  const setAction = (index: number, patch: Partial<RuleAction>) => setActions((list) => list.map((a, i) => (i === index ? { ...a, ...patch } : a)));
+  const moveAction = (index: number, dir: -1 | 1) =>
+    setActions((list) => {
+      const next = [...list];
+      const j = index + dir;
+      if (j < 0 || j >= next.length) return list;
+      [next[index], next[j]] = [next[j], next[index]];
+      return next;
+    });
   const insertVariable = (v: string) => {
     const target = lastField.current;
-    if (!target) return;
-    const current = (actions[target.index]?.[target.field] as string | undefined) ?? "";
+    if (!target || !actions[target.index]) return;
+    const current = (actions[target.index][target.field] as string | undefined) ?? "";
     setAction(target.index, { [target.field]: `${current}{${v}}` } as Partial<RuleAction>);
   };
 
-  const textField = (index: number, field: "title" | "body" | "subject" | "cta_label" | "cta_url" | "tag", label: string, multiline = false) => {
-    const value = (actions[index][field] as string | undefined) ?? "";
-    const common = {
-      value,
-      onFocus: () => (lastField.current = { index, field }),
-      onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setAction(index, { [field]: event.target.value } as Partial<RuleAction>),
-      disabled: !canEdit,
-      "aria-label": label,
-    };
-    return (
-      <label className="block">
-        <span className="mb-1 block text-xs font-semibold text-muted">{label}</span>
-        {multiline ? (
-          <textarea {...common} rows={4} maxLength={2000} className={cn(inputClass, "h-auto resize-y py-2.5 text-sm leading-relaxed")} />
-        ) : (
-          <input {...common} maxLength={field === "cta_url" ? 300 : 200} className={cn(inputClass, "h-10 text-sm")} />
-        )}
-      </label>
-    );
-  };
-
-  const roleChips = (index: number) => (
-    <Chips
-      options={ROLE_KEYS.map((r) => ({ value: r, label: t.actions.roles[r] }))}
-      value={actions[index].roles ?? []}
-      onChange={(roles) => setAction(index, { roles })}
-    />
-  );
-  const personSelect = (index: number, label: string) => (
-    <Select
-      size="md"
-      label={label}
-      value={actions[index].user_id ?? ""}
-      onChange={(v) => setAction(index, { user_id: v })}
-      options={employees.map((e) => ({ value: e.id, label: e.name }))}
-      placeholder="—"
-    />
-  );
-
-  const actionFields = (a: RuleAction, i: number) => {
-    switch (a.type) {
-      case "assign":
-        return (
-          <div className="grid gap-3">
-            <Select
-              size="md"
-              label={t.actions.to}
-              value={a.user_id ? "user" : "roles"}
-              onChange={(v) => setAction(i, v === "user" ? { user_id: employees[0]?.id ?? "" } : { user_id: undefined })}
-              options={[
-                { value: "roles", label: t.actions.roundRobin },
-                { value: "user", label: t.actions.person },
-              ]}
-            />
-            {a.user_id !== undefined ? personSelect(i, t.actions.person) : roleChips(i)}
-          </div>
-        );
-      case "task":
-        return (
-          <div className="grid gap-3">
-            {textField(i, "title", t.actions.taskTitle)}
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Select
-                size="md"
-                label={t.actions.due}
-                value={String(a.due_minutes ?? 1440)}
-                onChange={(v) => setAction(i, { due_minutes: Number(v) })}
-                options={Object.entries(t.actions.dueOptions).map(([value, label]) => ({ value, label }))}
-              />
-              <Select
-                size="md"
-                label={t.actions.to}
-                value={a.assign_to ?? "owner"}
-                onChange={(v) => setAction(i, { assign_to: v as "owner" | "user" })}
-                options={[
-                  { value: "owner", label: t.actions.toOwner },
-                  { value: "user", label: t.actions.toUser },
-                ]}
-              />
-            </div>
-            {a.assign_to === "user" && personSelect(i, t.actions.toUser)}
-          </div>
-        );
-      case "notify":
-        return (
-          <div className="grid gap-3">
-            <Select
-              size="md"
-              label={t.actions.to}
-              value={a.to ?? "owner"}
-              onChange={(v) => setAction(i, { to: v as RuleAction["to"] })}
-              options={[
-                { value: "owner", label: t.actions.toOwner },
-                { value: "roles", label: t.actions.toRoles },
-                { value: "user", label: t.actions.toUser },
-              ]}
-            />
-            {a.to === "roles" && roleChips(i)}
-            {a.to === "user" && personSelect(i, t.actions.toUser)}
-            {textField(i, "title", t.actions.titleLabel)}
-            {textField(i, "body", t.actions.bodyLabel, true)}
-          </div>
-        );
-      case "email":
-        return (
-          <div className="grid gap-3">
-            <Select
-              size="md"
-              label={t.actions.to}
-              value={a.to ?? "contact"}
-              onChange={(v) => setAction(i, { to: v as RuleAction["to"] })}
-              options={[
-                { value: "contact", label: t.actions.toContact },
-                { value: "team", label: t.actions.toTeam },
-              ]}
-            />
-            {textField(i, "subject", t.actions.subject)}
-            {textField(i, "body", t.actions.bodyLabel, true)}
-            {a.to !== "team" && (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {textField(i, "cta_label", t.actions.ctaLabel)}
-                {textField(i, "cta_url", t.actions.ctaUrl)}
-              </div>
-            )}
-          </div>
-        );
-      case "whatsapp": {
-        const tpl = templates.find((x) => x.id === a.template_id);
-        return templates.length === 0 ? (
-          <p className="text-sm text-muted">{t.actions.noTemplates}</p>
-        ) : (
-          <div className="grid gap-3">
-            <Select
-              size="md"
-              label={t.actions.template}
-              value={a.template_id ?? ""}
-              onChange={(v) => setAction(i, { template_id: v, params: Array(templates.find((x) => x.id === v)?.variables ?? 0).fill("{primer_nombre}") })}
-              options={templates.map((x) => ({ value: x.id, label: `${x.name} · ${x.language}` }))}
-              placeholder="—"
-            />
-            {tpl &&
-              Array.from({ length: tpl.variables }, (_, n) => (
-                <label key={n} className="block">
-                  <span className="mb-1 block text-xs font-semibold text-muted">{t.actions.templateParam.replace("{n}", String(n + 1))}</span>
-                  <input
-                    value={a.params?.[n] ?? ""}
-                    onChange={(event) => {
-                      const params = [...(a.params ?? [])];
-                      params[n] = event.target.value;
-                      setAction(i, { params });
-                    }}
-                    className={cn(inputClass, "h-10 text-sm")}
-                  />
-                </label>
-              ))}
-          </div>
-        );
-      }
-      case "status":
-        return (
-          <Select
-            size="md"
-            label={t.actions.status}
-            value={a.status ?? ""}
-            onChange={(v) => setAction(i, { status: v })}
-            placeholder="—"
-            options={
-              entity === "ticket"
-                ? ticketStatuses.map((s) => ({ value: s, label: tk.staffStatus[s] }))
-                : pipeline.map((s) => ({ value: s, label: crm.status[s] }))
-            }
-          />
-        );
-      case "tag":
-        return textField(i, "tag", t.actions.tag);
-    }
-  };
-
-  const conditionOptions: Record<ConditionKey, { value: string; label: string }[]> = {
-    tiers: (["green", "yellow", "red"] as const).map((k) => ({ value: k, label: crm.tier[k] })),
-    statuses: pipeline.map((k) => ({ value: k, label: crm.status[k] })),
-    problems: problemKeys.map((k) => ({ value: k, label: form.steps.problem.options[k] })),
-    priorities: ticketPriorities.map((k) => ({ value: k, label: t.conditions.priorityNames[k] })),
-    channels: ["web", "whatsapp"].map((k) => ({ value: k, label: t.conditions.channelNames[k] })),
-  };
+  const cleanConditions = () =>
+    Object.fromEntries(Object.entries(conditions).filter(([k, v]) => meta.conditions.includes(k as ConditionKey) && !isEmpty(v))) as Conditions;
+  const draft = { trigger, conditions: cleanConditions() as Json, actions: actions as unknown as Json };
 
   // Resumen en lenguaje natural.
-  const summaryWhen = `${t.triggers[trigger].label}${meta.param && param ? ` (${param} ${meta.param.unit})` : ""}`;
-  const summaryIf = meta.conditions
-    .filter((k) => (conditions[k] ?? []).length > 0)
-    .map((k) => `${t.conditions[k]}: ${(conditions[k] ?? []).map((v) => conditionOptions[k].find((o) => o.value === v)?.label ?? v).join(", ")}`);
+  const delayLabel = t.editor.delayOptions[String(delay)] ?? `${delay} min`;
+  const condLabel = (k: ConditionKey, v: unknown): string => {
+    if (Array.isArray(v)) {
+      const list = (listOptions as Record<string, { value: string; label: string }[]>)[k];
+      return `${t.conditions[k as keyof typeof t.conditions] as string}: ${v.map((x) => list?.find((o) => o.value === x)?.label ?? x).join(", ")}`;
+    }
+    if (k === "owner") return t.conditions.ownerOptions[String(v)];
+    if (k === "business_hours" || k === "outside_hours") return t.conditions[k];
+    return `${t.conditions[k as keyof typeof t.conditions] as string}: ${Number(v).toLocaleString(locale)}`;
+  };
+  const summaryIf = Object.entries(cleanConditions()).map(([k, v]) => condLabel(k as ConditionKey, v));
 
   const save = async () => {
     if (!name.trim()) return setError(t.editor.errors.name);
     if (actions.length === 0) return setError(t.editor.errors.actions);
+    if (actions.some((a) => a.type === "webhook" && !/^https:\/\/\S+$/.test(a.url ?? ""))) return setError(t.editor.errors.webhook);
     setError(null);
-    setBusy(true);
+    setBusy("save");
     const row = {
       name: name.trim(),
       description: description.trim() || null,
       trigger,
       params: (meta.param && param ? { [meta.param.key]: param } : {}) as Json,
-      conditions: Object.fromEntries(Object.entries(conditions).filter(([, v]) => (v ?? []).length > 0)) as Json,
+      conditions: cleanConditions() as Json,
       actions: actions as unknown as Json,
       enabled,
+      delay_minutes: delay,
+      max_per_day: maxPerDay,
+      folder: folder.trim() || null,
     };
     const { data, error: dbError } = rule
       ? await supabase.from("automation_rules").update(row).eq("id", rule.id).select("id").single()
@@ -353,170 +173,162 @@ export function RuleEditor({
     router.refresh();
   };
 
+  const duplicate = async () => {
+    if (!rule) return;
+    setBusy("dup");
+    const { data, error: rpcError } = await supabase.rpc("automation_duplicate", { p_rule: rule.id });
+    setBusy(false);
+    if (rpcError || !data) return setError(t.editor.errors.generic);
+    router.push(`/${locale}/portal/automatizaciones/${data}`);
+  };
+
   const remove = async () => {
-    if (!rule || !window.confirm(t.confirmDelete)) return;
+    if (!rule || !window.confirm(e.confirmDelete)) return;
     await supabase.from("automation_rules").delete().eq("id", rule.id);
     router.push(`/${locale}/portal/automatizaciones`);
     router.refresh();
   };
 
-  const card = "rounded-lg bg-surface p-5 shadow-meta sm:p-6 dark:bg-card";
-  const step = (n: number, title: string) => (
-    <h2 className="flex items-center gap-3 text-lg font-bold text-heading">
-      <span className="grid h-8 w-8 place-items-center rounded-full bg-deep-700 text-sm text-white dark:bg-white dark:text-deep-700">{n}</span>
-      {title}
-    </h2>
+  const card = "rounded-xl border border-line bg-surface p-5 dark:bg-card";
+  const field = "mb-1 block text-xs font-medium text-muted";
+  const steps: { key: keyof typeof e.steps; show: boolean }[] = [
+    { key: "when", show: true },
+    { key: "conditions", show: meta.conditions.length > 0 },
+    { key: "wait", show: true },
+    { key: "then", show: true },
+  ];
+  const visible = steps.filter((s) => s.show).map((s) => s.key);
+  const stepHead = (key: keyof typeof e.steps, hint?: string) => (
+    <div className="mb-4 flex items-start gap-3">
+      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-deep-700 text-xs font-semibold text-white dark:bg-brand-green dark:text-deep-700">
+        {visible.indexOf(key) + 1}
+      </span>
+      <div>
+        <h2 className="text-[0.98rem] font-semibold leading-7 text-heading">{e.steps[key]}</h2>
+        {hint && <p className="text-xs text-muted">{hint}</p>}
+      </div>
+    </div>
   );
+  // Línea que une los pasos del flujo.
+  const connector = <div className="ml-[2.1rem] h-5 w-px bg-line-strong" aria-hidden />;
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-      <fieldset disabled={!canEdit} className="grid min-w-0 content-start gap-4">
-        {/* 1. Cuándo */}
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_23rem]">
+      <fieldset disabled={!canEdit} className="min-w-0">
+        <legend className="sr-only">{name || t.editor.newTitle}</legend>
+        {!canEdit && <p className="mb-4 rounded-lg bg-[var(--meta-active)]/60 px-4 py-3 text-sm text-heading">{e.readOnly}</p>}
+
+        {/* 1. Cuando */}
         <section className={card}>
-          {step(1, t.editor.when)}
-          <div className="mt-5 grid gap-5">
-            {(["sales", "meetings", "service", "chat"] as const).map((group) => {
-              const g = GROUP_ICONS[group];
-              const GIcon = g.icon;
-              return (
-                <div key={group}>
-                  <p className="mb-2 text-sm font-semibold text-muted">{t.groups[group]}</p>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {(Object.keys(TRIGGERS) as TriggerKey[])
-                      .filter((k) => TRIGGERS[k].group === group)
-                      .map((k) => {
-                        const on = k === trigger;
-                        return (
-                          <button
-                            key={k}
-                            type="button"
-                            aria-pressed={on}
-                            onClick={() => chooseTrigger(k)}
-                            className={cn(
-                              "flex items-start gap-3 rounded-lg p-3 text-left transition-colors",
-                              on ? "bg-[var(--meta-active)] ring-2 ring-brand-green-dark/40" : "bg-card-soft/60 hover:bg-[var(--meta-hover)]",
-                            )}
-                          >
-                            <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full text-white", g.tone)}>
-                              <GIcon className="h-4 w-4" aria-hidden />
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block text-sm font-semibold text-heading">{t.triggers[k].label}</span>
-                              <span className="mt-0.5 block text-xs leading-snug text-muted">{t.triggers[k].desc}</span>
-                            </span>
-                          </button>
-                        );
-                      })}
-                  </div>
-                </div>
-              );
-            })}
-            {meta.param && (
-              <label className="block max-w-xs">
-                <span className="mb-1 block text-sm font-semibold text-heading">{meta.param.label}</span>
-                <input
-                  type="number"
-                  min={1}
-                  max={meta.param.key === "minutes" ? 1440 : meta.param.key === "hours" ? 168 : 90}
-                  value={param ?? ""}
-                  onChange={(event) => setParam(Number(event.target.value) || null)}
-                  className={cn(inputClass, "h-10 text-sm")}
-                />
-              </label>
-            )}
-          </div>
+          {stepHead("when")}
+          <RuleTriggerPicker value={trigger} onChange={chooseTrigger} param={param} onParam={setParam} disabled={!canEdit} />
         </section>
 
         {/* 2. Solo si */}
         {meta.conditions.length > 0 && (
-          <section className={card}>
-            {step(2, t.conditions.title)}
-            <p className="mt-1 text-sm text-muted">{t.conditions.hint}</p>
-            <div className="mt-4 grid gap-4">
-              {meta.conditions.map((k) => (
-                <div key={k}>
-                  <p className="mb-2 text-sm font-semibold text-heading">{t.conditions[k]}</p>
-                  <Chips options={conditionOptions[k]} value={conditions[k] ?? []} onChange={(v) => setConditions((c) => ({ ...c, [k]: v }))} />
-                </div>
-              ))}
-            </div>
-          </section>
+          <>
+            {connector}
+            <section className={card}>
+              {stepHead("conditions", t.conditions.hint)}
+              <RuleConditions keys={meta.conditions} value={conditions} onChange={setConditions} options={listOptions} disabled={!canEdit} />
+            </section>
+          </>
         )}
 
-        {/* 3. Entonces */}
+        {/* 3. Esperar */}
+        {connector}
         <section className={card}>
-          {step(meta.conditions.length > 0 ? 3 : 2, t.actions.title)}
-          <ol className="mt-5 grid gap-3">
-            {actions.map((a, i) => {
-              const Icon = ACTION_ICONS[a.type];
-              return (
-                <li key={i} className="rounded-lg border border-line p-4">
-                  <div className="mb-3 flex items-center gap-3">
-                    <span className="grid h-9 w-9 place-items-center rounded-full bg-card-soft text-heading">
-                      <Icon className="h-4 w-4" aria-hidden />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-semibold text-heading">{t.actions.types[a.type].label}</span>
-                      <span className="block text-xs text-muted">{t.actions.types[a.type].desc}</span>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setActions((list) => list.filter((_, j) => j !== i))}
-                      aria-label={t.actions.remove}
-                      className="grid h-8 w-8 place-items-center rounded-full text-muted hover:bg-[var(--meta-hover)] hover:text-red-600"
-                    >
-                      <X className="h-4 w-4" aria-hidden />
-                    </button>
-                  </div>
-                  {actionFields(a, i)}
-                </li>
-              );
-            })}
-          </ol>
-          <div className="relative mt-3">
-            <button type="button" onClick={() => setAdding((v) => !v)} aria-expanded={adding} className={buttonClasses("outline", "md", "h-10")}>
-              <Plus className="h-4 w-4" aria-hidden />
-              {t.actions.add}
-            </button>
-            {adding && (
-              <div className="absolute left-0 top-12 z-20 w-80 rounded-lg bg-surface p-1.5 shadow-[0_12px_28px_0_rgba(0,0,0,0.2),0_2px_4px_0_rgba(0,0,0,0.1)] dark:bg-card">
-                {allowed.map((type) => {
-                  const Icon = ACTION_ICONS[type];
-                  return (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => {
-                        setActions((list) => [...list, defaultAction(type)]);
-                        setAdding(false);
-                      }}
-                      className="flex w-full items-start gap-3 rounded-md p-2 text-left hover:bg-[var(--meta-hover)]"
-                    >
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-card-soft text-heading">
-                        <Icon className="h-4 w-4" aria-hidden />
-                      </span>
-                      <span>
-                        <span className="block text-sm font-semibold text-heading">{t.actions.types[type].label}</span>
-                        <span className="block text-xs text-muted">{t.actions.types[type].desc}</span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+          {stepHead("wait", t.editor.delayHint)}
+          <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={t.editor.delay}>
+            {Object.entries(t.editor.delayOptions).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={delay === Number(value)}
+                onClick={() => setDelay(Number(value))}
+                className={cn(
+                  "inline-flex h-8 items-center gap-1 rounded-full px-3 text-sm transition-colors",
+                  delay === Number(value) ? "bg-[var(--meta-active)] font-semibold text-accent ring-1 ring-brand-green-dark/40" : "text-heading ring-1 ring-line hover:bg-[var(--meta-hover)]",
+                )}
+              >
+                {delay === Number(value) && Number(value) > 0 && <Hourglass className="h-3.5 w-3.5" aria-hidden />}
+                {label}
+              </button>
+            ))}
           </div>
+        </section>
+
+        {/* 4. Entonces */}
+        {connector}
+        <section className={card}>
+          {stepHead("then")}
+          {actions.length === 0 && <p className="mb-3 rounded-lg border border-dashed border-line-strong px-4 py-5 text-center text-sm text-muted">{e.noActions}</p>}
+          <ol className="grid gap-3">
+            {actions.map((a, i) => (
+              <RuleActionCard
+                key={i}
+                locale={locale}
+                action={a}
+                index={i}
+                count={actions.length}
+                entity={entity}
+                employees={employees}
+                templates={templates}
+                disabled={!canEdit}
+                onChange={(patch) => setAction(i, patch)}
+                onRemove={() => setActions((list) => list.filter((_, j) => j !== i))}
+                onMove={(dir) => moveAction(i, dir)}
+                onFocusField={(f) => (lastField.current = { index: i, field: f })}
+              />
+            ))}
+          </ol>
+          {canEdit && (
+            <div className="relative mt-3">
+              <button type="button" onClick={() => setAdding((v) => !v)} aria-expanded={adding} className={buttonClasses("outline", "md", "h-10")}>
+                <Plus className="h-4 w-4" aria-hidden />
+                {t.actions.add}
+              </button>
+              {adding && (
+                <div className="absolute left-0 top-12 z-20 grid w-[min(36rem,calc(100vw-3rem))] gap-1 rounded-xl border border-line bg-surface p-1.5 shadow-[0_12px_28px_0_rgba(0,0,0,0.2),0_2px_4px_0_rgba(0,0,0,0.1)] sm:grid-cols-2 dark:bg-card">
+                  {allowed.map((type) => {
+                    const Icon = ACTION_ICONS[type];
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => {
+                          setActions((list) => [...list, defaultAction(type)]);
+                          setAdding(false);
+                        }}
+                        className="flex w-full items-start gap-3 rounded-lg p-2 text-left hover:bg-[var(--meta-hover)]"
+                      >
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-deep-700/[0.06] text-heading dark:bg-white/[0.08]">
+                          <Icon className="h-4 w-4" aria-hidden />
+                        </span>
+                        <span>
+                          <span className="block text-sm font-semibold text-heading">{t.actions.types[type].label}</span>
+                          <span className="block text-xs leading-snug text-muted">{t.actions.types[type].desc}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="mt-5 border-t border-line pt-4">
-            <p className="text-xs font-semibold text-muted">{t.actions.variables}</p>
+            <p className="text-xs font-medium text-heading">{t.actions.variables}</p>
             <p className="text-xs text-muted">{t.actions.variablesHint}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {VARIABLES[entity].map((v) => (
                 <button
                   key={v}
                   type="button"
-                  onMouseDown={(event) => event.preventDefault()}
+                  onMouseDown={(ev) => ev.preventDefault()}
                   onClick={() => insertVariable(v)}
-                  className="rounded-md bg-card-soft px-2 py-1 font-mono text-xs text-heading hover:brightness-95"
+                  className="rounded-md bg-[var(--meta-active)] px-2 py-1 font-mono text-xs text-heading hover:brightness-95"
                 >
                   {`{${v}}`}
                 </button>
@@ -526,51 +338,87 @@ export function RuleEditor({
         </section>
       </fieldset>
 
-      {/* Resumen */}
-      <aside className="grid content-start gap-4 xl:sticky xl:top-20">
+      {/* Columna derecha */}
+      <aside className="grid content-start gap-5 xl:sticky xl:top-20">
         <section className={card}>
-          <h2 className="text-lg font-bold text-heading">{t.editor.summary}</h2>
+          <h2 className="text-[0.98rem] font-semibold text-heading">{e.settings}</h2>
           <div className="mt-4 grid gap-3">
             <label className="block">
-              <span className="mb-1 block text-xs font-semibold text-muted">{t.editor.name}</span>
-              <input value={name} onChange={(event) => setName(event.target.value)} disabled={!canEdit} maxLength={120} placeholder={t.editor.namePlaceholder} className={cn(inputClass, "h-10 text-sm")} />
+              <span className={field}>{t.editor.name}</span>
+              <input value={name} onChange={(ev) => setName(ev.target.value)} disabled={!canEdit} maxLength={120} placeholder={t.editor.namePlaceholder} className={cn(inputClass, "h-10 text-sm")} />
             </label>
             <label className="block">
-              <span className="mb-1 block text-xs font-semibold text-muted">{t.editor.description}</span>
-              <input value={description} onChange={(event) => setDescription(event.target.value)} disabled={!canEdit} maxLength={300} className={cn(inputClass, "h-10 text-sm")} />
+              <span className={field}>{t.editor.description}</span>
+              <textarea value={description} onChange={(ev) => setDescription(ev.target.value)} disabled={!canEdit} maxLength={300} rows={2} className={cn(inputClass, "h-auto resize-y py-2 text-sm")} />
             </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className={field}>{t.editor.folder}</span>
+                <input
+                  value={folder}
+                  onChange={(ev) => setFolder(ev.target.value)}
+                  disabled={!canEdit}
+                  maxLength={40}
+                  list="rule-folders"
+                  placeholder={e.folderPlaceholder}
+                  className={cn(inputClass, "h-10 text-sm")}
+                />
+                <datalist id="rule-folders">
+                  {[...new Set([...folders, ...Object.values(t.groups)])].map((f) => (
+                    <option key={f} value={f} />
+                  ))}
+                </datalist>
+              </label>
+              <label className="block">
+                <span className={field}>{t.editor.maxPerDay}</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={10000}
+                  value={maxPerDay ?? ""}
+                  onChange={(ev) => setMaxPerDay(ev.target.value === "" ? null : Math.max(1, Math.min(10000, Number(ev.target.value))))}
+                  disabled={!canEdit}
+                  placeholder={e.maxPlaceholder}
+                  className={cn(inputClass, "h-10 text-sm tabular-nums")}
+                />
+              </label>
+            </div>
+            <div className="flex items-center justify-between gap-3 pt-1">
+              <span className="text-sm font-medium text-heading">{t.editor.enabled}</span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={enabled}
+                aria-label={t.editor.enabled}
+                disabled={!canEdit}
+                onClick={() => setEnabled((v) => !v)}
+                className={cn("relative h-6 w-11 shrink-0 rounded-full transition-colors", enabled ? "bg-brand-green-dark dark:bg-brand-green" : "bg-line-strong dark:bg-white/20")}
+              >
+                <span className={cn("absolute left-0 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform", enabled ? "translate-x-5" : "translate-x-0.5")} />
+              </button>
+            </div>
+            {rule?.template_key && <p className="text-xs text-muted">{e.template}</p>}
           </div>
-          <div className="mt-5 rounded-lg bg-card-soft p-4 text-sm leading-relaxed text-heading">
+
+          {/* Resumen */}
+          <div className="mt-4 rounded-lg bg-[var(--meta-active)]/60 p-4 text-sm leading-relaxed text-heading">
             <p>
-              <span className="font-bold">{t.editor.when}</span> {summaryWhen.toLowerCase()}
+              <span className="font-semibold">{e.steps.when}</span> {t.triggers[trigger].label.toLowerCase()}
+              {meta.param && param ? ` (${param} ${meta.param.unit})` : ""}
             </p>
-            {summaryIf.length > 0 && (
-              <p className="mt-2">
-                <span className="font-bold">{t.conditions.title}</span> {summaryIf.join(" · ")}
-              </p>
-            )}
-            <p className="mt-2 font-bold">{t.actions.title}</p>
+            <p className="mt-1.5">
+              <span className="font-semibold">{t.conditions.title}</span> {summaryIf.length ? summaryIf.join(" · ") : e.summaryAny}
+            </p>
+            {delay > 0 && <p className="mt-1.5">{e.summaryWait.replace("{t}", delayLabel.toLowerCase())}</p>}
+            <p className="mt-1.5 font-semibold">{t.actions.title}</p>
             <ol className="mt-1 list-decimal pl-5">
               {actions.map((a, i) => (
                 <li key={i}>{t.actions.types[a.type].label}</li>
               ))}
             </ol>
-            <p className="mt-3 text-xs text-muted">{meta.instant ? t.editor.instant : t.editor.periodic}</p>
+            <p className="mt-3 text-xs text-muted">{meta.instant ? (delay > 0 ? e.summaryWait.replace("{t}", delayLabel.toLowerCase()) : t.editor.instant) : t.editor.periodic}</p>
           </div>
-          <div className="mt-4 flex items-center justify-between gap-3">
-            <span className="text-sm font-semibold text-heading">{t.editor.enabled}</span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={enabled}
-              aria-label={t.editor.enabled}
-              disabled={!canEdit}
-              onClick={() => setEnabled((v) => !v)}
-              className={cn("relative h-7 w-12 rounded-full transition-colors", enabled ? "bg-emerald-500" : "bg-line-strong dark:bg-white/20")}
-            >
-              <span className={cn("absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-[left]", enabled ? "left-6" : "left-1")} />
-            </button>
-          </div>
+
           {error && (
             <p role="alert" className="mt-3 text-sm font-semibold text-red-600 dark:text-red-400">
               {error}
@@ -578,20 +426,35 @@ export function RuleEditor({
           )}
           {canEdit && (
             <div className="mt-4 grid gap-2">
-              <button type="button" onClick={save} disabled={busy} className={buttonClasses("primary", "md", "w-full disabled:opacity-60")}>
-                {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : saved ? <Check className="h-4 w-4" aria-hidden /> : null}
-                {busy ? t.editor.saving : saved ? t.editor.saved : t.editor.save}
+              <button type="button" onClick={save} disabled={!!busy} className={buttonClasses("primary", "md", "w-full disabled:opacity-60")}>
+                {busy === "save" ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : saved ? <Check className="h-4 w-4" aria-hidden /> : null}
+                {busy === "save" ? t.editor.saving : saved ? t.editor.saved : t.editor.save}
               </button>
               {rule && (
-                <button type="button" onClick={remove} className="inline-flex h-10 items-center justify-center gap-2 rounded-md text-sm font-semibold text-red-600 hover:bg-[var(--meta-hover)]">
-                  <Trash2 className="h-4 w-4" aria-hidden />
-                  {t.delete}
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={duplicate}
+                    disabled={!!busy}
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-[10px] text-sm font-medium text-heading ring-1 ring-line hover:bg-[var(--meta-hover)] disabled:opacity-50"
+                  >
+                    {busy === "dup" ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Copy className="h-4 w-4" aria-hidden />}
+                    {busy === "dup" ? e.duplicating : e.duplicate}
+                  </button>
+                  <button type="button" onClick={remove} className="inline-flex h-9 items-center justify-center gap-1.5 rounded-[10px] text-sm font-medium text-red-600 ring-1 ring-line hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10">
+                    <Trash2 className="h-4 w-4" aria-hidden />
+                    {e.delete}
+                  </button>
+                </div>
               )}
             </div>
           )}
         </section>
+
+        <RulePreview key={trigger} trigger={trigger} rule={draft} ruleId={rule?.id ?? null} canRun={canEdit} />
+        {extra}
       </aside>
     </div>
   );
 }
+

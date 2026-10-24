@@ -13,18 +13,26 @@ export default async function NewRulePage({ params }: { params: Promise<{ locale
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const { supabase } = await requireProfile(locale, ["admin", "marketing"]);
-  const [employees, { data: templates }] = await Promise.all([
+  const [employees, { data: templates }, { data: folders }] = await Promise.all([
     listEmployees(supabase),
     supabase.from("wa_templates").select("*").eq("status", "APPROVED").order("name"),
+    supabase.from("automation_rules").select("folder").not("folder", "is", null),
   ]);
   return (
     <>
-      <Link href={`/${locale}/portal/automatizaciones`} className="mb-3 inline-flex items-center gap-1.5 text-sm font-semibold text-heading hover:underline">
+      <Link href={`/${locale}/portal/automatizaciones`} className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-heading hover:underline">
         <ArrowLeft className="h-4 w-4" aria-hidden />
         {rulesCopy.editor.back}
       </Link>
       <PageHeader title={rulesCopy.editor.newTitle} />
-      <RuleEditor locale={locale} rule={null} employees={employees} templates={(templates ?? []) as WaTemplate[]} canEdit />
+      <RuleEditor
+        locale={locale}
+        rule={null}
+        employees={employees}
+        templates={(templates ?? []) as WaTemplate[]}
+        folders={[...new Set((folders ?? []).map((f) => f.folder as string))]}
+        canEdit
+      />
     </>
   );
 }
