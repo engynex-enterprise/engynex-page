@@ -19,10 +19,11 @@ import { buildHeroSlides } from "@/lib/heroSlides";
 /**
  * Home.
  *
- * Lenguaje corporativo y sobrio: todo claro, alternando `surface` y
- * `surface-soft`, con dos únicos bloques de color (la oferta en azul claro y
- * el cierre en azul de marca). Sin fondos oscuros, mallas ni halos: la
- * jerarquía la marcan la tipografía y el espacio.
+ * Lenguaje corporativo con la identidad de Engynex: secciones claras que
+ * alternan `surface` y `surface-soft`, dos bloques de color (la oferta en
+ * verde claro y el cierre en navy) y figuras vectoriales de marca —anillos del
+ * isotipo, swoosh, retículas y cruces— siempre en los márgenes, nunca detrás
+ * del texto.
  *
  * Orden: qué hacemos → prueba (clientes, cifras, casos) → cómo trabajamos →
  * qué dicen → acción.
