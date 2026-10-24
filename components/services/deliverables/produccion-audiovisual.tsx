@@ -119,14 +119,16 @@ export const deliverables: DeliverablesDesign = ({
     image: gallery[i % gallery.length],
     alt: `${t.example} ${t.formats[i % t.formats.length].name.toLowerCase()} ${t.formats[i % t.formats.length].ratio}`,
   }));
-  const [first, ...rest] = items;
+  // Un encuadre por formato; si hubiera más entregables, van en lista.
+  const frames = items.slice(0, aspect.length);
+  const extra = items.slice(aspect.length);
 
   const caption = (x: (typeof items)[number]) => (
-    <figcaption className="mt-4">
+    <figcaption className="mt-3 sm:mt-4">
       <p className="text-xs font-semibold text-muted">
         {x.format.ratio} · {x.format.name}
       </p>
-      <p className="mt-1 text-base font-bold leading-snug text-heading sm:text-lg">
+      <p className="mt-1 text-sm font-bold leading-snug text-heading sm:text-base lg:text-lg">
         {x.item}
       </p>
     </figcaption>
@@ -155,41 +157,37 @@ export const deliverables: DeliverablesDesign = ({
 
         {/*
           Las columnas usan fracciones iguales a la proporción de cada encuadre
-          (16/9, 9/16, 1, 4/5) para que todos queden a la misma altura.
+          (16/9, 9/16, 1, 4/5): como el espacio sin huecos se reparte en esa
+          proporción, todos quedan exactamente a la misma altura. En móvil el
+          horizontal ocupa toda la fila.
         */}
-        <div className="mt-12 grid items-end gap-x-4 gap-y-10 sm:mt-16 lg:grid-cols-[1.778fr_2.3625fr] lg:gap-x-5">
-          {first && (
-            <figure>
+        <div className="mt-12 grid grid-cols-2 items-start gap-x-3 gap-y-8 sm:mt-16 sm:grid-cols-[0.5625fr_1fr_0.8fr] sm:gap-x-4 lg:grid-cols-[1.778fr_0.5625fr_1fr_0.8fr] lg:gap-x-5">
+          {frames.map((x, i) => (
+            <figure
+              key={x.item}
+              className={cn(
+                "min-w-0",
+                i === 0 && "col-span-2 sm:col-span-3 lg:col-span-1",
+              )}
+            >
               <Frame
-                image={first.image}
-                alt={first.alt}
-                ratio={first.format.ratio}
-                className={first.aspect}
-                sizes="(min-width: 1024px) 40vw, 100vw"
+                image={x.image}
+                alt={x.alt}
+                ratio={x.format.ratio}
+                className={x.aspect}
+                sizes={
+                  i === 0
+                    ? "(min-width: 1024px) 40vw, 100vw"
+                    : "(min-width: 1024px) 20vw, 50vw"
+                }
               />
-              {caption(first)}
+              {caption(x)}
             </figure>
-          )}
-          {rest.length > 0 && (
-            <div className="grid grid-cols-[0.5625fr_1fr_0.8fr] items-end gap-3 sm:gap-4 lg:gap-5">
-              {rest.slice(0, 3).map((x) => (
-                <figure key={x.item} className="min-w-0">
-                  <Frame
-                    image={x.image}
-                    alt={x.alt}
-                    ratio={x.format.ratio}
-                    className={x.aspect}
-                    sizes="(min-width: 1024px) 18vw, 33vw"
-                  />
-                  {caption(x)}
-                </figure>
-              ))}
-            </div>
-          )}
+          ))}
         </div>
-        {rest.length > 3 && (
+        {extra.length > 0 && (
           <ul className="mt-10 grid gap-3 sm:grid-cols-2">
-            {rest.slice(3).map((x) => (
+            {extra.map((x) => (
               <li key={x.item} className="text-base font-bold text-heading">
                 {x.item}
               </li>

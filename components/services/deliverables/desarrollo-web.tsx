@@ -34,6 +34,22 @@ const copy = {
   },
 };
 
+/** Palabras que no aportan al nombre de carpeta. */
+const stopwords = new Set([
+  "y",
+  "e",
+  "a",
+  "de",
+  "del",
+  "la",
+  "el",
+  "en",
+  "and",
+  "the",
+  "of",
+  "to",
+]);
+
 /** Nombre de carpeta derivado del entregable (sin tildes, en minúsculas). */
 const folderName = (item: string) =>
   item
@@ -42,7 +58,7 @@ const folderName = (item: string) =>
     .toLowerCase()
     .replace(/\(.*?\)/g, "")
     .split(/[^a-z0-9]+/)
-    .filter((w) => w.length > 2 || w === "ui")
+    .filter((w) => !stopwords.has(w))
     .slice(0, 2)
     .join("-");
 

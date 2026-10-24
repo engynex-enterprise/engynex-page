@@ -43,28 +43,50 @@ const methods = ["GET", "POST", "PUT", "DELETE"] as const;
 /** Página de documentación ilustrativa (navegación con los entregables). */
 function DocsMock({ t, nav }: { t: (typeof copy)["es"]; nav: string[] }) {
   return (
-    <div aria-hidden className="overflow-hidden rounded-3xl bg-card shadow-card ring-1 ring-line">
+    <div
+      aria-hidden
+      className="overflow-hidden rounded-3xl bg-card shadow-card ring-1 ring-line"
+    >
       <div className="flex items-center gap-1.5 border-b border-line bg-surface-soft px-5 py-3">
         <span className="h-2.5 w-2.5 rounded-full bg-deep-200 dark:bg-white/20" />
         <span className="h-2.5 w-2.5 rounded-full bg-deep-200 dark:bg-white/20" />
         <span className="h-2.5 w-2.5 rounded-full bg-deep-200 dark:bg-white/20" />
-        <span className="ml-3 rounded-full bg-card px-3 py-0.5 text-xs text-muted">api · {t.docs}</span>
+        <span className="ml-3 rounded-full bg-card px-3 py-0.5 text-xs text-muted">
+          api · {t.docs}
+        </span>
       </div>
       <div className="grid sm:grid-cols-[13rem_1fr]">
         <nav className="hidden border-r border-line bg-surface-soft/60 p-5 text-[13px] sm:block">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted">{t.guide}</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+            {t.guide}
+          </p>
           <ul className="mt-3 space-y-2">
             {nav.map((item, i) => (
-              <li key={item} className={cn("leading-snug", i === 1 ? "font-semibold text-heading" : "text-muted")}>
+              <li
+                key={item}
+                className={cn(
+                  "leading-snug",
+                  i === 1 ? "font-semibold text-heading" : "text-muted",
+                )}
+              >
                 {item}
               </li>
             ))}
           </ul>
-          <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-muted">{t.reference}</p>
+          <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-muted">
+            {t.reference}
+          </p>
           <ul className="mt-3 space-y-2 font-mono text-xs">
             {methods.map((m) => (
               <li key={m} className="flex items-center gap-2 text-muted">
-                <span className={cn("w-12 font-bold", m === "GET" ? "text-accent" : "text-heading")}>{m}</span>
+                <span
+                  className={cn(
+                    "w-12 font-bold",
+                    m === "GET" ? "text-accent" : "text-heading",
+                  )}
+                >
+                  {m}
+                </span>
                 {t.resource}
               </li>
             ))}
@@ -73,8 +95,12 @@ function DocsMock({ t, nav }: { t: (typeof copy)["es"]; nav: string[] }) {
         <div className="min-w-0 p-6 sm:p-8">
           <span className="block h-2 w-24 rounded-full bg-deep-200 dark:bg-white/15" />
           <p className="mt-4 flex items-center gap-3 font-mono text-sm">
-            <span className="rounded-md bg-action px-2 py-0.5 text-xs font-bold text-deep-700">GET</span>
-            <span className="text-heading">{t.resource}/{"{id}"}</span>
+            <span className="rounded-md bg-action px-2 py-0.5 text-xs font-bold text-deep-700">
+              GET
+            </span>
+            <span className="text-heading">
+              {t.resource}/{"{id}"}
+            </span>
           </p>
           <div className="mt-5 space-y-2">
             <span className="block h-1.5 rounded-full bg-deep-100 dark:bg-white/10" />
@@ -94,10 +120,12 @@ function DocsMock({ t, nav }: { t: (typeof copy)["es"]; nav: string[] }) {
           <div className="mt-6 rounded-xl bg-deep-700 p-4 font-mono text-xs leading-6 text-white/70 dark:bg-deep-900">
             <p>{"{"}</p>
             <p className="pl-4">
-              <span className="text-white">&quot;id&quot;</span>: <span className="text-brand-green">&quot;…&quot;</span>,
+              <span className="text-white">&quot;id&quot;</span>:{" "}
+              <span className="text-brand-green">&quot;…&quot;</span>,
             </p>
             <p className="pl-4">
-              <span className="text-white">&quot;status&quot;</span>: <span className="text-brand-green">&quot;…&quot;</span>
+              <span className="text-white">&quot;status&quot;</span>:{" "}
+              <span className="text-brand-green">&quot;…&quot;</span>
             </p>
             <p>{"}"}</p>
           </div>
@@ -107,11 +135,17 @@ function DocsMock({ t, nav }: { t: (typeof copy)["es"]; nav: string[] }) {
   );
 }
 
-export const deliverables: DeliverablesDesign = ({ service, locale, tone, title }) => {
+export const deliverables: DeliverablesDesign = ({
+  service,
+  locale,
+  tone,
+  title,
+}) => {
   const c = service[locale];
   const t = copy[locale];
   const plans = servicePlans[service.slug] ?? [];
-  const f = (key: string) => plans.find((p) => p.key === key)?.[locale].features ?? [];
+  const f = (key: string) =>
+    plans.find((p) => p.key === key)?.[locale].features ?? [];
   const single = f("puntual");
   const eco = f("paquete");
   const stack = (serviceStack[service.slug] ?? []).filter((s) =>
@@ -119,7 +153,12 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
   );
 
   // Qué documenta cada sección: funciones reales de los planes.
-  const details = [c.features[1], eco[1], eco[2], [single[2], eco[3]].filter(Boolean).join(" · ")];
+  const details = [
+    c.features[1],
+    eco[1],
+    eco[2],
+    [single[2], eco[3]].filter(Boolean).join(" · "),
+  ];
 
   return (
     <section className={cn("py-16 sm:py-24", toneClass(tone))}>
@@ -130,16 +169,26 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
             <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-heading sm:text-5xl">
               {title}
             </h2>
-            <p className="mt-5 text-lg leading-relaxed text-muted">{t.subtitle}</p>
+            <p className="mt-5 text-lg leading-relaxed text-muted">
+              {t.subtitle}
+            </p>
 
-            <h3 className="mt-10 text-sm font-semibold text-muted">{t.sections}</h3>
+            <h3 className="mt-10 text-sm font-semibold text-muted">
+              {t.sections}
+            </h3>
             <ol className="mt-3 border-t border-line">
               {c.deliverables.map((item, i) => (
                 <li key={item} className="flex gap-4 border-b border-line py-5">
-                  <span className="w-8 shrink-0 pt-0.5 font-mono text-sm font-bold text-accent">§{i + 1}</span>
+                  <span className="w-8 shrink-0 pt-0.5 font-mono text-sm font-bold text-accent">
+                    §{i + 1}
+                  </span>
                   <div>
-                    <p className="text-lg font-bold leading-snug text-heading">{item}</p>
-                    {details[i] && <p className="mt-1 text-sm text-muted">{details[i]}</p>}
+                    <p className="text-lg font-bold leading-snug text-heading">
+                      {item}
+                    </p>
+                    {details[i] && (
+                      <p className="mt-1 text-sm text-muted">{details[i]}</p>
+                    )}
                   </div>
                 </li>
               ))}
@@ -149,7 +198,10 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
               <div className="mt-8 flex flex-wrap items-center gap-2">
                 <span className="mr-1 text-sm text-muted">{t.built}</span>
                 {stack.map((s) => (
-                  <span key={s} className="rounded-full px-3 py-1 font-mono text-xs font-semibold text-heading ring-1 ring-line-strong">
+                  <span
+                    key={s}
+                    className="rounded-full px-3 py-1 font-mono text-xs font-semibold text-heading ring-1 ring-line-strong"
+                  >
                     {s}
                   </span>
                 ))}

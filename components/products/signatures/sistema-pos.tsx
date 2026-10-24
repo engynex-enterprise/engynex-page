@@ -119,7 +119,7 @@ function Hero({ product, locale, categoryLabel, ...props }: ProductHeroProps) {
           {/* Escenario: terminal + recibo (ilustrativo). */}
           <div
             aria-hidden
-            className="relative order-2 overflow-hidden rounded-3xl bg-deep-950 px-4 pb-10 pt-6 sm:px-8 sm:pb-14 sm:pt-10 lg:order-1"
+            className="relative order-2 overflow-hidden rounded-3xl bg-deep-950 dark:bg-deep-900 dark:ring-1 dark:ring-white/10 px-4 pb-10 pt-6 sm:px-8 sm:pb-14 sm:pt-10 lg:order-1"
           >
             <div className="relative mx-auto max-w-2xl">
               {/* Pantalla */}

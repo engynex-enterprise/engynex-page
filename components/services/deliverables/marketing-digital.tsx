@@ -64,7 +64,10 @@ export const deliverables: DeliverablesDesign = ({
 
         <div className="mt-12 grid items-stretch gap-6 sm:mt-16 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-10">
           {/* Portada del informe (ilustrativa). */}
-          <div aria-hidden className="relative mx-auto w-full max-w-md">
+          <div
+            aria-hidden
+            className="relative mx-auto w-full max-w-[20rem] sm:max-w-md"
+          >
             <span className="absolute inset-0 translate-x-3 translate-y-3 rounded-3xl bg-deep-200 dark:bg-deep-800" />
             <div className="relative flex aspect-[3/4] flex-col overflow-hidden rounded-3xl bg-deep-700 text-white shadow-card-hover">
               <div className="relative h-[55%]">

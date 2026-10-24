@@ -40,22 +40,57 @@ type Item = { icon: LucideIcon; es: string; en: string; feature: number };
 const box: Record<string, Item[]> = {
   "puesto-trabajo": [
     { icon: Laptop, es: "Portátil o torre", en: "Laptop or tower", feature: 0 },
-    { icon: Monitor, es: "Monitor 24\"", en: "24\" monitor", feature: 1 },
+    { icon: Monitor, es: 'Monitor 24"', en: '24" monitor', feature: 1 },
     { icon: Keyboard, es: "Teclado", en: "Keyboard", feature: 1 },
     { icon: Mouse, es: "Mouse", en: "Mouse", feature: 1 },
     { icon: Headphones, es: "Diadema", en: "Headset", feature: 1 },
-    { icon: KeyRound, es: "Windows con licencia", en: "Licensed Windows", feature: 2 },
-    { icon: RefreshCw, es: "Equipo de reemplazo", en: "Replacement unit", feature: 4 },
+    {
+      icon: KeyRound,
+      es: "Windows con licencia",
+      en: "Licensed Windows",
+      feature: 2,
+    },
+    {
+      icon: RefreshCw,
+      es: "Equipo de reemplazo",
+      en: "Replacement unit",
+      feature: 4,
+    },
   ],
   "alto-rendimiento": [
-    { icon: Cpu, es: "Estación de alto rendimiento", en: "High-performance workstation", feature: 0 },
-    { icon: Monitor, es: "Monitor profesional", en: "Professional monitor", feature: 1 },
+    {
+      icon: Cpu,
+      es: "Estación de alto rendimiento",
+      en: "High-performance workstation",
+      feature: 0,
+    },
+    {
+      icon: Monitor,
+      es: "Monitor profesional",
+      en: "Professional monitor",
+      feature: 1,
+    },
     { icon: Laptop, es: "MacBook Pro", en: "MacBook Pro", feature: 2 },
-    { icon: RefreshCw, es: "Renovación tecnológica", en: "Technology refresh", feature: 4 },
+    {
+      icon: RefreshCw,
+      es: "Renovación tecnológica",
+      en: "Technology refresh",
+      feature: 4,
+    },
   ],
   infraestructura: [
-    { icon: Server, es: "Servidores rack y torre", en: "Rack and tower servers", feature: 0 },
-    { icon: HardDrive, es: "NAS y almacenamiento", en: "NAS and storage", feature: 0 },
+    {
+      icon: Server,
+      es: "Servidores rack y torre",
+      en: "Rack and tower servers",
+      feature: 0,
+    },
+    {
+      icon: HardDrive,
+      es: "NAS y almacenamiento",
+      en: "NAS and storage",
+      feature: 0,
+    },
     { icon: Network, es: "Switches", en: "Switches", feature: 1 },
     { icon: ShieldCheck, es: "Firewall", en: "Firewall", feature: 1 },
     { icon: Wifi, es: "Access points", en: "Access points", feature: 1 },
@@ -64,7 +99,13 @@ const box: Record<string, Item[]> = {
   ],
 };
 
-const deliverableIcons = [ClipboardList, PackageCheck, Truck, LifeBuoy, RefreshCw];
+const deliverableIcons = [
+  ClipboardList,
+  PackageCheck,
+  Truck,
+  LifeBuoy,
+  RefreshCw,
+];
 
 const copy = {
   es: {
@@ -81,7 +122,12 @@ const copy = {
   },
 };
 
-export const deliverables: DeliverablesDesign = ({ service, locale, tone, title }) => {
+export const deliverables: DeliverablesDesign = ({
+  service,
+  locale,
+  tone,
+  title,
+}) => {
   const c = service[locale];
   const t = copy[locale];
   const plans = (servicePlans[service.slug] ?? []).filter((p) => box[p.key]);
@@ -95,7 +141,9 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
           <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-heading sm:text-5xl">
             {title}
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-muted">{t.subtitle}</p>
+          <p className="mt-5 text-lg leading-relaxed text-muted">
+            {t.subtitle}
+          </p>
         </div>
 
         <div className="mt-14 space-y-14">
@@ -105,27 +153,42 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
             return (
               <div key={plan.key}>
                 <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-line pb-4">
-                  <h3 className="text-2xl font-bold text-heading">{copyPlan.name}</h3>
-                  {copyPlan.note && <p className="text-sm text-muted">{copyPlan.note}</p>}
+                  <h3 className="text-2xl font-bold text-heading">
+                    {copyPlan.name}
+                  </h3>
+                  {copyPlan.note && (
+                    <p className="text-sm text-muted">{copyPlan.note}</p>
+                  )}
                 </div>
                 <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-                  {box[plan.key].map(({ icon: Icon, feature, ...names }, i, all) => (
-                    <li key={names[locale]} className="flex flex-col">
-                      {/* "Foto" del producto: el icono sobre una base neutra. */}
-                      <div
-                        className={cn(
-                          "grid aspect-square place-items-center rounded-3xl",
-                          tile,
-                        )}
-                      >
-                        <Icon className="h-12 w-12 text-heading sm:h-14 sm:w-14" strokeWidth={1.25} aria-hidden />
-                      </div>
-                      <p className="mt-3 font-semibold leading-snug text-heading">{names[locale]}</p>
-                      {all.findIndex((x) => x.feature === feature) === i && copyPlan.features[feature] && (
-                        <p className="mt-1 text-xs leading-relaxed text-muted">{copyPlan.features[feature]}</p>
-                      )}
-                    </li>
-                  ))}
+                  {box[plan.key].map(
+                    ({ icon: Icon, feature, ...names }, i, all) => (
+                      <li key={names[locale]} className="flex flex-col">
+                        {/* "Foto" del producto: el icono sobre una base neutra. */}
+                        <div
+                          className={cn(
+                            "grid aspect-[4/3] place-items-center rounded-3xl sm:aspect-square",
+                            tile,
+                          )}
+                        >
+                          <Icon
+                            className="h-12 w-12 text-heading sm:h-14 sm:w-14"
+                            strokeWidth={1.25}
+                            aria-hidden
+                          />
+                        </div>
+                        <p className="mt-3 font-semibold leading-snug text-heading">
+                          {names[locale]}
+                        </p>
+                        {all.findIndex((x) => x.feature === feature) === i &&
+                          copyPlan.features[feature] && (
+                            <p className="mt-1 text-xs leading-relaxed text-muted">
+                              {copyPlan.features[feature]}
+                            </p>
+                          )}
+                      </li>
+                    ),
+                  )}
                 </ul>
               </div>
             );
@@ -143,7 +206,9 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
                   <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white/10 text-brand-green">
                     <Icon className="h-5 w-5" aria-hidden />
                   </span>
-                  <span className="text-sm leading-relaxed text-white/85">{item}</span>
+                  <span className="text-sm leading-relaxed text-white/85">
+                    {item}
+                  </span>
                 </li>
               );
             })}

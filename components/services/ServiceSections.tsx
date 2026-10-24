@@ -8,7 +8,10 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
+import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
+import { TechMark } from "@/components/TechMark";
+import { TechCloud, type CloudItem } from "@/components/services/TechCloud";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { SpecRow } from "@/components/ui/SpecRow";
@@ -44,6 +47,49 @@ function Heading({ copy }: { copy: Copy }) {
 /*  build — stack tecnológico                                                  */
 /* ========================================================================== */
 
+/**
+ * Huecos para la nube de logos (x/y en % del área con margen, tamaño en px).
+ * Rodean el centro, donde va el texto; los marcados con `m` también se ven en
+ * móvil (arriba y abajo del texto).
+ */
+const cloudSlots: { x: number; y: number; size: number; m?: boolean }[] = [
+  { x: 6, y: 10, size: 96, m: true },
+  { x: 24, y: 4, size: 58 },
+  { x: 40, y: 12, size: 50, m: true },
+  { x: 62, y: 5, size: 70 },
+  { x: 80, y: 12, size: 104, m: true },
+  { x: 95, y: 30, size: 56 },
+  { x: 4, y: 44, size: 66 },
+  { x: 15, y: 66, size: 52 },
+  { x: 90, y: 54, size: 72 },
+  { x: 96, y: 78, size: 50 },
+  { x: 8, y: 90, size: 64, m: true },
+  { x: 27, y: 95, size: 90 },
+  { x: 48, y: 90, size: 52, m: true },
+  { x: 68, y: 96, size: 82 },
+  { x: 86, y: 90, size: 60, m: true },
+];
+
+const MAX_SLOT = Math.max(...cloudSlots.map((slot) => slot.size));
+const MIN_SLOT = Math.min(...cloudSlots.map((slot) => slot.size));
+
+/** Generador pseudoaleatorio con semilla: mismo servicio, misma nube. */
+function seeded(seed: string) {
+  let h = 2166136261;
+  for (const ch of seed) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  return () => {
+    h = Math.imul(h ^ (h >>> 15), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return ((h ^= h >>> 16) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * "Con qué lo construimos", al estilo de las composiciones de iconos de
+ * meta.com: logos de las tecnologías en burbujas blancas de distintos tamaños
+ * y profundidades alrededor del titular (ver TechCloud), y al frente la lista
+ * real con nombre y logo pequeño. La nube es solo decorativa.
+ */
 export function TechStack({
   items,
   copy,
@@ -53,23 +99,52 @@ export function TechStack({
   copy: Copy;
   tone?: Tone;
 }) {
+  const random = seeded(items.join("|"));
+  // Reparte los logos por los huecos en orden aleatorio (repitiendo si hay
+  // menos tecnologías que huecos), con un leve desplazamiento y giro.
+  const slots = [...cloudSlots].sort(() => random() - 0.5);
+  const cloud: CloudItem[] = slots.map((slot, i) => ({
+    name: items[i % items.length],
+    x: Math.min(97, Math.max(3, slot.x + (random() - 0.5) * 3)),
+    y: Math.min(97, Math.max(3, slot.y + (random() - 0.5) * 4)),
+    size: slot.size,
+    rotate: (random() - 0.5) * 14,
+    depth: (slot.size - MIN_SLOT) / (MAX_SLOT - MIN_SLOT),
+    mobile: !!slot.m,
+    delay: random() * 4,
+  }));
+
   return (
-    <Section tone={tone}>
-      <Heading copy={copy} />
-      <ul className="mx-auto mt-12 flex max-w-4xl flex-wrap justify-center gap-3">
-        {items.map((tech) => (
-          <li
-            key={tech}
-            className={cn(
-              "rounded-full px-6 py-3 text-base font-medium text-heading",
-              cardSurface(tone),
-            )}
-          >
-            {tech}
-          </li>
-        ))}
-      </ul>
-    </Section>
+    <section
+      className={cn(
+        "relative overflow-hidden",
+        tone === "muted" ? "bg-surface-soft" : "bg-surface",
+      )}
+    >
+      <TechCloud items={cloud} className="py-24 sm:py-32">
+        <Container>
+          <div className="mx-auto max-w-2xl py-20 text-center sm:py-24">
+            <Heading copy={copy} />
+            <ul className="mx-auto mt-10 flex max-w-xl flex-wrap justify-center gap-2.5">
+              {items.map((tech) => (
+                <li
+                  key={tech}
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-full py-2 pl-2.5 pr-4 text-sm font-semibold text-heading shadow-sm ring-1 ring-line",
+                    tone === "muted" ? "bg-card" : "bg-surface",
+                  )}
+                >
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-white">
+                    <TechMark name={tech} className="h-4 w-4" />
+                  </span>
+                  {tech}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Container>
+      </TechCloud>
+    </section>
   );
 }
 

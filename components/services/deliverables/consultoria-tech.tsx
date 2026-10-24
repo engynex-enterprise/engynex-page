@@ -42,14 +42,21 @@ const copy = {
   },
 };
 
-export const deliverables: DeliverablesDesign = ({ service, locale, tone, title }) => {
+export const deliverables: DeliverablesDesign = ({
+  service,
+  locale,
+  tone,
+  title,
+}) => {
   const c = service[locale];
   const t = copy[locale];
   const sla = getSla(service.slug, locale);
   const horizon = sla[1];
   // "12 meses" / "12 months": la cinta solo se dibuja si el dato lo dice.
   const months = Number.parseInt(horizon?.value ?? "", 10) || 0;
-  const roadmap = servicePlans[service.slug]?.find((p) => p.key === "hoja-ruta")?.[locale];
+  const roadmap = servicePlans[service.slug]?.find(
+    (p) => p.key === "hoja-ruta",
+  )?.[locale];
   const card = tone === "muted" ? "bg-card" : "bg-surface-soft";
 
   return (
@@ -60,7 +67,9 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
           <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-heading sm:text-5xl">
             {title}
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-muted">{t.subtitle}</p>
+          <p className="mt-5 text-lg leading-relaxed text-muted">
+            {t.subtitle}
+          </p>
         </div>
 
         <div className="mt-12 grid items-start gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
@@ -74,26 +83,41 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
                 {t.spine}
               </span>
               {/* Costura del lomo. */}
-              <span aria-hidden className="absolute inset-y-0 right-0 w-px bg-white/15" />
+              <span
+                aria-hidden
+                className="absolute inset-y-0 right-0 w-px bg-white/15"
+              />
             </div>
             <div className="min-w-0 flex-1 bg-card">
               <div className="bg-deep-700 px-6 pb-8 pt-7 text-white sm:px-10 sm:pb-10 dark:bg-card-soft">
-                <p className="text-xs font-semibold uppercase tracking-wider text-brand-green">{t.coverKicker}</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-brand-green">
+                  {t.coverKicker}
+                </p>
                 <p className="mt-8 text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
                   {t.coverTitle}
                 </p>
                 <p className="mt-3 text-sm text-white/60">{t.coverFor}</p>
               </div>
               <div className="px-6 py-7 sm:px-10">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">{t.toc}</h3>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">
+                  {t.toc}
+                </h3>
                 <ol className="mt-4">
                   {c.deliverables.map((item, i) => (
-                    <li key={item} className="flex items-baseline gap-4 border-b border-line py-4 last:border-0">
+                    <li
+                      key={item}
+                      className="flex items-baseline gap-4 border-b border-line py-4 last:border-0"
+                    >
                       <span className="w-7 shrink-0 text-sm font-bold text-accent">
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      <span className="text-lg font-semibold leading-snug text-heading">{item}</span>
-                      <span aria-hidden className="mb-1 hidden flex-1 border-b border-dotted border-line-strong sm:block" />
+                      <span className="text-lg font-semibold leading-snug text-heading">
+                        {item}
+                      </span>
+                      <span
+                        aria-hidden
+                        className="mb-1 hidden flex-1 border-b border-dotted border-line-strong sm:block"
+                      />
                     </li>
                   ))}
                 </ol>
@@ -107,7 +131,9 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
               <div className={cn("rounded-3xl p-7", card)}>
                 <div className="flex items-baseline justify-between gap-4">
                   <p className="text-sm text-muted">{horizon.label}</p>
-                  <p className="text-2xl font-bold tracking-tight text-heading">{horizon.value}</p>
+                  <p className="text-2xl font-bold tracking-tight text-heading">
+                    {horizon.value}
+                  </p>
                 </div>
                 <div aria-hidden className="mt-6 grid grid-cols-4 gap-2">
                   {Array.from({ length: Math.ceil(months / 3) }, (_, q) => (
@@ -122,7 +148,11 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
                             key={m}
                             className={cn(
                               "h-10 rounded-md",
-                              q === 0 ? "bg-deep-700 dark:bg-white/80" : q === 1 ? "bg-deep-500" : "bg-deep-200 dark:bg-white/15",
+                              q === 0
+                                ? "bg-deep-700 dark:bg-white/80"
+                                : q === 1
+                                  ? "bg-deep-500"
+                                  : "bg-deep-200 dark:bg-white/15",
                             )}
                           />
                         ))}
@@ -141,12 +171,18 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
             {roadmap && (
               <div className="rounded-3xl bg-deep-700 p-7 text-white dark:bg-card-soft">
                 <p className="text-sm text-white/60">
-                  {t.plan} <span className="font-semibold text-white">{roadmap.name}</span>
+                  {t.plan}{" "}
+                  <span className="font-semibold text-white">
+                    {roadmap.name}
+                  </span>
                 </p>
                 <ul className="mt-5 space-y-3">
                   {roadmap.features.map((f) => (
                     <li key={f} className="flex gap-3 text-sm text-white/85">
-                      <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-green" />
+                      <span
+                        aria-hidden
+                        className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-green"
+                      />
                       {f}
                     </li>
                   ))}
@@ -156,7 +192,10 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
 
             {sla[2] && (
               <p className="text-sm text-muted">
-                {sla[2].label}: <span className="font-semibold text-heading">{sla[2].value}</span>
+                {sla[2].label}:{" "}
+                <span className="font-semibold text-heading">
+                  {sla[2].value}
+                </span>
               </p>
             )}
           </div>

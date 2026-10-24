@@ -47,7 +47,12 @@ function DashboardThumb() {
             {[0, 1, 2].map((i) => (
               <div key={i} className="rounded-xl bg-white/5 p-3">
                 <span className="block h-1.5 w-8 rounded-full bg-white/25" />
-                <span className={cn("mt-3 block h-3 rounded-full", i === 0 ? "w-12 bg-brand-green" : "w-10 bg-white/50")} />
+                <span
+                  className={cn(
+                    "mt-3 block h-3 rounded-full",
+                    i === 0 ? "w-12 bg-brand-green" : "w-10 bg-white/50",
+                  )}
+                />
               </div>
             ))}
           </div>
@@ -56,13 +61,20 @@ function DashboardThumb() {
               {bars.map((h, i) => (
                 <span
                   key={i}
-                  className={cn("flex-1 rounded-t", i === bars.length - 2 ? "bg-brand-green" : "bg-white/30")}
+                  className={cn(
+                    "flex-1 rounded-t",
+                    i === bars.length - 2 ? "bg-brand-green" : "bg-white/30",
+                  )}
                   style={{ height: `${h}%` }}
                 />
               ))}
             </div>
             <div className="rounded-xl bg-white/5 p-3">
-              <svg viewBox="0 0 100 60" className="h-full w-full" preserveAspectRatio="none">
+              <svg
+                viewBox="0 0 100 60"
+                className="h-full w-full"
+                preserveAspectRatio="none"
+              >
                 <polyline
                   points="0,48 16,40 32,44 48,28 64,32 80,16 100,20"
                   fill="none"
@@ -79,11 +91,17 @@ function DashboardThumb() {
   );
 }
 
-export const deliverables: DeliverablesDesign = ({ service, locale, tone, title }) => {
+export const deliverables: DeliverablesDesign = ({
+  service,
+  locale,
+  tone,
+  title,
+}) => {
   const c = service[locale];
   const t = copy[locale];
   const plans = servicePlans[service.slug] ?? [];
-  const essential = plans.find((p) => p.key === "dashboard")?.[locale].features ?? [];
+  const essential =
+    plans.find((p) => p.key === "dashboard")?.[locale].features ?? [];
   const bi = plans.find((p) => p.key === "bi")?.[locale].features ?? [];
   const card = tone === "muted" ? "bg-card" : "bg-surface-soft";
   // Filas del diccionario: tres funciones reales del servicio como categorías.
@@ -97,15 +115,21 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
           <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-heading sm:text-5xl">
             {title}
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-muted">{t.subtitle}</p>
+          <p className="mt-5 text-lg leading-relaxed text-muted">
+            {t.subtitle}
+          </p>
         </div>
 
         <div className="mt-12 grid gap-4 lg:grid-cols-2">
           {/* Tarjeta 1: el tablero. */}
           <article className={cn("flex flex-col rounded-3xl p-6 sm:p-8", card)}>
             <DashboardThumb />
-            <h3 className="mt-8 text-2xl font-bold text-heading">{c.deliverables[1]}</h3>
-            <p className="mt-2 text-muted">{[bi[2], essential[2]].filter(Boolean).join(" · ")}</p>
+            <h3 className="mt-8 text-2xl font-bold text-heading">
+              {c.deliverables[1]}
+            </h3>
+            <p className="mt-2 text-muted">
+              {[bi[2], essential[2]].filter(Boolean).join(" · ")}
+            </p>
           </article>
 
           {/* Tarjeta 2: el diccionario de indicadores. */}
@@ -118,7 +142,10 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
                       <th
                         key={col}
                         scope="col"
-                        className={cn("px-4 py-3 font-semibold", i === 0 ? "w-[38%]" : i === 1 ? "w-[37%]" : "w-[25%]")}
+                        className={cn(
+                          "px-4 py-3 font-semibold",
+                          i === 0 ? "w-[38%]" : i === 1 ? "w-[37%]" : "w-[25%]",
+                        )}
                       >
                         {col}
                       </th>
@@ -128,7 +155,10 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
                 <tbody>
                   {kpiRows.map((row, i) => (
                     <tr key={row} className="border-t border-line align-top">
-                      <th scope="row" className="px-4 py-4 text-sm font-semibold leading-snug text-heading">
+                      <th
+                        scope="row"
+                        className="px-4 py-4 text-sm font-semibold leading-snug text-heading"
+                      >
                         {row}
                       </th>
                       <td className="px-4 py-4">
@@ -147,7 +177,9 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
                 </tbody>
               </table>
             </div>
-            <h3 className="mt-8 text-2xl font-bold text-heading">{c.deliverables[2]}</h3>
+            <h3 className="mt-8 text-2xl font-bold text-heading">
+              {c.deliverables[2]}
+            </h3>
             <p className="mt-2 text-muted">{bi[3]}</p>
           </article>
         </div>
@@ -157,7 +189,11 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
         <ul className="mt-4 grid gap-4 md:grid-cols-2">
           {[
             { icon: Database, label: c.deliverables[0], text: bi[0] ?? bi[1] },
-            { icon: GraduationCap, label: c.deliverables[3], text: essential[4] },
+            {
+              icon: GraduationCap,
+              label: c.deliverables[3],
+              text: essential[4],
+            },
           ].map(({ icon: Icon, label, text }) =>
             label ? (
               <li
@@ -169,7 +205,11 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
                 </span>
                 <span>
                   <span className="block text-lg font-bold">{label}</span>
-                  {text && <span className="mt-0.5 block text-sm text-white/70">{text}</span>}
+                  {text && (
+                    <span className="mt-0.5 block text-sm text-white/70">
+                      {text}
+                    </span>
+                  )}
                 </span>
               </li>
             ) : null,

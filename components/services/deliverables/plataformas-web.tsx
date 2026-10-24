@@ -71,11 +71,11 @@ export const deliverables: DeliverablesDesign = ({
                   >
                     <div
                       className={cn(
-                        "relative z-10 flex min-h-24 items-center gap-4 rounded-3xl px-5 py-5 sm:gap-6 sm:px-8",
+                        "relative z-10 flex min-h-24 flex-wrap items-center gap-x-4 gap-y-1 rounded-3xl px-5 py-5 sm:flex-nowrap sm:gap-6 sm:px-8",
                         layerTone[k],
                       )}
                     >
-                      <span className="w-14 shrink-0 text-xs font-semibold uppercase tracking-wide opacity-75 sm:w-20">
+                      <span className="w-full shrink-0 text-xs font-semibold uppercase tracking-wide opacity-75 sm:w-24">
                         {i === 0
                           ? t.base
                           : `${t.layer} ${String(i + 1).padStart(2, "0")}`}

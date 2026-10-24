@@ -1,4 +1,10 @@
-import { Activity, AlertCircle, DatabaseBackup, RefreshCw } from "lucide-react";
+import {
+  Activity,
+  AlertCircle,
+  Check,
+  DatabaseBackup,
+  RefreshCw,
+} from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { getSla } from "@/content/serviceExtras";
 import { servicePlans } from "@/content/pricing";
@@ -20,7 +26,12 @@ const copy = {
     report: "Reporte de salud",
     period: "Mensual",
     site: "tusitio.com",
-    sections: ["Disponibilidad", "Copias de seguridad", "Actualizaciones", "Incidentes"],
+    sections: [
+      "Disponibilidad",
+      "Copias de seguridad",
+      "Actualizaciones",
+      "Incidentes",
+    ],
     includes: "Lo que recibes",
   },
   en: {
@@ -37,11 +48,18 @@ const copy = {
 
 const icons = [Activity, DatabaseBackup, RefreshCw, AlertCircle];
 
-export const deliverables: DeliverablesDesign = ({ service, locale, tone, title }) => {
+export const deliverables: DeliverablesDesign = ({
+  service,
+  locale,
+  tone,
+  title,
+}) => {
   const c = service[locale];
   const t = copy[locale];
   const sla = getSla(service.slug, locale);
-  const proPlan = servicePlans[service.slug]?.find((p) => p.key === "pro")?.[locale];
+  const proPlan = servicePlans[service.slug]?.find((p) => p.key === "pro")?.[
+    locale
+  ];
   const pro = proPlan?.features ?? [];
   const card = tone === "muted" ? "bg-card" : "bg-surface-soft";
 
@@ -50,7 +68,11 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
     { value: sla[0]?.value, label: sla[0]?.label, text: c.features[3] },
     { value: sla[1]?.value, label: sla[1]?.label, text: c.features[2] },
     { value: undefined, label: undefined, text: c.features[1] },
-    { value: sla[2]?.value, label: sla[2]?.label, text: sla[3] ? `${sla[3].label}: ${sla[3].value}` : undefined },
+    {
+      value: sla[2]?.value,
+      label: sla[2]?.label,
+      text: sla[3] ? `${sla[3].label}: ${sla[3].value}` : undefined,
+    },
   ];
 
   return (
@@ -61,10 +83,12 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
           <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-heading sm:text-5xl">
             {title}
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-muted">{t.subtitle}</p>
+          <p className="mt-5 text-lg leading-relaxed text-muted">
+            {t.subtitle}
+          </p>
         </div>
 
-        <div className="mt-12 grid items-start gap-6 lg:grid-cols-[1.35fr_1fr]">
+        <div className="mt-12 grid gap-6 lg:grid-cols-[1.35fr_1fr]">
           {/* El reporte: cabecera tipo correo y cuatro apartados. */}
           <article className={cn("overflow-hidden rounded-3xl", card)}>
             <header className="flex flex-wrap items-center justify-between gap-3 bg-deep-700 px-7 py-5 text-white dark:bg-card-soft">
@@ -93,22 +117,41 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
                       <span className="grid h-10 w-10 place-items-center rounded-2xl bg-deep-700 text-brand-green">
                         <Icon className="h-5 w-5" aria-hidden />
                       </span>
-                      <h3 className="font-bold text-heading">{t.sections[i]}</h3>
+                      <h3 className="font-bold text-heading">
+                        {t.sections[i]}
+                      </h3>
                     </div>
                     {row.value ? (
                       <div>
-                        <p className="text-3xl font-bold tracking-tight text-heading">{row.value}</p>
-                        <p className="text-xs text-muted">{row.label}</p>
+                        <p className="text-3xl font-bold tracking-tight text-heading">
+                          {row.value}
+                        </p>
+                        {row.label &&
+                          row.label.toLowerCase() !==
+                            t.sections[i].toLowerCase() && (
+                            <p className="text-xs text-muted">{row.label}</p>
+                          )}
                       </div>
                     ) : (
-                      // Sin cifra: barra ilustrativa de tareas completadas.
-                      <div aria-hidden className="flex h-[2.75rem] items-center gap-1">
-                        {Array.from({ length: 12 }, (_, k) => (
-                          <span key={k} className="h-6 flex-1 rounded-sm bg-accent/70" />
+                      // Sin cifra: lista ilustrativa de tareas aplicadas.
+                      <ul aria-hidden className="space-y-2">
+                        {[72, 56, 64].map((w) => (
+                          <li key={w} className="flex items-center gap-2.5">
+                            <Check
+                              className="h-4 w-4 shrink-0 text-accent"
+                              strokeWidth={3}
+                            />
+                            <span
+                              className="h-1.5 rounded-full bg-deep-200 dark:bg-white/15"
+                              style={{ width: `${w}%` }}
+                            />
+                          </li>
                         ))}
-                      </div>
+                      </ul>
                     )}
-                    {row.text && <p className="text-sm text-body">{row.text}</p>}
+                    {row.text && (
+                      <p className="text-sm text-body">{row.text}</p>
+                    )}
                   </li>
                 );
               })}
@@ -121,15 +164,17 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
           </article>
 
           {/* Los entregables reales. */}
-          <div className="rounded-3xl bg-deep-700 p-7 text-white sm:p-9 dark:bg-card-soft">
-            <h3 className="text-sm font-semibold text-white/60">{t.includes}</h3>
-            <ol className="mt-6 space-y-6">
+          <div className={cn("flex flex-col rounded-3xl p-7 sm:p-9", card)}>
+            <h3 className="text-sm font-semibold text-muted">{t.includes}</h3>
+            <ol className="mt-4 flex flex-1 flex-col divide-y divide-line">
               {c.deliverables.map((item, i) => (
-                <li key={item} className="flex gap-4">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-action text-sm font-bold text-deep-700">
+                <li key={item} className="flex flex-1 items-center gap-4 py-5">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-action text-sm font-bold text-deep-700">
                     {i + 1}
                   </span>
-                  <p className="pt-1 text-lg font-semibold leading-snug">{item}</p>
+                  <p className="text-lg font-semibold leading-snug text-heading">
+                    {item}
+                  </p>
                 </li>
               ))}
             </ol>

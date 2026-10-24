@@ -50,7 +50,7 @@ function SitemapThumb() {
 
 function BrandSheetThumb() {
   return (
-    <div className="flex aspect-[3/4] flex-col gap-5 bg-surface p-6">
+    <div className="flex aspect-[4/5] flex-col gap-5 bg-surface p-6">
       <div className="flex flex-1 items-center justify-center rounded-2xl bg-deep-700">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-action">
           <span className="h-5 w-5 rounded-sm bg-deep-700" />

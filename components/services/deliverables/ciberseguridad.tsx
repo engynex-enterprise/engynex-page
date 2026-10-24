@@ -83,14 +83,24 @@ function ReportMock({ t, sla }: { t: (typeof copy)["es"]; sla?: string }) {
               <div key={sev} className="contents">
                 <span className="flex items-center gap-2 border-t border-line pt-3">
                   <span className="text-muted">{`H-${String(i + 1).padStart(2, "0")}`}</span>
-                  <span className="h-2 flex-1 rounded-full bg-deep-100 dark:bg-white/10" style={{ maxWidth: `${80 - i * 12}%` }} />
+                  <span
+                    className="h-2 flex-1 rounded-full bg-deep-100 dark:bg-white/10"
+                    style={{ maxWidth: `${80 - i * 12}%` }}
+                  />
                 </span>
                 <span className="border-t border-line pt-3">
-                  <span className={cn("inline-block rounded-full px-2.5 py-0.5 font-semibold", severityClass[i])}>
+                  <span
+                    className={cn(
+                      "inline-block rounded-full px-2.5 py-0.5 font-semibold",
+                      severityClass[i],
+                    )}
+                  >
                     {sev}
                   </span>
                 </span>
-                <span className="border-t border-line pt-3 text-muted">{t.status[i]}</span>
+                <span className="border-t border-line pt-3 text-muted">
+                  {t.status[i]}
+                </span>
               </div>
             ))}
           </div>
@@ -100,11 +110,17 @@ function ReportMock({ t, sla }: { t: (typeof copy)["es"]; sla?: string }) {
   );
 }
 
-export const deliverables: DeliverablesDesign = ({ service, locale, tone, title }) => {
+export const deliverables: DeliverablesDesign = ({
+  service,
+  locale,
+  tone,
+  title,
+}) => {
   const c = service[locale];
   const t = copy[locale];
   const plans = servicePlans[service.slug] ?? [];
-  const f = (key: string) => plans.find((p) => p.key === key)?.[locale].features ?? [];
+  const f = (key: string) =>
+    plans.find((p) => p.key === key)?.[locale].features ?? [];
   const audit = f("auditoria");
   const pentest = f("pentesting");
   const program = f("programa");
@@ -127,23 +143,35 @@ export const deliverables: DeliverablesDesign = ({ service, locale, tone, title 
           <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-heading sm:text-5xl">
             {title}
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-muted">{t.subtitle}</p>
+          <p className="mt-5 text-lg leading-relaxed text-muted">
+            {t.subtitle}
+          </p>
         </div>
 
         <div className="mt-12 grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
-          <ReportMock t={t} sla={sla[0] ? `${sla[0].label}: ${sla[0].value}` : undefined} />
+          <ReportMock
+            t={t}
+            sla={sla[0] ? `${sla[0].label}: ${sla[0].value}` : undefined}
+          />
 
           <div>
             <h3 className="text-sm font-semibold text-muted">{t.contents}</h3>
             <ol className="mt-4 border-t border-line">
               {c.deliverables.map((item, i) => (
-                <li key={item} className="grid grid-cols-[auto_1fr] gap-x-5 border-b border-line py-6">
+                <li
+                  key={item}
+                  className="grid grid-cols-[auto_1fr] gap-x-5 border-b border-line py-6"
+                >
                   <span className="pt-1 text-xs font-semibold uppercase tracking-wider text-accent">
                     {t.chapter} {i + 1}
                   </span>
                   <div>
-                    <p className="text-xl font-bold leading-snug text-heading">{item}</p>
-                    {chapters[i] && <p className="mt-1.5 text-sm text-muted">{chapters[i]}</p>}
+                    <p className="text-xl font-bold leading-snug text-heading">
+                      {item}
+                    </p>
+                    {chapters[i] && (
+                      <p className="mt-1.5 text-sm text-muted">{chapters[i]}</p>
+                    )}
                   </div>
                 </li>
               ))}

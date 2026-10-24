@@ -55,11 +55,8 @@ export const deliverables: DeliverablesDesign = ({
           </p>
         </div>
 
-        {/* Diagrama de flujo (ilustrativo): nodos conectados de izquierda a derecha. */}
-        <div
-          aria-hidden
-          className="mt-12 rounded-3xl bg-deep-900 bg-[radial-gradient(rgba(255,255,255,0.08)_1px,transparent_1px)] p-5 [background-size:20px_20px] sm:mt-16 sm:p-10"
-        >
+        {/* Diagrama de flujo: cada nodo es un entregable real (texto legible). */}
+        <div className="mt-12 rounded-3xl bg-deep-900 bg-[radial-gradient(rgba(255,255,255,0.08)_1px,transparent_1px)] p-5 [background-size:20px_20px] sm:mt-16 sm:p-10">
           <ol className="flex flex-col items-stretch lg:flex-row lg:items-center">
             {c.deliverables.map((item, i) => {
               const Icon = icons[i % icons.length];
@@ -79,6 +76,7 @@ export const deliverables: DeliverablesDesign = ({
                   >
                     <div className="flex items-center gap-3">
                       <span
+                        aria-hidden
                         className={cn(
                           "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
                           last
@@ -96,7 +94,10 @@ export const deliverables: DeliverablesDesign = ({
                       {item}
                     </p>
                     {i > 0 && (
-                      <p className="mt-3 flex items-center gap-1.5 text-xs font-medium opacity-70">
+                      <p
+                        aria-hidden
+                        className="mt-3 flex items-center gap-1.5 text-xs font-medium opacity-70"
+                      >
                         <span
                           className={cn(
                             "h-1.5 w-1.5 rounded-full motion-safe:animate-pulse-slow",
@@ -108,7 +109,10 @@ export const deliverables: DeliverablesDesign = ({
                     )}
                   </div>
                   {!last && (
-                    <span className="relative mx-auto block h-6 w-px bg-brand-green/60 lg:mx-0 lg:h-px lg:w-8">
+                    <span
+                      aria-hidden
+                      className="relative mx-auto block h-6 w-px bg-brand-green/60 lg:mx-0 lg:h-px lg:w-8"
+                    >
                       <span className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r border-brand-green lg:bottom-auto lg:left-auto lg:-right-0.5 lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-0 lg:-rotate-45" />
                     </span>
                   )}
@@ -118,8 +122,8 @@ export const deliverables: DeliverablesDesign = ({
           </ol>
         </div>
 
-        {/* La misma secuencia, en texto. */}
-        <ol className="mt-10 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+        {/* La misma secuencia como lista de lectura (solo en escritorio; el diagrama ya la anuncia). */}
+        <ol aria-hidden className="mt-10 hidden gap-x-8 lg:grid lg:grid-cols-4">
           {c.deliverables.map((item, i) => (
             <li key={item} className="border-t border-line pt-5">
               <p className="text-xs font-semibold uppercase tracking-wide text-accent">
