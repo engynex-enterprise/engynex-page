@@ -1,19 +1,35 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Info } from "lucide-react";
 import { PageHeader } from "@/components/portal/PageHeader";
-import { SetupCard } from "@/components/campaigns/SetupCard";
+import { CampaignsNav } from "@/components/campaigns/CampaignsNav";
+import { CampaignsList, type ListCampaign } from "@/components/campaigns/CampaignsList";
+import { SegmentsPanel } from "@/components/campaigns/SegmentsPanel";
 import { TemplatesPanel } from "@/components/campaigns/TemplatesPanel";
-import { buttonClasses } from "@/components/ui/Button";
+import { pct, type CampaignStats } from "@/components/campaigns/shared";
 import { campaignsCopy } from "@/content/campaigns";
+import { campaignsListCopy } from "@/content/campaignsList";
 import { isLocale } from "@/i18n/config";
 import { requireProfile } from "@/lib/auth";
+import { listEmployees } from "@/lib/employees";
 import { whatsappMissingFrom } from "@/lib/whatsapp";
 import { hasSecretKey, integrationStatus } from "@/lib/integrations";
-import type { WaCampaign, WaTemplate } from "@/lib/supabase/types";
-import { campaignStatusTone } from "@/lib/campaigns";
+import type { CampaignSegment, WaTemplate } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 
+type Overview = {
+  campaigns: number;
+  wa_delivered: number;
+  wa_read: number;
+  wa_replied: number;
+  email_sent: number;
+  email_delivered: number;
+  email_opened: number;
+  email_clicked: number;
+  unsubscribed: number;
+  reachable_wa: number;
+  reachable_email: number;
+};
 
 export default async function CampaignsPage({
   params,
@@ -26,105 +42,92 @@ export default async function CampaignsPage({
   if (!isLocale(locale)) notFound();
   const { supabase } = await requireProfile(locale, ["admin", "marketing"]);
   const { tab } = await searchParams;
-  const t = campaignsCopy[locale];
-  const showTemplates = tab === "plantillas";
-  const missing = whatsappMissingFrom(await integrationStatus(supabase), hasSecretKey());
+  const t = campaignsListCopy[locale];
+  const view = tab === "plantillas" ? "templates" : tab === "segmentos" ? "segments" : "campaigns";
+  const status = await integrationStatus(supabase);
+  const waMissing = whatsappMissingFrom(status, hasSecretKey());
+  const emailReady = !!status.resend_api_key && !!status.email_from;
 
-  const [{ data: campaigns }, { data: templates }, { data: stats }] = await Promise.all([
-    supabase.from("wa_campaigns").select("*").order("created_at", { ascending: false }).limit(200),
+  const [{ data: campaigns }, { data: templates }, { data: stats }, { data: overview }, { data: segments }, employees] = await Promise.all([
+    supabase
+      .from("wa_campaigns")
+      .select("id, name, channel, status, subject, template_id, scheduled_at, started_at, created_at, total")
+      .order("created_at", { ascending: false })
+      .limit(500),
     supabase.from("wa_templates").select("*").order("name"),
-    supabase.rpc("wa_campaign_stats"),
+    supabase.rpc("campaign_stats"),
+    supabase.rpc("campaigns_overview", { p_days: 30 }),
+    view === "segments" ? supabase.from("campaign_segments").select("*").order("created_at", { ascending: false }) : Promise.resolve({ data: [] }),
+    view === "segments" ? listEmployees(supabase) : Promise.resolve([]),
   ]);
-  const tplName = Object.fromEntries((templates ?? []).map((x) => [x.id, x.name]));
-  const byCampaign = Object.fromEntries((stats ?? []).map((s) => [s.campaign_id, s]));
-  const fmt = (iso: string | null) =>
-    iso
-      ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "America/Bogota" }).format(new Date(iso))
-      : "—";
-  const base = `/${locale}/portal/campanas`;
+  const o = (overview ?? {}) as Partial<Overview>;
+  const active = (campaigns ?? []).filter((c) => c.status === "sending" || c.status === "paused" || c.status === "scheduled").length;
+  const emailBase = o.email_delivered || o.email_sent;
+
+  const kpis = [
+    { key: "campaigns", value: String(o.campaigns ?? 0), hint: null },
+    {
+      key: "reachable",
+      value: ((o.reachable_wa ?? 0) + (o.reachable_email ?? 0)).toLocaleString(locale),
+      hint: t.kpis.reachableHint.replace("{wa}", (o.reachable_wa ?? 0).toLocaleString(locale)).replace("{email}", (o.reachable_email ?? 0).toLocaleString(locale)),
+    },
+    { key: "waRead", value: pct(o.wa_read, o.wa_delivered), hint: o.wa_delivered ? t.kpis.waHint.replace("{pct}", pct(o.wa_replied, o.wa_delivered)) : null },
+    { key: "emailOpen", value: pct(o.email_opened, emailBase), hint: emailBase ? t.kpis.emailHint.replace("{pct}", pct(o.email_clicked, emailBase)) : null },
+    { key: "unsubscribed", value: String(o.unsubscribed ?? 0), hint: null },
+  ] as { key: keyof typeof t.kpis; value: string; hint: string | null }[];
+
+  const notices = [waMissing.length > 0 && t.notices.whatsapp, !emailReady && t.notices.email].filter(Boolean) as string[];
+  const templateNames = Object.fromEntries((templates ?? []).map((x) => [x.id, x.name]));
 
   return (
     <>
-      <PageHeader
-        title={t.title}
-        subtitle={t.subtitle}
-        action={
-          <Link href={`${base}/nueva`} className={buttonClasses("primary", "md")}>
-            <Plus className="h-4 w-4" aria-hidden />
-            {t.newCampaign}
-          </Link>
-        }
-      />
-      <SetupCard locale={locale} missing={missing} />
+      <PageHeader title={campaignsCopy[locale].title} count={active} />
+      <div className="-mx-4 -mt-6 sm:-mx-6">
+        {/* Métricas */}
+        <div className="grid border-b border-line sm:grid-cols-3 xl:grid-cols-5">
+          {kpis.map((x) => (
+            <div key={x.key} className="border-line px-6 py-4 sm:border-r xl:last:border-r-0">
+              <p className="text-sm text-muted">{t.kpis[x.key]}</p>
+              <p className={cn("mt-1 text-[1.7rem] font-semibold leading-none tabular-nums text-heading")}>{x.value}</p>
+              {x.hint && <p className="mt-1 text-xs text-muted">{x.hint}</p>}
+            </div>
+          ))}
+        </div>
 
-      <nav aria-label={t.title} className="mt-8 flex gap-1 border-b border-line">
-        {([["campaigns", base], ["templates", `${base}?tab=plantillas`]] as const).map(([key, href]) => {
-          const active = (key === "templates") === showTemplates;
-          return (
-            <Link
-              key={key}
-              href={href}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "-mb-px border-b-2 px-4 py-3 text-sm font-semibold transition-colors",
-                active ? "border-deep-700 text-heading dark:border-brand-green" : "border-transparent text-muted hover:text-heading",
-              )}
-            >
-              {t.tabs[key]}
-            </Link>
-          );
-        })}
-      </nav>
+        <CampaignsNav locale={locale} />
 
-      <div className="mt-6">
-        {showTemplates ? (
-          <TemplatesPanel locale={locale} templates={(templates ?? []) as WaTemplate[]} ready={missing.length === 0} />
-        ) : !campaigns?.length ? (
-          <p className="rounded-lg bg-surface p-10 text-center text-sm text-muted shadow-meta dark:bg-card">{t.empty}</p>
-        ) : (
-          <div className="overflow-x-auto rounded-lg bg-surface shadow-meta dark:bg-card">
-            <table className="w-full min-w-[56rem] text-left text-sm">
-              <thead className="border-b border-line text-xs text-muted">
-                <tr>
-                  {(["name", "template", "when", "total", "delivered", "read", "replied", "failed", "status"] as const).map((k) => (
-                    <th
-                      key={k}
-                      scope="col"
-                      className={cn("px-4 py-3 font-semibold", ["total", "delivered", "read", "replied", "failed"].includes(k) && "text-right")}
-                    >
-                      {t.cols[k]}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {(campaigns as WaCampaign[]).map((c) => {
-                  const s = byCampaign[c.id];
-                  const num = (n?: number) => (n ?? 0).toLocaleString(locale);
-                  return (
-                    <tr key={c.id} className="hover:bg-surface-soft/60 dark:hover:bg-white/[0.03]">
-                      <td className="px-4 py-3">
-                        <Link href={`${base}/${c.id}`} className="font-bold text-heading hover:underline">
-                          {c.name}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 font-mono text-xs text-body">{c.template_id ? tplName[c.template_id] ?? "—" : "—"}</td>
-                      <td className="px-4 py-3 text-body">{fmt(c.scheduled_at ?? c.started_at ?? c.created_at)}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-heading">{num(c.total)}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-heading">{num(s?.delivered)}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-heading">{num(s?.read)}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-heading">{num(s?.replied)}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-heading">{num(s?.failed)}</td>
-                      <td className="px-4 py-3">
-                        <span className={cn("rounded-full px-2.5 py-1 text-xs font-bold", campaignStatusTone[c.status])}>{t.status[c.status]}</span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <div className="px-4 py-4 sm:px-6">
+          {notices.length > 0 && (
+            <div className="mb-4 grid gap-2">
+              {notices.map((n) => (
+                <p key={n} className="flex items-start gap-2.5 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:ring-amber-500/30">
+                  <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                  <span className="flex-1">{n}</span>
+                  <Link href={`/${locale}/portal/integraciones`} className="shrink-0 font-semibold underline">
+                    {t.notices.go}
+                  </Link>
+                </p>
+              ))}
+            </div>
+          )}
+
+          {view === "templates" ? (
+            <TemplatesPanel locale={locale} templates={(templates ?? []) as WaTemplate[]} ready={waMissing.length === 0} />
+          ) : view === "segments" ? (
+            <SegmentsPanel
+              locale={locale}
+              segments={(segments ?? []) as CampaignSegment[]}
+              names={Object.fromEntries((employees as { id: string; name: string }[]).map((e) => [e.id, e.name]))}
+            />
+          ) : (
+            <CampaignsList
+              locale={locale}
+              campaigns={(campaigns ?? []) as ListCampaign[]}
+              stats={(stats ?? []) as CampaignStats[]}
+              templateNames={templateNames}
+            />
+          )}
+        </div>
       </div>
     </>
   );

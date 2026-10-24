@@ -12,6 +12,7 @@ import {
   type TemplateLead,
 } from "@/lib/email/templates";
 import { normalizeFollowupConfig } from "@/content/followupDefaults";
+import { renderVars, sampleVars } from "@/lib/campaignVars";
 
 /** Lead de ejemplo para ver cómo queda un correo de la secuencia. */
 const sampleLead = (locale: string): TemplateLead => ({
@@ -31,7 +32,9 @@ const sampleLead = (locale: string): TemplateLead => ({
 });
 
 type Body = {
-  mode?: "step" | "abandoned" | "queue";
+  mode?: "step" | "abandoned" | "queue" | "campaign";
+  /** Campaña de correo (texto que se está editando). */
+  campaign?: { subject?: string; preheader?: string; body?: string; cta_label?: string; cta_url?: string };
   step?: number;
   locale?: string;
   config?: unknown;
@@ -57,6 +60,21 @@ export async function POST(request: Request) {
     rendered = followup(Math.min(Math.max(Number(body.step) || 1, 1), 5), sampleLead(locale), config);
   } else if (body.mode === "abandoned") {
     rendered = abandoned({ name: sampleLead(locale).name, token: "00000000-0000-0000-0000-000000000000", locale }, normalizeFollowupConfig(body.config));
+  } else if (body.mode === "campaign" && body.campaign) {
+    // Variables con valores de ejemplo.
+    const lead = sampleLead(locale);
+    const values = sampleVars(locale);
+    const fill = (text?: string) => renderVars(text ?? "", values);
+    const c = body.campaign;
+    rendered = customEmail({
+      subject: fill(c.subject) || "—",
+      preheader: fill(c.preheader) || null,
+      body: fill(c.body),
+      cta_label: fill(c.cta_label) || null,
+      cta_url: fill(c.cta_url) || null,
+      locale,
+      email_token: lead.email_token,
+    });
   } else if (body.mode === "queue" && body.id) {
     // Leído con la sesión del asesor (RLS).
     const { data: row } = await session.supabase

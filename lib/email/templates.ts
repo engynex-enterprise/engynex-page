@@ -221,9 +221,21 @@ export function weeklyReport(report: { week_start: string; data: Record<string, 
   };
 }
 
-/** Correo escrito en una automatización (texto con saltos de línea). */
+/**
+ * Formato ligero sobre texto ya escapado: **negrita**, *negrita*, _cursiva_ y
+ * enlaces (https://…) que se vuelven clicables.
+ */
+const inline = (html: string) =>
+  html
+    .replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,!?:;]|$)/g, "$1<strong>$2</strong>")
+    .replace(/(^|[\s(])_([^_\n]+)_(?=[\s).,!?:;]|$)/g, "$1<em>$2</em>")
+    .replace(/https?:\/\/[^\s<]+[^\s<.,;:!?)]/g, (url) => `<a href="${url}" style="color:${NAVY};font-weight:600">${url}</a>`);
+
+/** Correo escrito en una automatización o campaña (texto con saltos de línea). */
 export function customEmail(payload: {
   subject?: string;
+  preheader?: string | null;
   body?: string;
   cta_label?: string | null;
   cta_url?: string | null;
@@ -235,7 +247,7 @@ export function customEmail(payload: {
   const subject = payload.subject?.trim() || "Engynex";
   const paragraphs = (payload.body ?? "")
     .split(/\n{2,}/)
-    .map((block) => p(esc(block).replace(/\n/g, "<br>")))
+    .map((block) => p(inline(esc(block)).replace(/\n/g, "<br>")))
     .join("");
   const cta = payload.cta_label && payload.cta_url ? { label: payload.cta_label, url: payload.cta_url } : undefined;
   const unsub = payload.email_token ? unsubscribe(l, payload.email_token) : null;
@@ -246,7 +258,7 @@ export function customEmail(payload: {
       : `Engynex · ${siteConfig.url.replace("https://", "")}`;
   return {
     subject,
-    html: layout({ preheader: subject, title: subject, body: paragraphs, cta, footer }),
+    html: layout({ preheader: payload.preheader?.trim() || subject, title: subject, body: paragraphs, cta, footer }),
     text: `${payload.body ?? ""}${cta ? `\n\n${cta.label}: ${cta.url}` : ""}${unsub ? `\n\n${l === "es" ? "Dejar de recibir correos" : "Unsubscribe"}: ${unsub}` : ""}`,
     unsubscribeUrl: payload.email_token ? oneClick(l, payload.email_token) : undefined,
   };

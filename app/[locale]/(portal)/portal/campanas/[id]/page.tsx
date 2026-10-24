@@ -3,19 +3,19 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/portal/PageHeader";
 import { CampaignEditor } from "@/components/campaigns/CampaignEditor";
-import { CampaignLive } from "@/components/campaigns/CampaignLive";
-import { TemplatePreview } from "@/components/campaigns/TemplatePreview";
-import { StatTile } from "@/components/analytics/Charts";
+import { CampaignReport, type CampaignReportData } from "@/components/campaigns/CampaignReport";
+import { toRecipientRows } from "@/components/campaigns/recipients";
+import type { CampaignStats } from "@/components/campaigns/shared";
 import { campaignsCopy } from "@/content/campaigns";
 import { isLocale } from "@/i18n/config";
 import { requireProfile } from "@/lib/auth";
-import { whatsappMissingFrom } from "@/lib/whatsapp";
-import { hasSecretKey, integrationStatus } from "@/lib/integrations";
+import { listEmployees } from "@/lib/employees";
+import { channelReady } from "@/lib/campaignReady";
 import { campaignStatusTone } from "@/lib/campaigns";
-import type { WaCampaign, WaMessage, WaTemplate } from "@/lib/supabase/types";
+import type { CampaignSegment, WaCampaign, WaTemplate } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 
-const LIMIT = 500;
+const LIMIT = 2000;
 
 export default async function CampaignPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   const { locale, id } = await params;
@@ -32,109 +32,66 @@ export default async function CampaignPage({ params }: { params: Promise<{ local
       {t.editor.back}
     </Link>
   );
-  const pill = (
-    <span className={cn("rounded-full px-3 py-1.5 text-xs font-bold", campaignStatusTone[campaign.status])}>{t.status[campaign.status]}</span>
-  );
 
   // Antes de enviar: se edita.
   if (campaign.status === "draft" || campaign.status === "scheduled") {
-    const { data: templates } = await supabase.from("wa_templates").select("*").eq("status", "APPROVED").order("name");
+    const [{ data: templates }, employees, { data: segments }, ready] = await Promise.all([
+      supabase.from("wa_templates").select("*").eq("status", "APPROVED").order("name"),
+      listEmployees(supabase),
+      supabase.from("campaign_segments").select("*").order("name"),
+      channelReady(supabase, campaign.channel),
+    ]);
     return (
       <>
         {back}
-        <PageHeader title={campaign.name} action={pill} />
-        <CampaignEditor locale={locale} templates={(templates ?? []) as WaTemplate[]} campaign={campaign} ready={whatsappMissingFrom(await integrationStatus(supabase), hasSecretKey()).length === 0} />
+        <PageHeader
+          title={campaign.name}
+          action={<span className={cn("rounded-md px-2.5 py-1 text-xs font-semibold", campaignStatusTone[campaign.status])}>{t.status[campaign.status]}</span>}
+        />
+        <CampaignEditor
+          locale={locale}
+          channel={campaign.channel}
+          templates={(templates ?? []) as WaTemplate[]}
+          campaign={campaign}
+          ready={ready}
+          employees={employees}
+          segments={(segments ?? []) as CampaignSegment[]}
+        />
       </>
     );
   }
 
-  // Enviando o enviada: informe.
-  const [{ data: messages }, { data: stats }, { data: template }] = await Promise.all([
-    supabase.from("wa_messages").select("*").eq("campaign_id", id).order("id").limit(LIMIT),
-    supabase.rpc("wa_campaign_stats"),
-    campaign.template_id
-      ? supabase.from("wa_templates").select("*").eq("id", campaign.template_id).maybeSingle()
-      : Promise.resolve({ data: null }),
+  // Enviando, en pausa o terminada: informe.
+  const [{ data: rows }, { data: stats }, { data: report }, { data: template }, { data: ab }] = await Promise.all([
+    campaign.channel === "email"
+      ? supabase
+          .from("email_queue")
+          .select("id, lead_id, to_email, status, error, sent_at, delivered_at, opened_at, clicked_at, bounced_at, open_count, leads(name)")
+          .eq("campaign_id", id)
+          .order("id")
+          .limit(LIMIT)
+      : supabase.from("wa_messages").select("*").eq("campaign_id", id).order("id").limit(LIMIT),
+    supabase.rpc("campaign_stats"),
+    supabase.rpc("campaign_report", { p_campaign: id }),
+    campaign.template_id ? supabase.from("wa_templates").select("*").eq("id", campaign.template_id).maybeSingle() : Promise.resolve({ data: null }),
+    campaign.subject_b ? supabase.rpc("campaign_ab", { p_campaign: id }) : Promise.resolve({ data: null }),
   ]);
-  const s = stats?.find((x) => x.campaign_id === id);
-  const total = campaign.total;
-  const pct = (n = 0) => (total ? `${Math.round((n / total) * 100)}%` : "—");
-  const rows = (messages ?? []) as WaMessage[];
-  const fmt = (iso: string | null) =>
-    iso ? new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "short", timeZone: "America/Bogota" }).format(new Date(iso)) : "—";
+  const s = ((stats ?? []) as CampaignStats[]).find((x) => x.campaign_id === id) ?? null;
 
   return (
     <>
-      <CampaignLive id={id} active={campaign.status === "sending"} />
       {back}
-      <PageHeader
-        title={campaign.name}
-        subtitle={t.report.progress.replace("{sent}", String((s?.sent ?? 0) + (s?.failed ?? 0))).replace("{total}", String(total))}
-        action={pill}
-      />
-
-      {campaign.status === "sending" && (
-        <div className="mb-6 h-2 overflow-hidden rounded-full bg-surface-soft dark:bg-white/[0.08]" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={(s?.sent ?? 0) + (s?.failed ?? 0)}>
-          <div className="h-full rounded-full bg-brand-green-dark transition-[width] dark:bg-brand-green" style={{ width: pct((s?.sent ?? 0) + (s?.failed ?? 0)) }} />
-        </div>
-      )}
-
-      <dl className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <StatTile label={t.cols.total} value={total.toLocaleString(locale)} />
-        <StatTile label={t.cols.delivered} value={(s?.delivered ?? 0).toLocaleString(locale)} hint={pct(s?.delivered)} />
-        <StatTile label={t.cols.read} value={(s?.read ?? 0).toLocaleString(locale)} hint={pct(s?.read)} />
-        <StatTile label={t.cols.replied} value={(s?.replied ?? 0).toLocaleString(locale)} hint={pct(s?.replied)} />
-        <StatTile label={t.cols.failed} value={(s?.failed ?? 0).toLocaleString(locale)} hint={pct(s?.failed)} />
-      </dl>
-
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <section className="overflow-x-auto rounded-lg bg-surface shadow-meta dark:bg-card">
-          <h2 className="px-5 pt-5 text-base text-heading">{t.report.recipients}</h2>
-          <table className="mt-3 w-full min-w-[40rem] text-left text-sm">
-            <thead className="border-b border-line text-xs text-muted">
-              <tr>
-                <th scope="col" className="px-5 py-2.5 font-semibold">{t.report.contact}</th>
-                <th scope="col" className="px-5 py-2.5 font-semibold">{t.report.phone}</th>
-                <th scope="col" className="px-5 py-2.5 font-semibold">{t.report.state}</th>
-                <th scope="col" className="px-5 py-2.5 font-semibold">{t.cols.when}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {rows.map((m) => (
-                <tr key={m.id}>
-                  <td className="px-5 py-2.5">
-                    {m.lead_id ? (
-                      <Link href={`/${locale}/portal/crm/${m.lead_id}`} className="font-semibold text-heading hover:underline">
-                        {m.name ?? "—"}
-                      </Link>
-                    ) : (
-                      <span className="text-heading">{m.name ?? "—"}</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-2.5 font-mono text-xs text-body">+{m.phone}</td>
-                  <td className="px-5 py-2.5">
-                    <span className={cn("font-semibold", m.status === "failed" ? "text-red-600 dark:text-red-400" : "text-heading")}>
-                      {t.report.msgStatus[m.status] ?? m.status}
-                    </span>
-                    {m.replied_at && (
-                      <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300">
-                        {t.report.repliedTag}
-                      </span>
-                    )}
-                    {m.error && <p className="mt-0.5 max-w-sm truncate text-xs text-muted" title={m.error}>{m.error}</p>}
-                  </td>
-                  <td className="px-5 py-2.5 text-body">{fmt(m.read_at ?? m.delivered_at ?? m.sent_at)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {rows.length >= LIMIT && <p className="px-5 py-3 text-xs text-muted">{t.report.showing.replace("{n}", String(LIMIT))}</p>}
-        </section>
-        {template && (
-          <aside>
-            <TemplatePreview template={template as WaTemplate} values={[]} caption={(template as WaTemplate).name} />
-          </aside>
-        )}
+      <PageHeader title={campaign.name} />
+      <div className="-mx-4 -mt-6 sm:-mx-6">
+        <CampaignReport
+          locale={locale}
+          campaign={campaign}
+          stats={s}
+          report={report as unknown as CampaignReportData | null}
+          recipients={toRecipientRows(campaign.channel, (rows ?? []) as never[])}
+          template={(template as WaTemplate | null) ?? null}
+          ab={ab as never}
+        />
       </div>
     </>
   );

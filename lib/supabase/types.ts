@@ -290,6 +290,7 @@ export type EmailQueueRow = {
   open_count: number;
   click_count: number;
   created_by: string | null;
+  campaign_id: string | null;
 };
 
 export type FollowupSettingsRow = {
@@ -453,9 +454,22 @@ export type WaTemplate = {
   synced_at: string;
 };
 
-export type WaParam = { source: "first_name" | "name" | "company" | "static"; value?: string; fallback?: string };
-export type WaSegment = { tiers?: string[]; statuses?: string[]; problems?: string[]; days?: number | null };
-export type WaCampaignStatus = "draft" | "scheduled" | "sending" | "sent" | "cancelled";
+export type WaParam = {
+  source: "first_name" | "name" | "company" | "owner" | "need" | "booking_link" | "quote_link" | "static";
+  value?: string;
+  fallback?: string;
+};
+export type WaSegment = {
+  tiers?: string[];
+  statuses?: string[];
+  problems?: string[];
+  sources?: string[];
+  owners?: string[];
+  days?: number | null;
+  exclude_days?: number | null;
+};
+export type WaCampaignStatus = "draft" | "scheduled" | "sending" | "paused" | "sent" | "cancelled";
+export type CampaignChannel = "whatsapp" | "email";
 
 export type WaCampaign = {
   id: string;
@@ -471,7 +485,18 @@ export type WaCampaign = {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  channel: CampaignChannel;
+  subject: string | null;
+  preheader: string | null;
+  body: string | null;
+  cta_label: string | null;
+  cta_url: string | null;
+  utm: boolean;
+  subject_b: string | null;
+  throttle_per_hour: number | null;
 };
+
+export type CampaignSegment = { id: string; name: string; segment: Json; created_by: string | null; created_at: string };
 
 export type WaMessageStatus = "queued" | "sending" | "sent" | "delivered" | "read" | "failed";
 
@@ -754,6 +779,12 @@ export type Database = {
         Update: Partial<WaTemplate>;
         Relationships: [];
       };
+      campaign_segments: {
+        Row: CampaignSegment;
+        Insert: Partial<CampaignSegment> & { name: string; segment: Json };
+        Update: Partial<CampaignSegment>;
+        Relationships: [];
+      };
       wa_campaigns: {
         Row: WaCampaign;
         Insert: Partial<WaCampaign> & { name: string };
@@ -946,6 +977,17 @@ export type Database = {
       };
       wa_audience_count: { Args: { p_segment: Json }; Returns: number };
       wa_campaign_queue: { Args: { p_campaign: string }; Returns: number };
+      campaign_audience: { Args: { p_segment: Json; p_channel: string; p_limit?: number }; Returns: Json };
+      campaign_queue: { Args: { p_campaign: string }; Returns: number };
+      campaign_action: { Args: { p_campaign: string; p_action: "pause" | "resume" | "cancel" | "retry" }; Returns: number };
+      campaign_duplicate: { Args: { p_campaign: string }; Returns: string };
+      campaign_stats: {
+        Args: Record<string, never>;
+        Returns: { campaign_id: string; sent: number; delivered: number; opened: number; engaged: number; failed: number; pending: number; unsubscribed: number }[];
+      };
+      campaign_report: { Args: { p_campaign: string }; Returns: Json };
+      campaign_ab: { Args: { p_campaign: string }; Returns: Json };
+      campaigns_overview: { Args: { p_days?: number }; Returns: Json };
       wa_claim_batch: {
         Args: { p_limit?: number };
         Returns: { id: number; phone: string; params: Json; template: string; language: string }[];

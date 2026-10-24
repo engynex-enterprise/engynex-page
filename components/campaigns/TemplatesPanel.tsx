@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Loader2, RefreshCw } from "lucide-react";
 import type { WaTemplate } from "@/lib/supabase/types";
 import { campaignsCopy } from "@/content/campaigns";
-import { buttonClasses } from "@/components/ui/Button";
 import { TemplatePreview } from "./TemplatePreview";
 import type { Locale } from "@/i18n/config";
 import { cn } from "@/lib/utils";
@@ -44,7 +43,7 @@ export function TemplatesPanel({
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3">
-        <button type="button" onClick={sync} disabled={busy || !ready} className={buttonClasses("outline", "md", "disabled:opacity-50")}>
+        <button type="button" onClick={sync} disabled={busy || !ready} className="inline-flex h-10 items-center gap-2 rounded-[10px] px-3.5 text-sm font-medium text-heading ring-1 ring-line hover:bg-[var(--meta-hover)] disabled:opacity-50">
           {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <RefreshCw className="h-4 w-4" aria-hidden />}
           {busy ? t.syncing : t.sync}
         </button>
@@ -64,11 +63,11 @@ export function TemplatesPanel({
       </div>
 
       {templates.length === 0 ? (
-        <p className="mt-6 rounded-lg bg-surface p-8 text-center text-sm text-muted shadow-meta dark:bg-card">{t.empty}</p>
+        <p className="mt-6 rounded-xl border border-dashed border-line-strong p-10 text-center text-sm text-muted">{t.empty}</p>
       ) : (
-        <ul className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <ul className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {templates.map((tpl) => (
-            <li key={tpl.id} className="flex flex-col rounded-lg bg-surface p-5 shadow-meta dark:bg-card">
+            <li key={tpl.id} className="flex flex-col rounded-xl border border-line bg-surface p-5 dark:bg-card">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="truncate font-mono text-sm font-bold text-heading">{tpl.name}</p>
@@ -78,7 +77,7 @@ export function TemplatesPanel({
                 </div>
                 <span
                   className={cn(
-                    "shrink-0 rounded-full px-2.5 py-1 text-xs font-bold",
+                    "shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold",
                     stateTone[tpl.status] ?? "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300",
                   )}
                 >
