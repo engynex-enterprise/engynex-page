@@ -1,32 +1,22 @@
 import { notFound } from "next/navigation";
 import { HeroSlider } from "@/components/sections/HeroSlider";
-import { ClientLogos } from "@/components/sections/ClientLogos";
-import { Industries } from "@/components/sections/Industries";
-import { ServicesBento } from "@/components/sections/ServicesBento";
-import { SubscriptionBand } from "@/components/sections/SubscriptionBand";
-import { ProductsPreview } from "@/components/sections/ProductsPreview";
-import { StatsBand } from "@/components/sections/StatsBand";
-import { PortfolioPreview } from "@/components/sections/PortfolioPreview";
-import { ProcessShowcase } from "@/components/sections/ProcessShowcase";
-import { Testimonials } from "@/components/sections/Testimonials";
+import {
+  LatestWork,
+  ProductShelf,
+  ServiceShowcase,
+} from "@/components/sections/HomeShowcase";
+import { TrustStrip } from "@/components/sections/TrustStrip";
 import { CtaBand } from "@/components/sections/CtaBand";
-import { servicePlans } from "@/content/pricing";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { localizedHref } from "@/lib/site";
 import { buildHeroSlides } from "@/lib/heroSlides";
 
 /**
- * Home.
- *
- * Lenguaje corporativo con la identidad de Engynex: secciones claras que
- * alternan `surface` y `surface-soft`, dos bloques de color (la oferta en
- * verde claro y el cierre en navy) y figuras vectoriales de marca —anillos del
- * isotipo, swoosh, retículas y cruces— siempre en los márgenes, nunca detrás
- * del texto.
- *
- * Orden: qué hacemos → prueba (clientes, cifras, casos) → cómo trabajamos →
- * qué dicen → acción.
+ * Home, con la estructura de meta.com: hero fotográfico a sangre, un titular
+ * centrado con la vitrina de tarjetas (servicios y la oferta de suscripción),
+ * la repisa de productos, las garantías sobre gris, lo último del portafolio
+ * y una tarjeta fotográfica de cierre.
  */
 export default async function HomePage({
   params,
@@ -37,60 +27,20 @@ export default async function HomePage({
   if (!isLocale(locale)) notFound();
   const dict = getDictionary(locale);
 
-  // Plan de arranque de la web por suscripción (se lee de content/pricing).
-  const webSubscription = servicePlans["desarrollo-web"]?.[0];
-
   return (
     <>
       <HeroSlider
         slides={buildHeroSlides(locale)}
         controls={dict.heroSlides.controls}
-        assurances={dict.trust.slice(0, 2).map((item) => item.title)}
       />
 
-      <ClientLogos clients={dict.clients} />
+      <ServiceShowcase locale={locale} dict={dict} />
 
-      <ServicesBento
-        locale={locale}
-        copy={dict.servicesSection}
-        ctaLabel={dict.common.learnMore}
-        moreLabel={dict.common.exploreServices}
-        countLabel={dict.common.servicesCount}
-      />
+      <ProductShelf locale={locale} dict={dict} />
 
-      <ProductsPreview
-        locale={locale}
-        copy={dict.productsSection}
-        badges={dict.badges}
-      />
+      <TrustStrip items={dict.trust} title={dict.homePage.whyTitle} />
 
-      {webSubscription && (
-        <SubscriptionBand
-          locale={locale}
-          copy={dict.subscriptionBand}
-          plan={webSubscription}
-          fromLabel={dict.subscriptionBand.priceLabel}
-        />
-      )}
-
-      <PortfolioPreview
-        locale={locale}
-        featured={dict.featured}
-        resultLabel={dict.portfolioPage.resultLabel}
-      />
-
-      <StatsBand
-        eyebrow={dict.statsBand.eyebrow}
-        title={dict.statsBand.title}
-        subtitle={dict.statsBand.subtitle}
-        stats={dict.statsBand.items}
-      />
-
-      <Industries industries={dict.industries} />
-
-      <ProcessShowcase process={dict.process} />
-
-      <Testimonials testimonials={dict.testimonials} tone="muted" />
+      <LatestWork locale={locale} dict={dict} />
 
       <CtaBand
         locale={locale}

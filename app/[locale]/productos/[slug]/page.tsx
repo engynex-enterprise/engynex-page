@@ -1,23 +1,24 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import {
   Check,
-  ArrowRight,
-  ArrowLeft,
-  Sparkles,
-  Layers,
-  Users,
+  ChevronLeft,
   PlayCircle,
+  Rocket,
+  SlidersHorizontal,
+  ServerCog,
+  Headset,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading, Eyebrow } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { Button, ButtonExternal } from "@/components/ui/Button";
+import { MediaTile } from "@/components/ui/MediaTile";
 import { Accordion } from "@/components/Accordion";
 import { ProductIcon } from "@/components/ProductIcon";
+import { ProductCard } from "@/components/ProductCard";
 import { CtaBand } from "@/components/sections/CtaBand";
 import {
   products,
@@ -28,8 +29,8 @@ import {
 import { getDictionary } from "@/i18n/dictionaries";
 import { locales, isLocale, type Locale } from "@/i18n/config";
 import { localizedHref, siteConfig } from "@/lib/site";
-import { cn } from "@/lib/utils";
 
+const whyIcons = [Rocket, SlidersHorizontal, ServerCog, Headset];
 export function generateStaticParams() {
   return locales.flatMap((locale) =>
     products.map((product) => ({ locale, slug: product.slug })),
@@ -89,325 +90,275 @@ export default async function ProductDetailPage({
   const t = dict.productsPage;
   const copy = product[locale];
   const category = productCategoryOf(product);
-  const isGreen = product.accent === "green";
-  const index = products.findIndex((p) => p.slug === slug);
   const related = relatedProducts(product);
   const contactHref = localizedHref(locale, "contacto");
+  const productsHref = localizedHref(locale, "productos");
 
   return (
     <>
       {/* ================= HERO ================= */}
-      <section className="relative overflow-hidden bg-deep-950 pt-32 pb-24 text-ink-100 sm:pt-40 sm:pb-32">
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          <Image
-            src={product.image}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover opacity-20"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-deep-950 via-deep-950/90 to-deep-950/60" />
-          <div className="bg-grid absolute inset-0 opacity-35" />
-          <div
-            className={cn(
-              "absolute -top-20 left-1/4 h-[30rem] w-[30rem] rounded-full blur-[150px]",
-              isGreen ? "bg-brand-green/25" : "bg-brand-blue/30",
-            )}
-          />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-deep-950" />
-        </div>
-
-        <Container className="relative">
-          <nav
-            aria-label="breadcrumb"
-            className="mb-10 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-ink-400"
-          >
-            <Link
-              href={localizedHref(locale, "productos")}
-              className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {t.detail.back}
-            </Link>
-            {category && (
-              <>
-                <span aria-hidden className="opacity-40">
-                  /
-                </span>
-                <span className="text-ink-300">{category[locale].title}</span>
-              </>
-            )}
+      <section className="bg-surface-soft pt-16">
+        <Container className="pb-16 pt-8 sm:pb-24 sm:pt-10">
+          <nav aria-label="breadcrumb">
+            <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+              <li>
+                <Link
+                  href={productsHref}
+                  className="inline-flex items-center gap-1 rounded-full font-medium text-heading transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
+                >
+                  <ChevronLeft className="h-4 w-4" aria-hidden />
+                  {t.detail.back}
+                </Link>
+              </li>
+              {category && (
+                <>
+                  <li aria-hidden>/</li>
+                  <li>{category[locale].title}</li>
+                </>
+              )}
+            </ol>
           </nav>
 
-          <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={cn(
-                    "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider ring-1",
-                    isGreen
-                      ? "bg-brand-green/10 text-brand-green ring-brand-green/25"
-                      : "bg-brand-blue/10 text-brand-blue-light ring-brand-blue/25",
-                  )}
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  {copy.tagline}
+          <div className="mx-auto mt-12 max-w-4xl text-center sm:mt-16">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {category && <Eyebrow>{category[locale].title}</Eyebrow>}
+              {product.badge && (
+                <span className="rounded-full bg-card px-3 py-1 text-xs font-semibold text-heading">
+                  {dict.badges[product.badge]}
                 </span>
-                {product.badge && (
-                  <span className="inline-flex items-center rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-3 py-1 text-[0.68rem] font-extrabold uppercase tracking-wider text-deep-950">
-                    {dict.badges[product.badge]}
-                  </span>
-                )}
-              </div>
+              )}
+            </div>
+            <h1 className="mt-4 text-balance text-[clamp(2.5rem,6vw,5rem)] font-medium leading-[1.02] tracking-[-0.03em] text-heading">
+              {copy.title}
+            </h1>
+            <p className="mx-auto mt-5 max-w-2xl text-balance text-lg leading-relaxed text-muted sm:text-xl">
+              {copy.tagline}
+            </p>
 
-              <h1 className="mt-6 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                {copy.title}
-              </h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-300">
-                {copy.intro}
-              </p>
-
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <Button href={contactHref} variant="primary" size="lg">
-                  {t.cta}
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-                <ButtonExternal
-                  href={`https://wa.me/${siteConfig.whatsapp}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  variant="ghost"
-                  size="lg"
-                >
-                  {dict.common.talkToUs}
-                </ButtonExternal>
-              </div>
-
-              <p className="mt-7 inline-flex items-center gap-2 text-sm text-ink-400">
-                <Users className="h-4 w-4 shrink-0 text-brand-green" />
-                <span>
-                  <span className="font-extrabold uppercase tracking-wide">
-                    {t.audienceLabel}:
-                  </span>{" "}
-                  {copy.audience}
-                </span>
-              </p>
+            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button href={contactHref} variant="primary" size="lg">
+                {t.cta}
+              </Button>
+              <ButtonExternal
+                href={`https://wa.me/${siteConfig.whatsapp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="outline"
+                size="lg"
+              >
+                {dict.common.talkToUs}
+              </ButtonExternal>
             </div>
 
-            {/* Maqueta del producto */}
-            <Reveal className="relative">
-              <div
-                aria-hidden
-                className={cn(
-                  "absolute -inset-5 rounded-[3rem] blur-3xl",
-                  isGreen
-                    ? "bg-gradient-to-br from-brand-green/25 to-brand-blue/20"
-                    : "bg-gradient-to-br from-brand-blue/25 to-brand-green/20",
-                )}
-              />
-              <div className="relative overflow-hidden rounded-[2rem] border border-white/12 bg-deep-900/85 p-6 shadow-2xl backdrop-blur">
-                <div className="bg-grid absolute inset-0 opacity-20" aria-hidden />
-                <div className="relative">
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={cn(
-                        "inline-flex h-14 w-14 items-center justify-center rounded-2xl text-white ring-1 ring-white/20",
-                        isGreen ? "bg-brand-green/80" : "bg-brand-blue/80",
-                      )}
-                    >
-                      <ProductIcon name={product.icon} className="h-7 w-7" />
+            <p className="mt-6 text-sm text-muted">
+              <span className="font-semibold text-heading">
+                {t.audienceLabel}:
+              </span>{" "}
+              {copy.audience}
+            </p>
+          </div>
+
+          {/* Maqueta del producto: una "pantalla" neutra con sus funciones reales */}
+          <Reveal className="mx-auto mt-14 max-w-5xl sm:mt-16">
+            <div className="rounded-3xl bg-card p-2.5 sm:p-3">
+              <div className="overflow-hidden rounded-[1.125rem] bg-surface ring-1 ring-line">
+                {/* Barra superior */}
+                <div className="flex items-center justify-between gap-4 border-b border-line px-4 py-3 sm:px-5">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                      <ProductIcon name={product.icon} className="h-5 w-5" />
                     </span>
-                    <span className="text-xs font-extrabold tabular-nums text-ink-400">
-                      {String(index + 1).padStart(2, "0")}
-                      <span className="opacity-50">
-                        /{String(products.length).padStart(2, "0")}
-                      </span>
+                    <span className="truncate text-sm font-medium text-heading">
+                      {copy.title}
                     </span>
                   </div>
-
-                  <div className="mt-6 space-y-3">
-                    <div className="h-2.5 w-2/3 rounded-full bg-gradient-to-r from-brand-green to-brand-blue" />
-                    <div className="h-2.5 w-1/3 rounded-full bg-white/12" />
+                  <div aria-hidden className="flex items-center gap-2">
+                    <span className="hidden h-7 w-40 rounded-full bg-card-soft sm:block" />
+                    <span className="h-7 w-7 rounded-full bg-card-soft" />
                   </div>
+                </div>
 
-                  <ul className="mt-6 space-y-2.5">
-                    {copy.features.slice(0, 4).map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex items-start gap-2.5 rounded-xl bg-white/[0.05] px-3 py-2.5 ring-1 ring-white/[0.07]"
-                      >
+                <div className="grid md:grid-cols-[13rem_1fr]">
+                  {/* Menú lateral */}
+                  <div
+                    aria-hidden
+                    className="hidden space-y-2 border-r border-line p-4 md:block"
+                  >
+                    <div className="h-8 rounded-lg bg-accent-soft" />
+                    {[70, 85, 60, 75, 55].map((w) => (
+                      <div key={w} className="flex h-8 items-center px-2">
                         <span
-                          className={cn(
-                            "mt-0.5 inline-flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full",
-                            isGreen
-                              ? "bg-brand-green/25 text-brand-green"
-                              : "bg-brand-blue/25 text-brand-blue-light",
-                          )}
-                        >
-                          <Check
-                            className="h-3 w-3"
-                            strokeWidth={3}
-                            aria-hidden
-                          />
-                        </span>
-                        <span className="text-[0.82rem] leading-snug text-ink-200">
-                          {feature}
-                        </span>
-                      </li>
+                          className="h-2 rounded-full bg-card-soft"
+                          style={{ width: `${w}%` }}
+                        />
+                      </div>
                     ))}
-                  </ul>
+                  </div>
 
-                  <div className="mt-6 flex items-center gap-2 rounded-xl bg-brand-green/10 px-4 py-3 ring-1 ring-brand-green/25">
-                    <PlayCircle className="h-5 w-5 shrink-0 text-brand-green" />
-                    <span className="text-sm font-bold text-white">
-                      {t.detail.demoNote}
-                    </span>
+                  {/* Contenido */}
+                  <div className="p-4 sm:p-6">
+                    <div aria-hidden className="grid grid-cols-3 gap-3">
+                      {[0, 1, 2].map((k) => (
+                        <div
+                          key={k}
+                          className="rounded-2xl bg-card-soft p-3 sm:p-4"
+                        >
+                          <span className="block h-2 w-1/2 rounded-full bg-line" />
+                          <span className="mt-3 block h-4 w-3/4 rounded-full bg-line sm:h-5" />
+                        </div>
+                      ))}
+                    </div>
+
+                    <ul className="mt-4 divide-y divide-line rounded-2xl ring-1 ring-line">
+                      {copy.features.slice(0, 4).map((feature) => (
+                        <li
+                          key={feature}
+                          className="flex items-start gap-3 px-4 py-3.5 text-left"
+                        >
+                          <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
+                            <Check
+                              className="h-3 w-3"
+                              strokeWidth={3}
+                              aria-hidden
+                            />
+                          </span>
+                          <span className="text-sm leading-snug text-body">
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-4 flex items-center gap-2.5 rounded-2xl bg-card-soft px-4 py-3">
+                      <PlayCircle
+                        className="h-5 w-5 shrink-0 text-accent"
+                        aria-hidden
+                      />
+                      <span className="text-left text-sm font-medium text-heading">
+                        {t.detail.demoNote}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </Reveal>
-          </div>
+            </div>
+          </Reveal>
         </Container>
       </section>
 
-      {/* ============= BENEFICIOS (overlap) ============= */}
-      <div className="relative z-10 -mt-16">
-        <Container>
-          <div className="grid gap-4 rounded-3xl border border-line bg-card p-4 shadow-card md:grid-cols-3">
-            {copy.benefits.map((benefit, i) => (
-              <div
-                key={benefit.title}
-                className="rounded-2xl p-5 transition-colors hover:bg-accent-soft/40"
-              >
-                <span
-                  className={cn(
-                    "inline-flex h-9 w-9 items-center justify-center rounded-xl text-sm font-extrabold",
-                    isGreen
-                      ? "bg-brand-green/15 text-accent"
-                      : "bg-brand-blue/15 text-brand-blue dark:text-brand-blue-light",
-                  )}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h2 className="mt-4 text-base font-extrabold text-heading">
-                  {benefit.title}
-                </h2>
-                <p className="mt-1.5 text-sm leading-relaxed text-body">
-                  {benefit.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </div>
-
-      {/* ============= QUÉ INCLUYE ============= */}
-      <Section tone="mesh">
-        <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-          <Reveal className="lg:sticky lg:top-28">
+      {/* ============= EN QUÉ CONSISTE + BENEFICIOS ============= */}
+      <Section tone="light">
+        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+          <div>
             <Eyebrow>{t.detail.overviewTitle}</Eyebrow>
-            <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-heading sm:text-4xl">
+            <h2 className="mt-3 text-balance text-[clamp(2rem,3.6vw,3rem)] font-medium leading-[1.15] text-heading">
               {copy.title}
             </h2>
-            <p className="mt-6 text-lg leading-relaxed text-body">
-              {copy.description}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button
-                href={contactHref}
-                variant={isGreen ? "primary" : "secondary"}
-              >
-                {t.cta}
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button
-                href={localizedHref(locale, "productos")}
-                variant="outline"
-              >
-                {t.detail.allProducts}
-              </Button>
-            </div>
-          </Reveal>
-
-          <div>
-            <h3 className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-[0.14em] text-muted">
-              <Layers className="h-4 w-4" aria-hidden />
-              {t.detail.modulesTitle}
-            </h3>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {copy.modules.map((module, i) => (
-                <Reveal
-                  key={module}
-                  delay={(i % 2) * 80}
-                  className="group flex items-start gap-3 rounded-2xl border border-line bg-card p-5 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-green/40 hover:shadow-card-hover"
-                >
-                  <span
-                    className={cn(
-                      "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors",
-                      isGreen
-                        ? "bg-brand-green/15 text-accent group-hover:bg-brand-green group-hover:text-deep-950"
-                        : "bg-brand-blue/15 text-brand-blue group-hover:bg-brand-blue group-hover:text-white dark:text-brand-blue-light",
-                    )}
-                  >
-                    <Check className="h-4 w-4" strokeWidth={3} aria-hidden />
-                  </span>
-                  <p className="text-sm font-bold leading-snug text-heading">
-                    {module}
-                  </p>
-                </Reveal>
-              ))}
-            </div>
+          </div>
+          <div className="space-y-5 text-lg leading-relaxed text-body">
+            <p>{copy.intro}</p>
+            <p className="text-muted">{copy.description}</p>
           </div>
         </div>
+
+        <ul className="mt-14 grid gap-4 md:grid-cols-3">
+          {copy.benefits.map((benefit, i) => (
+            <li
+              key={benefit.title}
+              className="rounded-3xl bg-surface-soft p-8 sm:p-10"
+            >
+              <span className="text-sm font-semibold tabular-nums text-accent">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mt-8 text-[1.75rem] font-light leading-tight text-heading">
+                {benefit.title}
+              </h3>
+              <p className="mt-4 text-sm leading-relaxed text-body">
+                {benefit.description}
+              </p>
+            </li>
+          ))}
+        </ul>
+
+        <MediaTile
+          size="wide"
+          className="mt-4"
+          image={product.image}
+          kicker={copy.title}
+          title={copy.tagline}
+          description={t.detail.demoNote}
+          primary={{ label: t.cta, href: contactHref }}
+          secondary={{ label: t.detail.allProducts, href: productsHref }}
+        />
+      </Section>
+
+      {/* ============= MÓDULOS ============= */}
+      <Section tone="muted">
+        <SectionHeading
+          eyebrow={t.featuresTitle}
+          title={t.detail.modulesTitle}
+          size="lg"
+        />
+        <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {copy.modules.map((module) => (
+            <li key={module} className="rounded-3xl bg-card p-8">
+              <Check
+                className="h-6 w-6 text-accent"
+                strokeWidth={2}
+                aria-hidden
+              />
+              <p className="mt-6 text-lg font-medium leading-snug text-heading">
+                {module}
+              </p>
+            </li>
+          ))}
+        </ul>
       </Section>
 
       {/* ============= CÓMO LO ENTREGAMOS ============= */}
-      <Section tone="dark">
+      <Section tone="light">
         <SectionHeading
           eyebrow={t.whyEyebrow}
           title={t.whyTitle}
           subtitle={t.whySubtitle}
-          tone="dark"
+          size="lg"
         />
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {t.why.map((item, i) => (
-            <Reveal
-              key={item.title}
-              delay={(i % 4) * 90}
-              className="group relative h-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-7 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-green/40 hover:bg-white/[0.06]"
-            >
-              <span
-                aria-hidden
-                className="pointer-events-none absolute -right-4 -top-6 text-7xl font-extrabold text-white/[0.05] transition-colors group-hover:text-brand-green/10"
+        <ul className="mt-12 grid gap-4 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
+          {t.why.map((item, i) => {
+            const Icon = whyIcons[i % whyIcons.length];
+            return (
+              <li
+                key={item.title}
+                className="rounded-3xl bg-surface-soft p-8 sm:p-10"
               >
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-green to-brand-blue text-sm font-extrabold text-deep-950">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3 className="relative mt-5 text-base font-extrabold text-white">
-                {item.title}
-              </h3>
-              <p className="relative mt-2 text-sm leading-relaxed text-ink-300">
-                {item.description}
-              </p>
-            </Reveal>
-          ))}
-        </div>
+                <Icon
+                  className="h-7 w-7 text-accent"
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
+                <h3 className="mt-8 text-[1.75rem] font-light leading-tight text-heading">
+                  {item.title}
+                </h3>
+                <p className="mt-4 text-sm leading-relaxed text-body">
+                  {item.description}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
       </Section>
 
       {/* ============= FAQ ============= */}
-      <Section tone="light">
+      <Section tone="muted">
         <SectionHeading
-          eyebrow="FAQ"
           title={t.detail.faqsTitle}
+          size="lg"
           className="mb-12"
         />
-        <div className="mx-auto max-w-3xl space-y-10">
+        <div className="mx-auto max-w-3xl space-y-12">
           <Accordion items={copy.faqs} />
           <div>
-            <h3 className="mb-4 text-lg font-extrabold text-heading">
+            <h3 className="mb-5 text-xl font-medium text-heading">
               {t.faqsTitle}
             </h3>
             <Accordion items={t.faqs} />
@@ -416,45 +367,24 @@ export default async function ProductDetailPage({
       </Section>
 
       {/* ============= RELACIONADOS ============= */}
-      <Section tone="mesh">
+      <Section tone="light">
         <SectionHeading
           eyebrow={t.intro.eyebrow}
           title={t.detail.relatedTitle}
+          size="lg"
         />
-        <div className="mt-12 grid gap-6 sm:grid-cols-3">
-          {related.map((item, i) => {
-            const relatedCopy = item[locale];
-            const relatedGreen = item.accent === "green";
-            return (
-              <Reveal key={item.slug} delay={(i % 3) * 90} className="h-full">
-                <Link
-                  href={localizedHref(locale, `productos/${item.slug}`)}
-                  className="group flex h-full flex-col rounded-3xl border border-line bg-card p-6 shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-green/40 hover:shadow-card-hover"
-                >
-                  <span
-                    className={cn(
-                      "inline-flex h-12 w-12 items-center justify-center rounded-2xl transition-colors duration-300",
-                      relatedGreen
-                        ? "bg-brand-green/12 text-accent group-hover:bg-brand-green group-hover:text-deep-950"
-                        : "bg-brand-blue/12 text-brand-blue group-hover:bg-brand-blue group-hover:text-white dark:text-brand-blue-light",
-                    )}
-                  >
-                    <ProductIcon name={item.icon} className="h-6 w-6" />
-                  </span>
-                  <h3 className="mt-5 text-lg font-extrabold text-heading">
-                    {relatedCopy.title}
-                  </h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-body">
-                    {relatedCopy.tagline}
-                  </p>
-                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-extrabold text-heading transition-colors group-hover:text-accent">
-                    {t.detail.viewProduct}
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </span>
-                </Link>
-              </Reveal>
-            );
-          })}
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {related.map((item, i) => (
+            <Reveal key={item.slug} delay={(i % 3) * 90} className="h-full">
+              <ProductCard
+                product={item}
+                locale={locale}
+                ctaLabel={t.detail.viewProduct}
+                ctaHref={localizedHref(locale, `productos/${item.slug}`)}
+                badgeLabel={item.badge ? dict.badges[item.badge] : undefined}
+              />
+            </Reveal>
+          ))}
         </div>
       </Section>
 
@@ -464,7 +394,7 @@ export default async function ProductDetailPage({
         subtitle={t.detail.ctaSubtitle}
         primaryLabel={t.cta}
         secondaryLabel={t.detail.allProducts}
-        secondaryHref={localizedHref(locale, "productos")}
+        secondaryHref={productsHref}
       />
     </>
   );

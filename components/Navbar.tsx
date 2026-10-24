@@ -8,15 +8,12 @@ import {
   X,
   ArrowRight,
   ChevronDown,
-  Clock,
-  Mail,
   Phone,
   Sparkles,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
-import { InstagramIcon, FacebookIcon, TiktokIcon } from "./SocialIcons";
 import { Container } from "./ui/Container";
 import { buttonClasses } from "./ui/Button";
 import { iconRegistry, fallbackIcon } from "./icons";
@@ -119,81 +116,19 @@ export function Navbar({
     return path === "" ? pathname === href : pathname.startsWith(href);
   };
 
-  const socials = [
-    { href: siteConfig.social.instagram, label: "Instagram", Icon: InstagramIcon },
-    { href: siteConfig.social.facebook, label: "Facebook", Icon: FacebookIcon },
-    { href: siteConfig.social.tiktok, label: "TikTok", Icon: TiktokIcon },
-  ];
 
   return (
     <header ref={headerRef} className="fixed inset-x-0 top-0 z-50">
-      {/* Barra superior: horario, contacto y redes */}
+      {/* Fila principal + paneles del mega menú: barra blanca de 64 px, como
+          en meta.com. El contacto y las redes viven en el footer. */}
       <div
         className={cn(
-          "overflow-hidden bg-surface-soft text-body transition-all duration-300",
-          scrolled
-            ? "max-h-0 border-transparent opacity-0"
-            : "max-h-14 border-b border-line opacity-100",
+          "relative border-b bg-white transition-colors duration-300 dark:bg-deep-950",
+          scrolled || openPanel !== null ? "border-line" : "border-transparent",
         )}
       >
         <Container>
-          <div className="flex h-10 items-center justify-between gap-3 text-xs font-bold">
-            <span className="hidden items-center gap-1.5 truncate whitespace-nowrap sm:inline-flex">
-              <Clock className="h-3.5 w-3.5 shrink-0 text-muted" />
-              <span className="hidden lg:inline">{siteConfig.hours[locale]}</span>
-              <span className="inline lg:hidden">
-                {locale === "es"
-                  ? "Lun–Vie 7–17 · Sáb 8–16"
-                  : "Mon–Fri 7–17 · Sat 8–16"}
-              </span>
-            </span>
-            <div className="flex flex-1 items-center justify-end gap-1">
-              <a
-                href={`mailto:${siteConfig.email}`}
-                className="mr-2 hidden items-center gap-1.5 whitespace-nowrap transition-colors hover:text-heading lg:inline-flex"
-              >
-                <Mail className="h-3.5 w-3.5 text-muted" />
-                {siteConfig.email}
-              </a>
-              <a
-                href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
-                className="mr-1 inline-flex h-8 items-center gap-1.5 whitespace-nowrap px-1 transition-colors hover:text-heading"
-              >
-                <Phone className="h-3.5 w-3.5 text-muted" />
-                <span>{siteConfig.phoneDisplay}</span>
-              </a>
-              <span className="mx-1 hidden h-4 w-px bg-line-strong sm:block" />
-              {socials.map(({ href, label, Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-card-soft hover:text-heading"
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
-              ))}
-            </div>
-          </div>
-        </Container>
-      </div>
-
-      {/* Fila principal + paneles del mega menú. Va siempre sólida y blanca:
-          los heros son claros y una cabecera transparente con texto blanco
-          dejaría de leerse. */}
-      <div
-        className={cn(
-          "relative transition-all duration-300",
-          "border-b bg-white/90 backdrop-blur-lg supports-[backdrop-filter]:bg-white/80 dark:bg-deep-950/90 dark:supports-[backdrop-filter]:bg-deep-950/80",
-          scrolled || openPanel !== null
-            ? "border-line shadow-sm shadow-deep-900/5"
-            : "border-line",
-        )}
-      >
-        <Container>
-          <div className="flex h-18 items-center justify-between gap-4">
+          <div className="flex h-16 items-center justify-between gap-4">
             <Link
               href={localizedHref(locale)}
               aria-label="Engynex Colombia"
@@ -204,8 +139,8 @@ export function Navbar({
                   desborde (el `!` gana al alto en línea del componente). */}
               <Logo
                 variant="adaptive"
-                height={34}
-                className="h-7! w-auto sm:h-[34px]!"
+                height={28}
+                className="h-6! w-auto sm:h-7!"
               />
             </Link>
 
@@ -215,10 +150,10 @@ export function Navbar({
                 const panelKey = panelForRoute[route.key];
                 const active = isActive(route.path);
                 const itemClass = cn(
-                  "inline-flex h-10 items-center gap-1 rounded-full px-2.5 text-sm font-bold transition-colors xl:px-4",
+                  "inline-flex h-9 items-center gap-1 rounded-full px-3 text-[0.9rem] font-medium text-heading transition-colors xl:px-4",
                   active
-                    ? "text-accent"
-                    : "text-body hover:bg-card-soft hover:text-heading dark:hover:bg-white/5",
+                    ? "bg-card-soft"
+                    : "hover:bg-card-soft dark:hover:bg-white/5",
                 );
 
                 if (!panelKey) {
@@ -332,9 +267,9 @@ export function Navbar({
                       href={localizedHref(locale, route.path)}
                       onClick={closeMobile}
                       className={cn(
-                        "rounded-2xl px-4 py-3 text-base font-bold transition-colors",
+                        "rounded-2xl px-4 py-3 text-base font-medium transition-colors",
                         active
-                          ? "bg-brand-green/10 text-brand-green-dark dark:text-brand-green"
+                          ? "bg-surface-soft text-heading"
                           : "text-deep-800 hover:bg-deep-900/5 dark:text-ink-200 dark:hover:bg-white/5",
                       )}
                     >
@@ -355,9 +290,9 @@ export function Navbar({
                       }
                       aria-expanded={expanded}
                       className={cn(
-                        "flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-base font-bold transition-colors",
+                        "flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-base font-medium transition-colors",
                         active || expanded
-                          ? "bg-brand-green/10 text-brand-green-dark dark:text-brand-green"
+                          ? "bg-surface-soft text-heading"
                           : "text-deep-800 hover:bg-deep-900/5 dark:text-ink-200 dark:hover:bg-white/5",
                       )}
                     >
@@ -383,7 +318,7 @@ export function Navbar({
                         <div className="space-y-4 px-1 pb-3 pt-2">
                           {panel.columns.map((column) => (
                             <div key={column.key}>
-                              <p className="px-3 text-[0.7rem] font-extrabold uppercase tracking-[0.14em] text-slate-400 dark:text-ink-400">
+                              <p className="px-3 text-sm font-medium text-muted">
                                 {column.title}
                               </p>
                               <ul className="mt-1">
@@ -402,7 +337,7 @@ export function Navbar({
                           <Link
                             href={panel.href}
                             onClick={closeMobile}
-                            className="mx-3 inline-flex items-center gap-1.5 text-sm font-extrabold text-brand-blue dark:text-brand-blue-light"
+                            className="mx-3 inline-flex items-center gap-1.5 text-sm font-semibold text-accent"
                           >
                             {panel.viewAllLabel}
                             <ArrowRight className="h-4 w-4" />
@@ -432,9 +367,9 @@ export function Navbar({
                 />
                 <a
                   href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
-                  className="inline-flex h-11 items-center gap-2 rounded-full px-3 text-sm font-bold text-deep-800 transition-colors hover:text-brand-green-dark dark:text-ink-200 dark:hover:text-brand-green"
+                  className="inline-flex h-11 items-center gap-2 rounded-full px-3 text-sm font-medium text-heading transition-colors hover:text-accent"
                 >
-                  <Phone className="h-4 w-4 text-brand-green" />
+                  <Phone className="h-4 w-4 text-action" />
                   {siteConfig.phoneDisplay}
                 </a>
               </div>
@@ -471,7 +406,7 @@ function MegaPanel({
           <div className="grid gap-x-6 gap-y-7 p-6 lg:grid-cols-3 xl:grid-cols-[repeat(3,minmax(0,1fr))_18rem] xl:p-7">
             {panel.columns.map((column) => (
               <div key={column.key}>
-                <p className="px-2.5 text-[0.7rem] font-extrabold uppercase tracking-[0.14em] text-slate-400 dark:text-ink-400">
+                <p className="px-2.5 text-sm font-medium text-muted">
                   {column.title}
                 </p>
                 <ul className="mt-2 space-y-0.5">
@@ -485,21 +420,16 @@ function MegaPanel({
             ))}
 
             {/* Tarjeta destacada */}
-            <div className="relative overflow-hidden rounded-2xl bg-deep-950 p-6 lg:col-span-3 xl:col-span-1">
-              <div aria-hidden className="pointer-events-none absolute inset-0">
-                <div className="bg-grid absolute inset-0 opacity-30" />
-                <div className="absolute -right-8 -top-10 h-40 w-40 rounded-full bg-brand-green/25 blur-[70px]" />
-                <div className="absolute -bottom-10 -left-8 h-40 w-40 rounded-full bg-brand-blue/25 blur-[70px]" />
-              </div>
+            <div className="relative overflow-hidden rounded-3xl bg-surface-soft p-6 lg:col-span-3 xl:col-span-1">
               <div className="relative flex h-full flex-col">
-                <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[0.7rem] font-extrabold uppercase tracking-wide text-brand-green-light ring-1 ring-white/15">
+                <span className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-accent">
                   <Sparkles className="h-3.5 w-3.5" />
                   {panel.featured.eyebrow}
                 </span>
-                <p className="mt-4 text-lg font-extrabold leading-snug text-white">
+                <p className="mt-3 text-xl font-medium leading-snug text-heading">
                   {panel.featured.title}
                 </p>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-300">
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
                   {panel.featured.desc}
                 </p>
                 <Link
@@ -521,7 +451,7 @@ function MegaPanel({
             <Link
               href={panel.href}
               onClick={onNavigate}
-              className="inline-flex shrink-0 items-center gap-1.5 text-sm font-extrabold text-brand-blue transition-colors hover:text-brand-green-dark dark:text-brand-blue-light dark:hover:text-brand-green"
+              className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-accent hover:underline"
             >
               {panel.viewAllLabel}
               <ArrowRight className="h-4 w-4" />
@@ -543,31 +473,27 @@ function MenuLink({
   compact?: boolean;
 }) {
   const Icon = iconRegistry[item.icon] ?? fallbackIcon;
-  const isGreen = item.accent === "green";
 
   return (
     <Link
       href={item.href}
       onClick={onNavigate}
-      className="group flex items-center gap-3 rounded-2xl p-2.5 transition-colors hover:bg-brand-green/[0.08] dark:hover:bg-white/5"
+      className="group flex items-center gap-3 rounded-2xl p-2.5 transition-colors hover:bg-surface-soft dark:hover:bg-white/5"
     >
       <span
         className={cn(
-          "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-200",
-          isGreen
-            ? "bg-brand-green/12 text-brand-green-dark group-hover:bg-brand-green group-hover:text-deep-950 dark:bg-brand-green/15 dark:text-brand-green"
-            : "bg-brand-blue/12 text-brand-blue group-hover:bg-brand-blue group-hover:text-white dark:bg-brand-blue/20 dark:text-brand-blue-light",
+          "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-soft text-action transition-colors duration-200 group-hover:bg-card dark:text-accent",
         )}
       >
         <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="text-sm font-extrabold leading-tight text-deep-900 dark:text-white">
+          <span className="text-sm font-medium leading-tight text-heading">
             {item.title}
           </span>
           {item.badge && (
-            <span className="shrink-0 rounded-full bg-brand-green/15 px-2 py-0.5 text-[0.62rem] font-extrabold uppercase tracking-wide text-brand-green-dark dark:text-brand-green">
+            <span className="shrink-0 rounded-full bg-surface-soft px-2 py-0.5 text-[0.68rem] font-semibold text-heading">
               {item.badge}
             </span>
           )}

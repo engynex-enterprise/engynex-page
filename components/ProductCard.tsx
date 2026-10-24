@@ -1,98 +1,86 @@
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { ProductIcon } from "./ProductIcon";
 import type { Product } from "@/content/products";
 import type { Locale } from "@/i18n/config";
+import { buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
+/**
+ * Tarjeta de producto al estilo de la tienda de meta.com: superficie gris o
+ * blanca con radio de 24 px, sin bordes ni sombras; icono azul, título en peso
+ * medio, una línea de apoyo, lista breve y un botón píldora.
+ */
 export function ProductCard({
   product,
   locale,
   ctaLabel,
   ctaHref,
-  audienceLabel,
   badgeLabel,
+  tone = "soft",
 }: {
   product: Product;
   locale: Locale;
   ctaLabel: string;
   /** Enlace a la ficha del producto. */
   ctaHref: string;
-  audienceLabel: string;
+  /** Se conserva por compatibilidad; la audiencia ya no se muestra en la tarjeta. */
+  audienceLabel?: string;
   badgeLabel?: string;
+  /** `soft` = gris sobre blanco; `card` = blanco sobre gris. */
+  tone?: "soft" | "card";
 }) {
   const copy = product[locale];
-  const isGreen = product.accent === "green";
 
   return (
     <article
       id={product.slug}
-      className="group flex h-full scroll-mt-32 flex-col overflow-hidden rounded-3xl border border-line bg-card p-6 shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-green/40 hover:shadow-card-hover"
+      className={cn(
+        "flex h-full scroll-mt-32 flex-col rounded-3xl p-7 sm:p-8",
+        tone === "soft" ? "bg-card-soft" : "bg-card",
+      )}
     >
       <div className="flex items-start justify-between gap-3">
-        <span
-          className={cn(
-            "inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl transition-colors duration-300",
-            isGreen
-              ? "bg-brand-green/12 text-accent group-hover:bg-brand-green group-hover:text-deep-950"
-              : "bg-brand-blue/12 text-brand-blue group-hover:bg-brand-blue group-hover:text-white dark:text-brand-blue-light",
-          )}
-        >
-          <ProductIcon name={product.icon} className="h-7 w-7" />
-        </span>
+        <ProductIcon name={product.icon} className="h-8 w-8 text-accent" />
         {badgeLabel && (
-          <span className="rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-2.5 py-1 text-[0.65rem] font-extrabold uppercase tracking-wide text-deep-950">
+          <span
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-semibold text-heading",
+              tone === "soft" ? "bg-card" : "bg-card-soft",
+            )}
+          >
             {badgeLabel}
           </span>
         )}
       </div>
 
-      <h3 className="mt-5 text-lg font-extrabold text-heading">{copy.title}</h3>
-      <p
-        className={cn(
-          "mt-1.5 text-sm font-bold",
-          isGreen ? "text-accent" : "text-brand-blue dark:text-brand-blue-light",
-        )}
-      >
+      <h3 className="mt-8 text-xl font-medium leading-snug text-heading">
+        {copy.title}
+      </h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted sm:min-h-[2lh]">
         {copy.tagline}
       </p>
-      <p className="mt-3 text-sm leading-relaxed text-body">
-        {copy.description}
-      </p>
 
-      <ul className="mt-5 flex-1 space-y-2">
-        {copy.features.map((feature) => (
-          <li key={feature} className="flex items-start gap-2">
-            <span
-              className={cn(
-                "mt-0.5 inline-flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full",
-                isGreen
-                  ? "bg-brand-green/15 text-accent"
-                  : "bg-brand-blue/15 text-brand-blue dark:text-brand-blue-light",
-              )}
-            >
-              <Check className="h-3 w-3" strokeWidth={3} aria-hidden />
-            </span>
-            <span className="text-[0.82rem] leading-snug text-body">
-              {feature}
-            </span>
+      <ul className="mt-6 flex-1 space-y-2.5 border-t border-line pt-6">
+        {copy.features.slice(0, 3).map((feature) => (
+          <li key={feature} className="text-sm leading-snug text-body">
+            {feature}
           </li>
         ))}
       </ul>
 
-      <div className="mt-5 border-t border-line pt-4">
-        <p className="text-xs text-muted">
-          <span className="font-extrabold uppercase tracking-wide">
-            {audienceLabel}:
-          </span>{" "}
-          {copy.audience}
-        </p>
+      <div className="mt-8">
         <Link
           href={ctaHref}
-          className="mt-3 inline-flex items-center gap-1.5 text-sm font-extrabold text-heading transition-colors hover:text-accent"
+          aria-label={`${ctaLabel}: ${copy.title}`}
+          className={buttonClasses(
+            "primary",
+            "md",
+            "h-10 px-5",
+          )}
         >
           {ctaLabel}
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          <ChevronRight className="-mr-1 h-4 w-4" aria-hidden />
         </Link>
       </div>
     </article>

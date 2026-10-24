@@ -9,7 +9,9 @@
    adicionales pizarra #273B47, acero #7E96A5 y niebla #F3F8FB.
    El verde y el azul no alcanzan contraste AA como texto sobre blanco: se usan
    como fondos, botones e iconos, y para texto van sus variantes `-dark`.
-   Tipografía: OpenDyslexic (lectura fácil).
+   Lenguaje visual inspirado en meta.com: fotografía a sangre, tarjetas de
+   radio 24 px, botones píldora, secciones blancas y gris #F1F4F7, titulares
+   en peso medio y nada de decoración. Tipografía: Figtree.
    ========================================================================== */
 
 @theme {
@@ -50,10 +52,14 @@
   --color-ink-400: #787d8a;
 
   /* Tipografía — cuerpo Nunito, títulos OpenDyslexic */
-  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, -apple-system,
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-display: var(--font-opendyslexic), var(--font-nunito), ui-sans-serif,
-    system-ui, sans-serif;
+  --font-display: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+
+  /* Acción (botones y enlaces): el azul Engynex en el tono que admite texto
+     blanco, en el papel que tiene el azul en meta.com. */
+  --color-action: #0670b8;
+  --color-action-hover: #055d99;
 
   /* Radios y sombras */
   --radius-4xl: 2rem;
@@ -214,6 +220,30 @@
   }
 }
 
+/* Hero: las capas de texto entran escalonadas cuando su slide se activa. El
+   retardo de cada capa llega en línea desde el componente. */
+.hero-layer {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.8s ease, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.swiper-slide-active .hero-layer {
+  opacity: 1;
+  transform: none;
+}
+/* Antes de que Swiper se inicialice (SSR, sin JS) el primer slide ya se lee. */
+.swiper:not(.swiper-initialized) .swiper-slide:first-child .hero-layer {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-layer {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 /* Barra de progreso del slide activo */
 @keyframes progressGrow {
   from {
@@ -251,22 +281,22 @@
 
   /* Superficies */
   --surface: #ffffff;
-  --surface-soft: #f3f8fb;
+  --surface-soft: #f1f4f7;
   --card: #ffffff;
-  --card-soft: #eaf2f7;
+  --card-soft: #f1f4f7;
 
   /* Bordes */
-  --line: color-mix(in oklab, #273b47 12%, transparent);
-  --line-strong: color-mix(in oklab, #273b47 20%, transparent);
+  --line: #dee3e9;
+  --line-strong: #cbd2d9;
 
   /* Texto */
-  --heading: #273b47;
-  --body: #4a5e6b;
-  --muted: #5b7282;
+  --heading: #0a1317;
+  --body: #1c2b33;
+  --muted: #465a69;
 
   /* Acento legible sobre fondo claro */
-  --accent: #557a1c;
-  --accent-soft: color-mix(in oklab, #98ca3f 18%, transparent);
+  --accent: #0670b8;
+  --accent-soft: #e7f1fa;
 
   --hue-green: #557a1c;
   --hue-blue: #0670b8;
@@ -301,8 +331,8 @@
   --body: #b9c8d1;
   --muted: #7e96a5;
 
-  --accent: #98ca3f;
-  --accent-soft: color-mix(in oklab, #98ca3f 18%, transparent);
+  --accent: #3fadf0;
+  --accent-soft: color-mix(in oklab, #3fadf0 16%, transparent);
 
   --hue-green: #98ca3f;
   --hue-blue: #3fadf0;
@@ -339,21 +369,15 @@ body {
   transition: background-color 0.25s ease;
 }
 
-/* Títulos con OpenDyslexic (mezcla con Nunito del cuerpo).
-   OpenDyslexic tiene una altura-x grande y se ve enorme: normalizamos su
-   tamaño visual con font-size-adjust para equilibrarlo con Nunito.
-
-   El `:not(.font-sans)` es la vía de escape: esta regla va fuera de capa y por
-   tanto le gana a cualquier utilidad de Tailwind, así que un título que deba ir
-   en la tipografía de cuerpo (el titular del hero) se marca con `font-sans`. */
-h1:not(.font-sans),
-h2:not(.font-sans),
-h3:not(.font-sans),
+/* Titulares: Figtree en peso medio y tracking ligeramente cerrado, como en
+   meta.com. El peso y el tamaño los pone cada componente. */
+h1,
+h2,
+h3,
 .font-display {
   font-family: var(--font-display);
-  font-size-adjust: 0.47;
   letter-spacing: -0.015em;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 ::selection {

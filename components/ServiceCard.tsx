@@ -1,68 +1,63 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
-import { ServiceIcon } from "./ServiceIcon";
+import { ChevronRight } from "lucide-react";
 import { localizedHref } from "@/lib/site";
 import type { Service } from "@/content/services";
 import type { Locale } from "@/i18n/config";
 import { cn } from "@/lib/utils";
 
+/**
+ * Tarjeta de servicio al estilo de las fichas de producto de meta.com:
+ * superficie lisa con radio de 24 px, fotografía arriba y texto sobrio debajo.
+ * Sin bordes ni sombras; `tone` elige la superficie según el fondo de la
+ * sección (gris sobre blanco o blanco sobre gris).
+ */
 export function ServiceCard({
   service,
   locale,
   ctaLabel,
+  tone = "soft",
 }: {
   service: Service;
   locale: Locale;
   ctaLabel: string;
+  /** `soft` = gris (para secciones blancas); `white` = blanco (para secciones grises). */
+  tone?: "soft" | "white";
 }) {
   const copy = service[locale];
-  const isGreen = service.accent === "green";
 
   return (
     <Link
       href={localizedHref(locale, `servicios/${service.slug}`)}
-      className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-card shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-green/40 hover:shadow-card-hover"
+      className={cn(
+        "group flex h-full flex-col overflow-hidden rounded-3xl transition-shadow duration-300 hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
+        tone === "soft" ? "bg-surface-soft" : "bg-card",
+      )}
     >
-      {/* Imagen */}
-      <div className="relative aspect-[16/10] overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden">
         <Image
           src={service.image}
           alt={copy.title}
           fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-deep-950/88 via-deep-950/25 to-transparent" />
-        <span
-          className={cn(
-            "absolute left-4 top-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg ring-1 ring-white/30 backdrop-blur transition-transform duration-300 group-hover:scale-110",
-            isGreen ? "bg-brand-green/85" : "bg-brand-blue/85",
-          )}
-        >
-          <ServiceIcon name={service.icon} className="h-6 w-6" />
-        </span>
-        <h3 className="absolute bottom-4 left-4 right-4 text-lg font-extrabold text-white drop-shadow">
-          {copy.title}
-        </h3>
       </div>
 
-      {/* Contenido */}
-      <div className="flex flex-1 flex-col p-6">
-        <p
-          className={cn(
-            "text-sm font-bold",
-            isGreen ? "text-accent" : "text-brand-blue dark:text-brand-blue-light",
-          )}
-        >
-          {copy.tagline}
-        </p>
-        <p className="mt-2 flex-1 text-sm leading-relaxed text-body">
+      <div className="flex flex-1 flex-col p-6 sm:p-7">
+        <p className="text-sm font-semibold text-accent">{copy.tagline}</p>
+        <h3 className="mt-2 text-xl font-medium leading-snug text-heading">
+          {copy.title}
+        </h3>
+        <p className="mt-3 flex-1 text-sm leading-relaxed text-body">
           {copy.description}
         </p>
-        <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-heading transition-colors group-hover:text-accent">
+        <span className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-action">
           {ctaLabel}
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          <ChevronRight
+            className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+            aria-hidden
+          />
         </span>
       </div>
     </Link>

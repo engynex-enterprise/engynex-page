@@ -72,7 +72,7 @@ export function WhatsAppWidget({ chat }: { chat: Dictionary["chat"] }) {
             <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#075E54] bg-[#25D366]" />
           </span>
           <div className="flex-1">
-            <p className="font-extrabold leading-tight">{chat.title}</p>
+            <p className="font-semibold leading-tight">{chat.title}</p>
             <p className="text-xs text-white/80">{chat.status}</p>
           </div>
           <button

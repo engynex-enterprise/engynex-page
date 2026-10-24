@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -9,37 +9,48 @@ export interface AccordionItem {
   a: string;
 }
 
+/**
+ * Preguntas frecuentes al estilo de meta.com: lista limpia separada por
+ * filetes, pregunta en peso medio y un botón circular gris que gira a "×".
+ */
 export function Accordion({ items }: { items: AccordionItem[] }) {
   const [open, setOpen] = useState<number | null>(0);
+  const baseId = useId();
 
   return (
-    <div className="divide-y divide-line overflow-hidden rounded-3xl border border-line bg-card shadow-card">
+    <div className="divide-y divide-line border-y border-line">
       {items.map((item, i) => {
         const isOpen = open === i;
+        const panelId = `${baseId}-panel-${i}`;
+        const buttonId = `${baseId}-button-${i}`;
         return (
           <div key={item.q}>
-            <button
-              type="button"
-              onClick={() => setOpen(isOpen ? null : i)}
-              aria-expanded={isOpen}
-              className={cn(
-                "flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition-colors",
-                isOpen ? "bg-accent-soft/40" : "hover:bg-accent-soft/30",
-              )}
-            >
-              <span className="text-base font-extrabold text-heading">
-                {item.q}
-              </span>
-              <span
-                className={cn(
-                  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-green/15 text-accent transition-transform duration-300",
-                  isOpen && "rotate-45",
-                )}
+            <h3>
+              <button
+                id={buttonId}
+                type="button"
+                onClick={() => setOpen(isOpen ? null : i)}
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                className="group flex w-full items-center justify-between gap-6 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
-                <Plus className="h-5 w-5" strokeWidth={2.5} />
-              </span>
-            </button>
+                <span className="text-lg font-medium text-heading">
+                  {item.q}
+                </span>
+                <span
+                  className={cn(
+                    "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-card-soft text-heading transition-[transform,background-color] duration-300 group-hover:bg-line dark:bg-white/10",
+                    isOpen && "rotate-45",
+                  )}
+                >
+                  <Plus className="h-5 w-5" strokeWidth={2} aria-hidden />
+                </span>
+              </button>
+            </h3>
             <div
+              id={panelId}
+              role="region"
+              aria-labelledby={buttonId}
               className={cn(
                 "grid transition-all duration-300 ease-in-out",
                 isOpen
@@ -48,7 +59,9 @@ export function Accordion({ items }: { items: AccordionItem[] }) {
               )}
             >
               <div className="overflow-hidden">
-                <p className="px-6 pb-6 leading-relaxed text-body">{item.a}</p>
+                <p className="max-w-3xl pb-6 pr-14 leading-relaxed text-body">
+                  {item.a}
+                </p>
               </div>
             </div>
           </div>

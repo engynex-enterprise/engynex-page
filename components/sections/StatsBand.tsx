@@ -2,7 +2,6 @@ import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { Counter } from "@/components/Counter";
-import { BrandSwoosh, DotGrid } from "@/components/ui/Backdrop";
 import { cn } from "@/lib/utils";
 
 export interface StatItem {
@@ -39,21 +38,19 @@ export function StatsBand({
     <section
       id={id}
       className={cn(
-        "relative isolate overflow-hidden py-20 sm:py-28 lg:py-32",
+        "py-16 sm:py-24",
         tone === "muted" ? "bg-surface-soft" : "bg-surface",
         className,
       )}
     >
-      <BrandSwoosh className="-right-32 top-6 -z-10 h-64 w-[44rem]" />
-      <DotGrid className="left-[3%] bottom-10 -z-10 hidden h-20 w-20 text-brand-green/30 lg:block" />
-      <Container className="relative">
+      <Container>
         {title && (
           <SectionHeading
             eyebrow={eyebrow}
             title={title}
             subtitle={subtitle}
             align="left"
-                size="lg"
+            size="lg"
           />
         )}
 
@@ -69,16 +66,17 @@ export function StatsBand({
               delay={(i % 4) * 90}
               className="flex h-full flex-col border-t border-line-strong pt-6"
             >
-              <dd className="font-display text-[clamp(2.5rem,4.2vw,3.4rem)] font-extrabold leading-none text-heading">
-                <Counter value={stat.value} />
-              </dd>
-              <dt className="mt-4 text-base font-bold text-heading">
+              {/* dt antes que dd en el DOM; la cifra se muestra primero con order */}
+              <dt className="order-2 mt-4 text-base font-medium text-heading">
                 {stat.label}
               </dt>
+              <dd className="order-1 text-[clamp(2.75rem,4.6vw,3.75rem)] font-medium leading-none tracking-[-0.02em] text-heading">
+                <Counter value={stat.value} />
+              </dd>
               {stat.detail && (
-                <p className="mt-1.5 text-sm leading-relaxed text-body">
+                <dd className="order-3 mt-1.5 text-sm leading-relaxed text-body">
                   {stat.detail}
-                </p>
+                </dd>
               )}
             </Reveal>
           ))}

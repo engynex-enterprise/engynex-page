@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Quote, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Eyebrow } from "@/components/ui/SectionHeading";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -63,8 +63,8 @@ export function Testimonials({
   };
 
   return (
-    <Section tone={tone} className="relative">
-
+        // "mesh" se conserva por compatibilidad, pero ya no lleva fondo decorativo.
+    <Section tone={tone === "mesh" ? "light" : tone}>
       <div
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
@@ -92,22 +92,17 @@ export function Testimonials({
                     : "pointer-events-none translate-y-3 opacity-0",
                 )}
               >
-                {/* Retrato del cliente, con la comilla como sello */}
-                <div className="relative">
-                  <Avatar item={item} size="lg" />
-                  <span className="absolute -bottom-1 -right-1 grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue text-deep-950 ring-4 ring-surface">
-                    <Quote className="h-4 w-4" strokeWidth={2.5} aria-hidden />
-                  </span>
-                </div>
+                {/* Retrato del cliente */}
+                <Avatar item={item} size="lg" />
 
                 <blockquote className="mt-9">
-                  <p className="text-balance text-[clamp(1.45rem,3vw,2.3rem)] font-extrabold leading-[1.25] tracking-[-0.02em] text-heading">
+                  <p className="text-balance text-[clamp(1.5rem,3vw,2.25rem)] font-medium leading-[1.25] tracking-[-0.015em] text-heading">
                     &ldquo;{item.quote}&rdquo;
                   </p>
                 </blockquote>
 
                 <figcaption className="mt-8 flex flex-col items-center gap-1.5">
-                  <span className="flex gap-0.5 text-brand-green">
+                  <span className="flex gap-0.5 text-heading">
                     {Array.from({ length: 5 }).map((_, s) => (
                       <Star
                         key={s}
@@ -116,12 +111,12 @@ export function Testimonials({
                       />
                     ))}
                   </span>
-                  <p className="mt-2 text-base font-bold text-heading">
+                  <p className="mt-2 text-base font-semibold text-heading">
                     {item.name}
                   </p>
                   <p className="text-sm text-muted">{item.role}</p>
                   {item.metric && (
-                    <p className="mt-4 inline-flex items-center rounded-full bg-accent-soft px-4 py-1.5 text-sm font-bold text-accent">
+                    <p className="mt-4 inline-flex items-center rounded-full bg-surface-soft px-4 py-1.5 text-sm font-semibold text-heading">
                       {item.metric}
                     </p>
                   )}
@@ -149,9 +144,9 @@ export function Testimonials({
                 title={`${item.name} · ${item.company ?? item.role}`}
                 onClick={() => goTo(i)}
                 className={cn(
-                  "relative rounded-full transition-all duration-300",
+                  "relative rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-4 focus-visible:ring-offset-surface",
                   active
-                    ? "scale-110 ring-2 ring-brand-green ring-offset-4 ring-offset-surface"
+                    ? "scale-110 ring-2 ring-action ring-offset-4 ring-offset-surface"
                     : "opacity-45 grayscale hover:scale-105 hover:opacity-90 hover:grayscale-0",
                 )}
               >
@@ -170,7 +165,7 @@ export function Testimonials({
                           "--slide-duration": `${ROTATE_MS}ms`,
                         } as React.CSSProperties
                       }
-                      className="slide-progress block h-full w-full bg-brand-green"
+                      className="slide-progress block h-full w-full bg-action"
                     />
                   </span>
                 )}
@@ -180,7 +175,7 @@ export function Testimonials({
         </div>
 
         <p className="mt-14 text-sm text-muted">
-          <span className="font-bold text-heading">
+          <span className="font-semibold text-heading">
             {testimonials.ratingValue}
           </span>{" "}
           · {testimonials.ratingNote}
@@ -191,8 +186,8 @@ export function Testimonials({
 }
 
 /**
- * Retrato del cliente. Si aún no hay foto cargada, cae a un monograma con el
- * degradado de marca en vez de dejar un hueco.
+ * Retrato del cliente. Si aún no hay foto cargada, cae a un monograma sobre
+ * gris en vez de dejar un hueco.
  */
 function Avatar({ item, size = "md" }: { item: Item; size?: "md" | "lg" }) {
   const dimension = size === "lg" ? 112 : 48;
@@ -206,7 +201,7 @@ function Avatar({ item, size = "md" }: { item: Item; size?: "md" | "lg" }) {
         height={dimension}
         className={cn(
           "rounded-full object-cover",
-          size === "lg" ? "h-28 w-28 shadow-card" : "h-12 w-12",
+          size === "lg" ? "h-28 w-28" : "h-12 w-12",
         )}
       />
     );
@@ -224,7 +219,7 @@ function Avatar({ item, size = "md" }: { item: Item; size?: "md" | "lg" }) {
     <span
       aria-hidden
       className={cn(
-        "grid place-items-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue font-extrabold text-deep-950",
+        "grid place-items-center rounded-full bg-card-soft font-medium text-heading",
         size === "lg" ? "h-28 w-28 text-3xl" : "h-12 w-12 text-sm",
       )}
     >

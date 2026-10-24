@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, ArrowRight, Info } from "lucide-react";
+import { Check, Info } from "lucide-react";
 import { Reveal } from "./ui/Reveal";
 import { buttonClasses } from "./ui/Button";
 import { formatCOP, type Plan } from "@/content/pricing";
@@ -9,27 +9,38 @@ import { cn } from "@/lib/utils";
 
 type PlansDict = Dictionary["servicesPage"]["plans"];
 
+/**
+ * Planes al estilo de las fichas de compra de meta.com: tarjetas lisas de
+ * 24 px de radio sin bordes ni sombras, precio grande en peso medio y un
+ * botón píldora. El plan destacado solo se distingue por un aro azul y su
+ * etiqueta: nada de halos ni fondos oscuros.
+ */
 export function PricingTable({
   plans,
   locale,
   t,
   badges,
   ctaHref,
-  accent = "green",
+  surface = "white",
 }: {
   plans: Plan[];
   locale: Locale;
   t: PlansDict;
   badges: Dictionary["badges"];
   ctaHref: string;
+  /** Se conserva por compatibilidad; el acento ya no cambia el estilo. */
   accent?: "green" | "blue";
+  /** `white` para secciones grises, `soft` para secciones blancas. */
+  surface?: "white" | "soft";
 }) {
   return (
     <div>
       <div
         className={cn(
-          "grid items-stretch gap-6",
-          plans.length === 2 ? "sm:grid-cols-2" : "lg:grid-cols-3",
+          "grid items-stretch gap-4",
+          plans.length === 2
+            ? "mx-auto max-w-5xl sm:grid-cols-2"
+            : "md:grid-cols-2 lg:grid-cols-3",
         )}
       >
         {plans.map((plan, i) => {
@@ -40,164 +51,86 @@ export function PricingTable({
             <Reveal key={plan.key} delay={(i % 3) * 80} className="h-full">
               <article
                 className={cn(
-                  "relative flex h-full flex-col rounded-3xl border p-7 transition-all duration-300",
-                  highlighted
-                    ? "border-transparent bg-deep-950 text-ink-200 shadow-2xl shadow-brand-green/15 ring-2 ring-brand-green/50 lg:-translate-y-2"
-                    : "border-line bg-card shadow-card hover:-translate-y-1 hover:border-brand-green/40 hover:shadow-card-hover",
+                  "flex h-full flex-col rounded-3xl p-8 sm:p-10",
+                  surface === "white" ? "bg-card" : "bg-surface-soft",
+                  highlighted && "ring-2 ring-action",
                 )}
               >
-                {highlighted && (
-                  <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
-                    <div className="bg-grid absolute inset-0 opacity-25" />
-                    <div className="absolute -right-10 -top-12 h-40 w-40 rounded-full bg-brand-green/25 blur-[70px]" />
-                    <div className="absolute -bottom-12 -left-10 h-40 w-40 rounded-full bg-brand-blue/25 blur-[70px]" />
-                  </div>
-                )}
-
-                <div className="relative flex flex-1 flex-col">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="text-xl font-medium text-heading">
+                    {copy.name}
+                  </h3>
+                  {plan.badge && (
+                    <span
                       className={cn(
-                        "text-lg font-extrabold",
-                        highlighted ? "text-white" : "text-heading",
+                        "shrink-0 rounded-full px-3 py-1 text-xs font-semibold",
+                        highlighted
+                          ? "bg-action text-white"
+                          : "bg-accent-soft text-accent",
                       )}
                     >
-                      {copy.name}
-                    </h3>
-                    {plan.badge && (
-                      <span
-                        className={cn(
-                          "shrink-0 rounded-full px-2.5 py-1 text-[0.65rem] font-extrabold uppercase tracking-wide",
-                          highlighted
-                            ? "bg-brand-green text-deep-950"
-                            : "bg-brand-green/15 text-accent",
-                        )}
-                      >
-                        {badges[plan.badge]}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Precio */}
-                  <div className="mt-5">
-                    {plan.price === null ? (
-                      <p
-                        className={cn(
-                          "text-3xl font-extrabold",
-                          highlighted ? "text-white" : "text-heading",
-                        )}
-                      >
-                        {t.custom}
-                      </p>
-                    ) : (
-                      <>
-                        <p
-                          className={cn(
-                            "text-xs font-extrabold uppercase tracking-[0.14em]",
-                            highlighted
-                              ? "text-brand-green-light"
-                              : "text-muted",
-                          )}
-                        >
-                          {t.from}
-                        </p>
-                        <p className="mt-1 flex flex-wrap items-baseline gap-1.5">
-                          <span
-                            className={cn(
-                              "text-3xl font-extrabold tracking-tight sm:text-4xl",
-                              highlighted
-                                ? "text-white"
-                                : "text-heading",
-                            )}
-                          >
-                            {formatCOP(plan.price)}
-                          </span>
-                          <span
-                            className={cn(
-                              "text-sm font-bold",
-                              highlighted
-                                ? "text-ink-300"
-                                : "text-muted",
-                            )}
-                          >
-                            {plan.billing === "monthly" ? t.monthly : t.once}
-                          </span>
-                        </p>
-                      </>
-                    )}
-                    <p
-                      className={cn(
-                        "mt-1 text-xs",
-                        highlighted ? "text-ink-400" : "text-muted",
-                      )}
-                    >
-                      {plan.price === null ? t.customPrice : "COP"}
-                      {copy.note ? ` · ${copy.note}` : ""}
-                    </p>
-                  </div>
-
-                  <p
-                    className={cn(
-                      "mt-5 text-sm leading-relaxed",
-                      highlighted ? "text-ink-300" : "text-body",
-                    )}
-                  >
-                    {copy.description}
-                  </p>
-
-                  <p
-                    className={cn(
-                      "mt-6 text-[0.7rem] font-extrabold uppercase tracking-[0.14em]",
-                      highlighted ? "text-ink-400" : "text-muted",
-                    )}
-                  >
-                    {t.includes}
-                  </p>
-                  <ul className="mt-3 flex-1 space-y-2.5">
-                    {copy.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-2.5">
-                        <span
-                          className={cn(
-                            "mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full",
-                            highlighted
-                              ? "bg-brand-green/20 text-brand-green"
-                              : accent === "green"
-                                ? "bg-brand-green/15 text-accent"
-                                : "bg-brand-blue/15 text-brand-blue dark:text-brand-blue-light",
-                          )}
-                        >
-                          <Check className="h-3 w-3" strokeWidth={3} aria-hidden />
-                        </span>
-                        <span
-                          className={cn(
-                            "text-sm leading-snug",
-                            highlighted
-                              ? "text-ink-200"
-                              : "text-body",
-                          )}
-                        >
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Link
-                    href={ctaHref}
-                    className={buttonClasses(
-                      highlighted
-                        ? "primary"
-                        : accent === "green"
-                          ? "outline"
-                          : "secondary",
-                      "md",
-                      "mt-7 w-full",
-                    )}
-                  >
-                    {plan.price === null ? t.ctaCustom : t.cta}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
+                      {badges[plan.badge]}
+                    </span>
+                  )}
                 </div>
+
+                {/* Precio */}
+                <div className="mt-6">
+                  {plan.price === null ? (
+                    <p className="text-[2.25rem] font-medium leading-tight tracking-[-0.02em] text-heading">
+                      {t.custom}
+                    </p>
+                  ) : (
+                    <>
+                      <p className="text-sm text-muted">{t.from}</p>
+                      <p className="mt-1 flex flex-wrap items-baseline gap-x-2">
+                        <span className="text-[2.25rem] font-medium leading-tight tracking-[-0.02em] text-heading">
+                          {formatCOP(plan.price)}
+                        </span>
+                        <span className="text-sm text-muted">
+                          {plan.billing === "monthly" ? t.monthly : t.once}
+                        </span>
+                      </p>
+                    </>
+                  )}
+                  <p className="mt-1 text-xs text-muted">
+                    {plan.price === null ? t.customPrice : "COP"}
+                    {copy.note ? ` · ${copy.note}` : ""}
+                  </p>
+                </div>
+
+                <p className="mt-6 text-sm leading-relaxed text-body">
+                  {copy.description}
+                </p>
+
+                <Link
+                  href={ctaHref}
+                  className={buttonClasses(
+                    highlighted ? "primary" : "secondary",
+                    "md",
+                    "mt-8 w-full",
+                  )}
+                >
+                  {plan.price === null ? t.ctaCustom : t.cta}
+                </Link>
+
+                <p className="mt-8 text-sm font-semibold text-heading">
+                  {t.includes}
+                </p>
+                <ul className="mt-4 flex-1 space-y-3">
+                  {copy.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-3">
+                      <Check
+                        className="mt-0.5 h-4 w-4 shrink-0 text-action"
+                        strokeWidth={2.5}
+                        aria-hidden
+                      />
+                      <span className="text-sm leading-snug text-body">
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </article>
             </Reveal>
           );

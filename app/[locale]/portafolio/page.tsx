@@ -45,22 +45,24 @@ export default async function PortfolioPage({
         eyebrow={t.hero.eyebrow}
         title={t.hero.title}
         subtitle={t.hero.subtitle}
+        image="/images/portfolio-1.jpg"
       />
 
-      <StatsBand
-        eyebrow={dict.aboutPage.statsEyebrow}
-        title={dict.aboutPage.statsTitle}
-        subtitle={dict.aboutPage.statsSubtitle}
-        stats={dict.aboutPage.stats}
-      />
-
-      <Section tone="mesh">
+      <Section tone="light">
         <PortfolioGrid
           locale={locale}
           allLabel={t.all}
           resultLabel={t.resultLabel}
         />
       </Section>
+
+      <StatsBand
+        eyebrow={dict.aboutPage.statsEyebrow}
+        title={dict.aboutPage.statsTitle}
+        subtitle={dict.aboutPage.statsSubtitle}
+        stats={dict.aboutPage.stats}
+        tone="muted"
+      />
 
       <Testimonials testimonials={dict.testimonials} tone="light" />
 

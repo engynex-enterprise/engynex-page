@@ -1,9 +1,8 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Kicker de sección: punto de acento + texto en versalitas espaciadas.
- * Es el mismo tratamiento que usa el hero, para que el ritmo sea el mismo en
- * toda la página.
+ * Kicker de sección: texto corto en el color de acción, sin versalitas ni
+ * adornos, como los antetítulos de meta.com.
  */
 export function Eyebrow({
   children,
@@ -17,15 +16,11 @@ export function Eyebrow({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2.5 text-[0.7rem] font-bold uppercase tracking-[0.22em]",
-        tone === "dark" ? "text-white/60" : "text-muted",
+        "inline-flex items-center text-sm font-semibold",
+        tone === "dark" ? "text-white/80" : "text-accent",
         className,
       )}
     >
-      <span
-        aria-hidden
-        className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-green"
-      />
       {children}
     </span>
   );
@@ -37,10 +32,7 @@ export function SectionHeading({
   subtitle,
   tone = "light",
   align = "center",
-  /**
-   * Se conserva por compatibilidad: los titulares van en OpenDyslexic (regla
-   * base de `h2` en globals.css) y solo cambia la escala.
-   */
+  /** Se conserva por compatibilidad: todo usa Figtree y solo cambia la escala. */
   font = "display",
   size = "md",
   className,
@@ -63,11 +55,11 @@ export function SectionHeading({
       <h2
         className={cn(
           "text-balance",
-          eyebrow && "mt-4",
-          "font-extrabold",
+          eyebrow && "mt-3",
+          "font-medium",
           size === "lg" || font === "sans"
-            ? "text-[clamp(2rem,3.8vw,3.25rem)] leading-[1.1]"
-            : "text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.15]",
+            ? "text-[clamp(2rem,3.6vw,3rem)] leading-[1.15]"
+            : "text-[clamp(1.75rem,2.8vw,2.25rem)] leading-[1.25]",
           tone === "dark" ? "text-white" : "text-heading",
         )}
       >
@@ -76,10 +68,10 @@ export function SectionHeading({
       {subtitle && (
         <p
           className={cn(
-            "mt-5 text-lg leading-relaxed sm:text-xl sm:leading-relaxed",
+            "mt-4 text-base leading-relaxed sm:text-lg",
             align === "center" && "mx-auto",
             "max-w-2xl",
-            tone === "dark" ? "text-ink-300" : "text-body",
+            tone === "dark" ? "text-white/75" : "text-muted",
           )}
         >
           {subtitle}

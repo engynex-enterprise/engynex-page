@@ -110,6 +110,16 @@ const es = {
       { value: "10", label: "Años de experiencia" },
     ],
   },
+  homePage: {
+    exploreTitle: "Explora servicios, productos y soluciones de Engynex",
+    quote: "Cotizar",
+    allServices: "Ver los 16 servicios",
+    productsTitle: "Software listo para tu operación",
+    viewProduct: "Ver producto",
+    whyTitle: "¿Por qué elegir Engynex?",
+    latestTitle: "Lo último de Engynex",
+    subscriptionKicker: "Web por suscripción",
+  },
   heroSlides: {
     controls: {
       prev: "Anterior",
@@ -916,6 +926,16 @@ const en = {
       { value: "16", label: "Integrated services" },
       { value: "10", label: "Years of experience" },
     ],
+  },
+  homePage: {
+    exploreTitle: "Explore Engynex services, products and solutions",
+    quote: "Get a quote",
+    allServices: "See all 16 services",
+    productsTitle: "Software ready for your operation",
+    viewProduct: "View product",
+    whyTitle: "Why choose Engynex?",
+    latestTitle: "The latest from Engynex",
+    subscriptionKicker: "Website subscription",
   },
   heroSlides: {
     controls: {

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
-import { Nunito } from "next/font/google";
+import { Figtree } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -11,20 +10,11 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { siteConfig } from "@/lib/site";
 import { buildMegaMenu } from "@/lib/menu";
 
-// OpenDyslexic — títulos (lectura fácil, autoalojada).
-const opendyslexic = localFont({
-  src: [
-    { path: "../fonts/opendyslexic-400.woff2", weight: "400", style: "normal" },
-    { path: "../fonts/opendyslexic-700.woff2", weight: "700", style: "normal" },
-  ],
-  variable: "--font-opendyslexic",
-  display: "swap",
-});
-
-// Nunito — cuerpo de texto (redondeada y muy legible).
-const nunito = Nunito({
+// Figtree — titulares y cuerpo. Es la alternativa libre más cercana a la
+// tipografía geométrica-humanista de meta.com (Optimistic, propietaria).
+const figtree = Figtree({
   subsets: ["latin"],
-  variable: "--font-nunito",
+  variable: "--font-figtree",
   display: "swap",
 });
 
@@ -104,7 +94,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${opendyslexic.variable} ${nunito.variable} h-full`}
+      className={`${figtree.variable} h-full`}
     >
       <body className="flex min-h-full flex-col bg-white font-sans antialiased dark:bg-deep-950">
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
