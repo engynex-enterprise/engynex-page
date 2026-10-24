@@ -6,6 +6,7 @@ import { dispatchWhatsApp } from "@/lib/whatsappDispatch";
 import { analyzeLead } from "@/lib/ai";
 import { sendEmail } from "@/lib/email/send";
 import { abandoned, bookingConfirmation, customEmail, followup, newLeadAlert, weeklyReport, type Rendered } from "@/lib/email/templates";
+import { normalizeFollowupConfig } from "@/content/followupDefaults";
 
 export type JobsSummary = {
   whatsapp?: { sent: number; failed: number } | string;
@@ -106,6 +107,9 @@ async function sendQueuedEmails(
 
   const { data, error } = await db.rpc("email_claim", { p_limit: 50 });
   if (error) return error.message;
+  // Textos y pasos de la secuencia editados en el portal.
+  const { data: settings } = await db.from("followup_settings").select("config").maybeSingle();
+  const followupConfig = normalizeFollowupConfig(settings?.config);
 
   for (const row of (data ?? []) as unknown as Claimed[]) {
     const cancel = async (reason: string) => {
@@ -124,9 +128,11 @@ async function sendQueuedEmails(
       case "followup_1":
       case "followup_2":
       case "followup_3":
+      case "followup_4":
+      case "followup_5":
         if (!isOn(c, "followup_sequence")) { await cancel("disabled"); continue; }
         if (!row.lead || row.lead.opted_out) { await cancel("opted_out"); continue; }
-        rendered = followup(Number(row.kind.slice(-1)) as 1 | 2 | 3, row.lead);
+        rendered = followup(Number(row.kind.slice(-1)), row.lead, followupConfig);
         to = [row.lead.email];
         break;
       case "booking_confirmation":
@@ -142,7 +148,7 @@ async function sendQueuedEmails(
       case "abandoned":
         if (!isOn(c, "abandoned_recovery")) { await cancel("disabled"); continue; }
         if (!row.draft || row.draft.completed) { await cancel("completed"); continue; }
-        rendered = abandoned(row.draft);
+        rendered = abandoned(row.draft, followupConfig);
         to = [row.draft.email];
         break;
       case "custom":

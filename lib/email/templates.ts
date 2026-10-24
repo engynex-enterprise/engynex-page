@@ -2,6 +2,7 @@ import "server-only";
 import { leadFormCopy, resourcesByProblem, type ProblemKey } from "@/content/leadForm";
 import { siteConfig } from "@/lib/site";
 import type { Locale } from "@/i18n/config";
+import { abandonedTexts, defaultFollowupConfig, stepTexts, type FollowupConfig } from "@/content/followupDefaults";
 
 /**
  * Plantillas de correo. HTML sencillo con tablas y estilos en línea (lo que
@@ -10,7 +11,7 @@ import type { Locale } from "@/i18n/config";
 
 export type Rendered = { subject: string; html: string; text: string; unsubscribeUrl?: string };
 
-type Lead = {
+export type TemplateLead = {
   id: string;
   name: string;
   email: string;
@@ -68,49 +69,58 @@ const unsubscribe = (locale: Locale, token: string) => `${siteConfig.url}/${loca
 const oneClick = (locale: Locale, token: string) => `${siteConfig.url}/api/email/baja?t=${token}&l=${locale}`;
 const quoteUrl = (locale: Locale) => `${siteConfig.url}/${locale}/cotizar`;
 
-/** Secuencia para leads amarillos (3 correos). */
-export function followup(step: 1 | 2 | 3, lead: Lead): Rendered {
+/** Reemplaza las variables de un texto plano (sin HTML). */
+function fillPlain(text: string, vars: Record<string, string>) {
+  const out = text.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? vars[k] : m)).replace(/^\s*,\s*/, "").trim();
+  return out.charAt(0).toUpperCase() + out.slice(1);
+}
+
+/**
+ * Cuerpo en HTML: párrafos separados por línea en blanco; {recursos} solo en
+ * su párrafo se vuelve una lista; {portafolio} y {cotizar}, enlaces.
+ */
+function bodyHtml(text: string, plain: Record<string, string>, html: Record<string, string>) {
+  return text
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block) => {
+      if (block === "{recursos}") return html.recursos ?? "";
+      const escaped = esc(block).replace(/\{(\w+)\}/g, (m, k: string) => html[k] ?? (k in plain ? esc(plain[k]) : m));
+      return p(escaped.replace(/\n/g, "<br>"));
+    })
+    .join("");
+}
+
+const link = (url: string, label: string) => `<a href="${esc(url)}" style="color:${NAVY};font-weight:600">${esc(label)}</a>`;
+
+/** Secuencia de seguimiento (hasta 5 correos; textos editables en el portal). */
+export function followup(step: number, lead: TemplateLead, config: FollowupConfig = defaultFollowupConfig): Rendered {
   const l = loc(lead.locale);
-  // Sin escapar: los títulos los escapa layout().
-  const name = first(lead.name);
-  const unsub = unsubscribe(l, lead.email_token);
-  const labels = leadFormCopy[l].results.resourceLabels;
-  const resources = (resourcesByProblem[lead.problem_category as ProblemKey] ?? resourcesByProblem.other).map(
-    (path) => `<a href="${siteConfig.url}/${l}/${path}" style="color:${NAVY};font-weight:600">${esc(labels[path] ?? path)}</a>`,
-  );
   const es = l === "es";
-
-  const content = {
-    1: {
-      subject: es ? `${first(lead.name)}, esto te puede servir para tu proyecto` : `${first(lead.name)}, this may help with your project`,
-      title: es ? `Hola, ${name}` : `Hi ${name}`,
-      body:
-        p(es ? "Gracias por contarnos lo que necesitas. Mientras preparamos ideas para tu caso, te dejamos esto:" : "Thanks for telling us what you need. While we prepare ideas for your case, here's something useful:") +
-        list(resources) +
-        p(es ? "Si prefieres hablarlo de una vez, agenda 20 minutos con un asesor:" : "If you'd rather talk it through now, book 20 minutes with an advisor:"),
-      cta: { label: es ? "Agendar una llamada" : "Book a call", url: quoteUrl(l) },
-    },
-    2: {
-      subject: es ? "¿Revisamos tu idea en 20 minutos?" : "Shall we review your idea in 20 minutes?",
-      title: es ? `${name}, ¿lo vemos juntos?` : `${name}, shall we look at it together?`,
-      body:
-        p(es ? "En una llamada corta te decimos qué haríamos, cuánto tomaría y en qué rango de inversión estaría. Sin compromiso." : "In a short call we'll tell you what we'd do, how long it would take and the investment range. No commitment.") +
-        p(es ? `También puedes ver <a href="${siteConfig.url}/${l}/portafolio" style="color:${NAVY};font-weight:600">proyectos parecidos</a> que ya hicimos.` : `You can also see <a href="${siteConfig.url}/${l}/portafolio" style="color:${NAVY};font-weight:600">similar projects</a> we've done.`),
-      cta: { label: es ? "Elegir horario" : "Pick a time", url: quoteUrl(l) },
-    },
-    3: {
-      subject: es ? "¿Seguimos o lo dejamos para más adelante?" : "Keep going or leave it for later?",
-      title: es ? `${name}, una última pregunta` : `${name}, one last question`,
-      body:
-        p(es ? "No queremos llenarte el correo. ¿Tu proyecto sigue en pie? Responde este correo con un «sí» y te escribimos, o con un «más adelante» y te dejamos tranquilo." : "We don't want to flood your inbox. Is your project still on? Reply \"yes\" and we'll reach out, or \"later\" and we'll leave you be.") +
-        p(es ? "Este es el último correo de esta serie." : "This is the last email in this series."),
-      cta: { label: es ? "Agendar ahora" : "Book now", url: quoteUrl(l) },
-    },
-  }[step];
-
-  const html = layout({ preheader: content.subject, title: content.title, body: content.body, cta: content.cta, footer: leadFooter(l, unsub) });
-  const text = `${content.title}\n\n${content.body.replace(/<[^>]+>/g, "").replace(/\s+\n/g, "\n")}\n\n${content.cta.label}: ${content.cta.url}\n\n${es ? "Dejar de recibir correos" : "Unsubscribe"}: ${unsub}`;
-  return { subject: content.subject, html, text, unsubscribeUrl: oneClick(l, lead.email_token) };
+  const unsub = unsubscribe(l, lead.email_token);
+  const texts = stepTexts(config, step - 1, l);
+  const labels = leadFormCopy[l].results.resourceLabels;
+  const resources = (resourcesByProblem[lead.problem_category as ProblemKey] ?? resourcesByProblem.other).map((path) =>
+    link(`${siteConfig.url}/${l}/${path}`, labels[path] ?? path),
+  );
+  const plain = { nombre: first(lead.name), empresa: lead.company ?? "" };
+  const html = {
+    recursos: list(resources),
+    portafolio: link(`${siteConfig.url}/${l}/portafolio`, es ? "nuestro portafolio" : "our portfolio"),
+    cotizar: link(quoteUrl(l), es ? "agenda aquí" : "book here"),
+  };
+  const plainLinks = { ...plain, recursos: resources.map((r) => r.replace(/<[^>]+>/g, "")).join(", "), portafolio: `${siteConfig.url}/${l}/portafolio`, cotizar: quoteUrl(l) };
+  const subject = fillPlain(texts.subject, plain);
+  const title = fillPlain(texts.title, plain);
+  const cta = { label: fillPlain(texts.cta, plain), url: quoteUrl(l) };
+  const body = bodyHtml(texts.body, plain, html);
+  return {
+    subject,
+    html: layout({ preheader: subject, title, body, cta, footer: leadFooter(l, unsub) }),
+    text: `${title}\n\n${fillPlain(texts.body, plainLinks)}\n\n${cta.label}: ${cta.url}\n\n${es ? "Dejar de recibir correos" : "Unsubscribe"}: ${unsub}`,
+    unsubscribeUrl: oneClick(l, lead.email_token),
+  };
 }
 
 const CHANNELS = {
@@ -118,7 +128,7 @@ const CHANNELS = {
   en: { meet: "video call (we'll send the link)", call: "phone call", whatsapp: "WhatsApp", in_person: "in-person meeting" },
 } as Record<Locale, Record<string, string>>;
 
-export function bookingConfirmation(lead: Lead): Rendered | null {
+export function bookingConfirmation(lead: TemplateLead): Rendered | null {
   if (!lead.appointment) return null;
   const l = loc(lead.locale);
   const es = l === "es";
@@ -140,24 +150,29 @@ export function bookingConfirmation(lead: Lead): Rendered | null {
   };
 }
 
-export function abandoned(draft: { name: string | null; token: string; locale: string | null }): Rendered {
+export function abandoned(
+  draft: { name: string | null; token: string; locale: string | null },
+  config: FollowupConfig = defaultFollowupConfig,
+): Rendered {
   const l = loc(draft.locale);
-  const es = l === "es";
-  const name = draft.name ? first(draft.name) : "";
+  const texts = abandonedTexts(config, l);
   const url = `${siteConfig.url}/${l}/cotizar?retomar=${draft.token}`;
-  const subject = es ? `${name ? `${name}, ` : ""}tu cotización quedó a medio camino` : `${name ? `${name}, ` : ""}your quote is halfway done`;
-  const body =
-    p(es ? "Guardamos lo que alcanzaste a contarnos. Termínala en un minuto y, si tu proyecto encaja, eliges de una vez el horario para hablar." : "We saved what you told us. Finish it in a minute and, if your project fits, pick a time to talk right away.") +
-    p(es ? "Nos escribes esto porque marcaste que podíamos ayudarte si no terminabas. No te enviaremos más recordatorios." : "You're getting this because you said we could help if you didn't finish. We won't send more reminders.");
+  const plain = { nombre: draft.name ? first(draft.name) : "", empresa: "" };
+  const subject = fillPlain(texts.subject, plain);
+  const title = fillPlain(texts.title, plain);
+  const body = bodyHtml(texts.body, plain, {
+    portafolio: link(`${siteConfig.url}/${l}/portafolio`, l === "es" ? "nuestro portafolio" : "our portfolio"),
+    cotizar: link(url, l === "es" ? "termínala aquí" : "finish it here"),
+  });
   return {
     subject,
-    html: layout({ preheader: subject, title: es ? "¿Terminamos tu cotización?" : "Shall we finish your quote?", body, cta: { label: es ? "Continuar donde quedé" : "Continue where I left off", url }, footer: `Engynex · ${siteConfig.url.replace("https://", "")}` }),
-    text: `${subject}\n\n${url}`,
+    html: layout({ preheader: subject, title, body, cta: { label: fillPlain(texts.cta, plain), url }, footer: `Engynex · ${siteConfig.url.replace("https://", "")}` }),
+    text: `${subject}\n\n${fillPlain(texts.body, { ...plain, cotizar: url, portafolio: `${siteConfig.url}/${l}/portafolio` })}\n\n${url}`,
   };
 }
 
 /** Aviso interno: llegó un lead verde. */
-export function newLeadAlert(lead: Lead): Rendered {
+export function newLeadAlert(lead: TemplateLead): Rendered {
   const url = `${siteConfig.url}/es/portal/crm/${lead.id}`;
   const subject = `🟢 Lead verde: ${lead.name} (${lead.score}/100)`;
   const body =

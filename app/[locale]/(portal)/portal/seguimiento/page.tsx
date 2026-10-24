@@ -1,158 +1,108 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowDownRight, ArrowUpRight, Info } from "lucide-react";
 import { PageHeader } from "@/components/portal/PageHeader";
-import { CancelEmailButton } from "@/components/portal/CancelEmailButton";
+import { FollowupNav } from "@/components/followups/FollowupNav";
+import { EmailQueue, type QueueRow } from "@/components/followups/EmailQueue";
 import { automationCopy } from "@/content/automation";
+import { followupQueueCopy } from "@/content/followupQueue";
 import { isLocale } from "@/i18n/config";
 import { requireProfile } from "@/lib/auth";
+import { listEmployees } from "@/lib/employees";
 import { integrationStatus } from "@/lib/integrations";
-import type { EmailQueueRow, LeadDraft } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 
-type Filter = "queued" | "sent" | "problems";
-const tone: Record<string, string> = {
-  queued: "bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300",
-  sending: "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
-  sent: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300",
-  failed: "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300",
-  cancelled: "bg-surface-soft text-muted dark:bg-white/[0.06]",
+type Kpis = {
+  sent: number;
+  sent_prev: number;
+  delivered: number;
+  opened: number;
+  opened_prev: number;
+  clicked: number;
+  tracked: number;
+  queued: number;
+  failed: number;
+  unsubscribed: number;
 };
 
-export default async function FollowupsPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<{ f?: string }>;
-}) {
+const COLUMNS =
+  "id, kind, lead_id, draft_id, report_id, to_email, send_at, status, error, provider_id, sent_at, created_at, payload, delivered_at, opened_at, clicked_at, bounced_at, complained_at, open_count, click_count, created_by, leads(name, email, tier)";
+
+export default async function FollowupsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const { supabase } = await requireProfile(locale, ["admin", "sales", "marketing"]);
-  const t = automationCopy[locale].followups;
-  const { f } = await searchParams;
-  const filter: Filter = f === "sent" || f === "problems" ? f : "queued";
+  const t = followupQueueCopy[locale];
 
-  let query = supabase.from("email_queue").select("*, leads(name)").limit(200);
-  query =
-    filter === "queued"
-      ? query.in("status", ["queued", "sending"]).order("send_at")
-      : filter === "sent"
-        ? query.eq("status", "sent").order("sent_at", { ascending: false })
-        : query.in("status", ["failed", "cancelled"]).order("created_at", { ascending: false });
-
-  const [{ data: rows }, { data: drafts }, status] = await Promise.all([
-    query,
-    supabase.from("lead_drafts").select("*").is("completed_at", null).order("updated_at", { ascending: false }).limit(100),
+  const [{ data: upcoming }, { data: recent }, { data: report }, status, employees] = await Promise.all([
+    supabase.from("email_queue").select(COLUMNS).in("status", ["queued", "sending"]).order("send_at").limit(500),
+    supabase.from("email_queue").select(COLUMNS).in("status", ["sent", "failed", "cancelled"]).order("created_at", { ascending: false }).limit(500),
+    supabase.rpc("followup_report", { p_days: 30 }),
     integrationStatus(supabase),
+    listEmployees(supabase),
   ]);
+  const rows = [...(upcoming ?? []), ...(recent ?? [])] as unknown as QueueRow[];
+  const k = ((report as { kpis?: Kpis } | null)?.kpis ?? {}) as Partial<Kpis>;
   const emailReady = !!status.resend_api_key && !!status.email_from;
-  const fmt = (iso: string | null) =>
-    iso ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "America/Bogota" }).format(new Date(iso)) : "—";
-  const base = `/${locale}/portal/seguimiento`;
-  const card = "rounded-lg bg-surface shadow-meta dark:bg-card";
+  const tracking = !!status.resend_webhook_secret;
+
+  const pct = (a = 0, b = 0) => (b > 0 ? Math.round((a / b) * 100) : null);
+  const delta = (now = 0, prev = 0) => (prev > 0 ? Math.round(((now - prev) / prev) * 100) : null);
+  const base = (k.tracked ?? 0) > 0 ? k.delivered || k.sent : 0;
+  const openRate = pct(k.opened, base);
+  const openPrev = delta(k.opened, k.opened_prev);
+  const kpis = [
+    { key: "sent", value: String(k.sent ?? 0), delta: delta(k.sent, k.sent_prev) },
+    { key: "openRate", value: tracking && openRate != null ? `${openRate}%` : "—", delta: tracking ? openPrev : null, hint: tracking ? null : t.noTracking },
+    { key: "clickRate", value: tracking && base ? `${pct(k.clicked, base)}%` : "—", delta: null, hint: tracking ? null : t.noTracking },
+    { key: "queued", value: String(k.queued ?? 0), delta: null },
+    { key: "failed", value: String(rows.filter((r) => r.status === "failed" || r.bounced_at).length), delta: null },
+    { key: "unsubscribed", value: String(k.unsubscribed ?? 0), delta: null },
+  ] as { key: keyof typeof t.kpis; value: string; delta: number | null; hint?: string | null }[];
+
+  const notices = [!emailReady && t.notices.email, emailReady && !tracking && t.notices.tracking].filter(Boolean) as string[];
 
   return (
     <>
-      <PageHeader title={t.title} subtitle={t.subtitle} />
-      {!emailReady && (
-        <p className="mb-6 rounded-lg bg-amber-50 p-5 text-sm font-semibold text-amber-900 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:ring-amber-500/30">
-          {t.notConfigured}{" "}
-          <Link href={`/${locale}/portal/integraciones`} className="underline">
-            →
-          </Link>
-        </p>
-      )}
-
-      <nav aria-label={t.queue} className="mb-4 flex flex-wrap gap-1.5">
-        {(Object.keys(t.filters) as Filter[]).map((key) => (
-          <Link
-            key={key}
-            href={key === "queued" ? base : `${base}?f=${key}`}
-            aria-current={filter === key ? "page" : undefined}
-            className={cn(
-              "inline-flex h-9 items-center rounded-full px-3.5 text-sm font-semibold",
-              filter === key ? "bg-deep-700 text-white dark:bg-white dark:text-deep-700" : "text-heading ring-1 ring-line-strong hover:bg-surface-soft",
-            )}
-          >
-            {t.filters[key]}
-          </Link>
-        ))}
-      </nav>
-
-      {!rows?.length ? (
-        <p className={cn(card, "p-10 text-center text-sm text-muted")}>{t.empty}</p>
-      ) : (
-        <div className={cn(card, "overflow-x-auto")}>
-          <table className="w-full min-w-[44rem] text-left text-sm">
-            <thead className="border-b border-line text-xs text-muted">
-              <tr>
-                {(["when", "kind", "to", "status"] as const).map((k) => (
-                  <th key={k} scope="col" className="px-4 py-3 font-semibold">{t.cols[k]}</th>
-                ))}
-                <th scope="col" className="px-4 py-3"><span className="sr-only">{t.cancel}</span></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {(rows as unknown as (EmailQueueRow & { leads: { name: string } | null })[]).map((r) => (
-                <tr key={r.id}>
-                  <td className="whitespace-nowrap px-4 py-3 text-body">{fmt(r.sent_at ?? r.send_at)}</td>
-                  <td className="px-4 py-3 font-semibold text-heading">{t.kinds[r.kind] ?? r.kind}</td>
-                  <td className="px-4 py-3">
-                    {r.lead_id ? (
-                      <Link href={`/${locale}/portal/crm/${r.lead_id}`} className="font-semibold text-heading hover:underline">
-                        {r.leads?.name ?? r.to_email}
-                      </Link>
-                    ) : (
-                      <span className="text-body">{r.to_email ?? t.team}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={cn("rounded-full px-2.5 py-1 text-xs font-bold", tone[r.status])}>{t.statuses[r.status]}</span>
-                    {r.error && <span className="ml-2 text-xs text-muted">{t.reasons[r.error] ?? r.error}</span>}
-                  </td>
-                  <td className="px-4 py-3 text-right">{r.status === "queued" && <CancelEmailButton id={r.id} label={t.cancel} />}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <PageHeader title={automationCopy[locale].followups.title} count={k.queued ?? 0} />
+      <div className="-mx-4 -mt-6 sm:-mx-6">
+        {/* Métricas */}
+        <div className="grid border-b border-line sm:grid-cols-3 xl:grid-cols-6">
+          {kpis.map((x) => (
+            <div key={x.key} className="border-line px-6 py-4 sm:border-r xl:last:border-r-0">
+              <p className="text-sm text-muted">{t.kpis[x.key]}</p>
+              <p className="mt-1 flex items-baseline gap-2">
+                <span className="text-[1.7rem] font-semibold leading-none tabular-nums text-heading">{x.value}</span>
+                {x.delta != null && (
+                  <span className={cn("inline-flex items-center gap-0.5 text-sm font-semibold", x.delta >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
+                    {x.delta >= 0 ? <ArrowUpRight className="h-4 w-4" aria-hidden /> : <ArrowDownRight className="h-4 w-4" aria-hidden />}
+                    {Math.abs(x.delta)}%
+                  </span>
+                )}
+              </p>
+              {x.hint && <p className="mt-1 text-xs text-muted">{x.hint}</p>}
+            </div>
+          ))}
         </div>
-      )}
 
-      <section className={cn(card, "mt-8 p-6")}>
-        <h2 className="text-lg text-heading">{t.drafts}</h2>
-        <p className="mt-1 text-sm text-muted">{t.draftsHint}</p>
-        {!drafts?.length ? (
-          <p className="mt-4 text-sm text-muted">{t.draftsEmpty}</p>
-        ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[36rem] text-left text-sm">
-              <thead className="border-b border-line text-xs text-muted">
-                <tr>
-                  {(["contact", "step", "updated", "reminded"] as const).map((k) => (
-                    <th key={k} scope="col" className="py-2 pr-4 font-semibold">{t.draftCols[k]}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {(drafts as LeadDraft[]).map((d) => (
-                  <tr key={d.id}>
-                    <td className="py-2.5 pr-4">
-                      <span className="block font-semibold text-heading">{d.name ?? "—"}</span>
-                      <span className="block text-xs text-muted">
-                        {d.email}
-                        {d.phone ? ` · ${d.phone}` : ""}
-                      </span>
-                    </td>
-                    <td className="py-2.5 pr-4 tabular-nums text-body">{d.step + 1} / 5</td>
-                    <td className="py-2.5 pr-4 text-body">{fmt(d.updated_at)}</td>
-                    <td className="py-2.5 pr-4 text-body">{d.reminded_at ? t.reminded : t.pending}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <FollowupNav locale={locale} />
+
+        {notices.length > 0 && (
+          <div className="grid gap-2 px-4 pt-4 sm:px-6">
+            {notices.map((n) => (
+              <p key={n} className="flex items-start gap-2.5 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:ring-amber-500/30">
+                <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                <span className="flex-1">{n}</span>
+                <Link href={`/${locale}/portal/integraciones`} className="shrink-0 font-semibold underline">
+                  {t.notices.go}
+                </Link>
+              </p>
+            ))}
           </div>
         )}
-      </section>
+
+        <EmailQueue locale={locale} rows={rows} employees={employees} canAct />
+      </div>
     </>
   );
 }

@@ -31,6 +31,7 @@ export type IntegrationKey =
   | "ads_conversion_won"
   | "cron_secret"
   | "resend_api_key"
+  | "resend_webhook_secret"
   | "email_from"
   | "notify_emails"
   | "anthropic_api_key"
@@ -62,6 +63,7 @@ const ENV_FALLBACK: Record<IntegrationKey, string> = {
   ads_conversion_won: "ADS_CONVERSION_WON",
   cron_secret: "CRON_SECRET",
   resend_api_key: "RESEND_API_KEY",
+  resend_webhook_secret: "RESEND_WEBHOOK_SECRET",
   email_from: "EMAIL_FROM",
   notify_emails: "NOTIFY_EMAILS",
   anthropic_api_key: "ANTHROPIC_API_KEY",

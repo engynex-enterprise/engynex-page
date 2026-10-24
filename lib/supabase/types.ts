@@ -101,7 +101,15 @@ export type Appointment = {
   host_id: string | null;
   created_at: string;
   updated_at: string;
+  kind: AppointmentKind;
+  meeting_url: string | null;
+  location: string | null;
+  outcome: string | null;
+  cancel_reason: string | null;
+  reschedule_count: number;
 };
+
+export type AppointmentKind = "discovery" | "demo" | "proposal" | "followup" | "support" | "other";
 
 export type ActivityType =
   | "note"
@@ -137,6 +145,31 @@ export type Task = {
   completed_at: string | null;
   created_at: string;
   updated_at: string;
+  description: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  type: TaskType;
+  tags: string[];
+  checklist: ChecklistItem[];
+  ticket_id: string | null;
+  reminder_at: string | null;
+  reminded_at: string | null;
+  recurrence: TaskRecurrence;
+  parent_id: string | null;
+};
+
+export type TaskStatus = "todo" | "in_progress" | "waiting" | "done";
+export type TaskPriority = "urgent" | "high" | "medium" | "low";
+export type TaskType = "call" | "email" | "whatsapp" | "meeting" | "follow_up" | "other";
+export type TaskRecurrence = "none" | "daily" | "weekdays" | "weekly" | "monthly";
+export type ChecklistItem = { id: string; title: string; done: boolean };
+
+export type TaskComment = {
+  id: number;
+  task_id: string;
+  author_id: string | null;
+  body: string;
+  created_at: string;
 };
 
 export type Visitor = {
@@ -248,6 +281,22 @@ export type EmailQueueRow = {
   provider_id: string | null;
   sent_at: string | null;
   created_at: string;
+  payload: Json | null;
+  delivered_at: string | null;
+  opened_at: string | null;
+  clicked_at: string | null;
+  bounced_at: string | null;
+  complained_at: string | null;
+  open_count: number;
+  click_count: number;
+  created_by: string | null;
+};
+
+export type FollowupSettingsRow = {
+  id: boolean;
+  config: Json;
+  updated_at: string;
+  updated_by: string | null;
 };
 
 export type LeadDraft = {
@@ -535,6 +584,12 @@ export type Database = {
         Update: Partial<LeadActivity>;
         Relationships: [];
       };
+      task_comments: {
+        Row: TaskComment;
+        Insert: Partial<TaskComment> & { task_id: string; body: string };
+        Update: Partial<TaskComment>;
+        Relationships: [];
+      };
       tasks: {
         Row: Task;
         Insert: Partial<Task> & { title: string };
@@ -588,6 +643,12 @@ export type Database = {
         Row: ChatSavedReply;
         Insert: Partial<ChatSavedReply> & { title: string; shortcut: string; body: string };
         Update: Partial<ChatSavedReply>;
+        Relationships: [];
+      };
+      followup_settings: {
+        Row: FollowupSettingsRow;
+        Insert: Partial<FollowupSettingsRow>;
+        Update: Partial<FollowupSettingsRow>;
         Relationships: [];
       };
       chat_settings: {
@@ -709,7 +770,7 @@ export type Database = {
         Row: Appointment;
         // Solo se crean desde la función book_appointment (RLS lo impone).
         Insert: Partial<Appointment>;
-        Update: Partial<Pick<Appointment, "status" | "notes" | "host_id">>;
+        Update: Partial<Omit<Appointment, "id" | "lead_id" | "created_at">>;
         Relationships: [];
       };
     };
@@ -830,6 +891,27 @@ export type Database = {
         Returns: undefined;
       };
       email_cancel: { Args: { p_id: number }; Returns: undefined };
+      email_bulk: { Args: { p_ids: number[]; p_action: "send_now" | "cancel" | "retry" }; Returns: number };
+      email_reschedule: { Args: { p_id: number; p_at: string }; Returns: undefined };
+      email_event: { Args: { p_provider_id: string; p_type: string; p_at?: string }; Returns: undefined };
+      followup_enroll: { Args: { p_lead: string }; Returns: number };
+      followup_stop: { Args: { p_lead: string }; Returns: number };
+      email_compose: { Args: { p_lead: string; p: Json }; Returns: number };
+      draft_remind: { Args: { p_id: string }; Returns: undefined };
+      draft_delete: { Args: { p_id: string }; Returns: undefined };
+      followup_report: { Args: { p_days?: number }; Returns: Json };
+      tasks_kpis: { Args: Record<string, never>; Returns: Json };
+      booking_lead: { Args: { p_token: string }; Returns: Json };
+      booking_invite: { Args: { p_lead: string }; Returns: string };
+      staff_free_slots: { Args: { p_day: string; p_duration?: number | null }; Returns: { starts_at: string }[] };
+      staff_book: { Args: { p: Json }; Returns: string };
+      staff_reschedule: { Args: { p_id: string; p_start: string; p_notify?: boolean }; Returns: undefined };
+      staff_cancel: { Args: { p_id: string; p_reason?: string | null; p_notify?: boolean }; Returns: undefined };
+      appointment_close: {
+        Args: { p_id: string; p_status: AppointmentStatus; p_outcome?: string | null; p_followup_days?: number | null };
+        Returns: undefined;
+      };
+      agenda_kpis: { Args: { p_days?: number }; Returns: Json };
       report_generate: { Args: { p_week_start: string; p_email?: boolean }; Returns: string };
       jobs_weekly_report: { Args: Record<string, never>; Returns: string | null };
       ai_pending_leads: {

@@ -310,6 +310,7 @@ export function IntegrationsForm({
             </div>
 
             {section === "whatsapp" && <div className="mt-5">{urlRow(t.sections.whatsapp.webhook, `${siteUrl}/api/whatsapp/webhook`)}</div>}
+            {section === "email" && <div className="mt-5">{urlRow(t.sections.email.webhook, `${siteUrl}/api/email/webhook`)}</div>}
             {section === "social" && (
               <div className="mt-5 grid gap-3">
                 {urlRow(t.sections.social.webhook, `${siteUrl}/api/meta/webhook`)}

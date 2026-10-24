@@ -72,6 +72,7 @@ const es = {
     email: {
       title: "Correo (Resend)",
       desc: "Envía los correos automáticos: seguimiento de leads amarillos, confirmación de reuniones, avisos de leads verdes, formularios sin terminar e informe semanal. Crea una cuenta en resend.com, verifica tu dominio y pega aquí la clave.",
+      webhook: "URL del webhook de Resend (Resend → Webhooks → Add endpoint; eventos email.delivered, opened, clicked, bounced y complained). Para medir aperturas y clics, activa Open/Click tracking en tu dominio.",
     },
     ai: {
       title: "Inteligencia artificial (Claude)",
@@ -122,6 +123,7 @@ const es = {
     ads_conversion_won: { label: "Nombre: venta", placeholder: "Venta" },
     cron_secret: { label: "Clave de tareas programadas", help: "Mínimo 24 caracteres. Usa «Generar»." },
     resend_api_key: { label: "Clave de Resend", help: "Empieza por re_. Resend → API Keys." },
+    resend_webhook_secret: { label: "Secreto del webhook (opcional)", help: "Empieza por whsec_. Resend → Webhooks → tu endpoint → Signing secret. Activa las métricas de entrega, apertura y clic." },
     email_from: { label: "Remitente", placeholder: "Engynex <hola@engynex.com>", help: "Con un dominio verificado en Resend." },
     notify_emails: { label: "Correos del equipo (avisos e informe)", placeholder: "ventas@engynex.com, gerencia@engynex.com", help: "Separados por coma. También reciben las respuestas de los leads." },
     anthropic_api_key: { label: "Clave de la API de Anthropic", help: "Empieza por sk-ant-." },
@@ -208,6 +210,7 @@ const en: IntegrationsCopy = {
     email: {
       title: "Email (Resend)",
       desc: "Sends the automatic emails: yellow-lead follow-ups, meeting confirmations, green-lead alerts, unfinished forms and the weekly report. Create an account at resend.com, verify your domain and paste the key here.",
+      webhook: "Resend webhook URL (Resend → Webhooks → Add endpoint; events email.delivered, opened, clicked, bounced and complained). To measure opens and clicks, enable Open/Click tracking on your domain.",
     },
     ai: {
       title: "Artificial intelligence (Claude)",
@@ -258,6 +261,7 @@ const en: IntegrationsCopy = {
     ads_conversion_won: { label: "Name: sale", placeholder: "Venta" },
     cron_secret: { label: "Scheduled jobs key", help: "At least 24 characters. Use “Generate”." },
     resend_api_key: { label: "Resend key", help: "Starts with re_. Resend → API Keys." },
+    resend_webhook_secret: { label: "Webhook secret (optional)", help: "Starts with whsec_. Resend → Webhooks → your endpoint → Signing secret. Enables delivery, open and click metrics." },
     email_from: { label: "Sender", placeholder: "Engynex <hola@engynex.com>", help: "With a domain verified in Resend." },
     notify_emails: { label: "Team emails (alerts and report)", placeholder: "sales@engynex.com, ceo@engynex.com", help: "Comma separated. They also receive leads' replies." },
     anthropic_api_key: { label: "Anthropic API key", help: "Starts with sk-ant-." },
@@ -288,7 +292,7 @@ export const integrationSections = {
   ],
   social: ["meta_page_id", "meta_page_token", "instagram_account_id"],
   feed: ["ads_feed_user", "ads_feed_password", "ads_conversion_qualified", "ads_conversion_meeting", "ads_conversion_won"],
-  email: ["resend_api_key", "email_from", "notify_emails"],
+  email: ["resend_api_key", "email_from", "notify_emails", "resend_webhook_secret"],
   ai: ["anthropic_api_key", "ai_lead_insights"],
   automation: ["followup_sequence", "abandoned_recovery", "weekly_report", "cron_secret"],
 } as const;
@@ -301,6 +305,7 @@ export const secretKeys = new Set([
   "ads_feed_password",
   "cron_secret",
   "resend_api_key",
+  "resend_webhook_secret",
   "anthropic_api_key",
 ]);
 /** Interruptores (on/off); sin valor guardado cuentan como encendidos. */
