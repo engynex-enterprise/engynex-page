@@ -80,6 +80,7 @@ export type Lead = {
   whatsapp_opt_out_at: string | null;
   email_token: string;
   email_opt_out_at: string | null;
+  source: "web" | "chat" | "whatsapp" | "manual" | "import" | "referral";
   ai_insights: Json | null;
   ai_analyzed_at: string | null;
   ai_error: string | null;
@@ -122,6 +123,7 @@ export type LeadActivity = {
   body: string | null;
   meta: Json;
   created_at: string;
+  mentions: string[];
 };
 
 export type Task = {
@@ -197,6 +199,30 @@ export type ChatConversation = {
   rating_comment: string | null;
   rated_at: string | null;
   first_response_at: string | null;
+  external_id: string | null;
+  summary: string | null;
+  summary_at: string | null;
+};
+
+export type ChatAttachment = { path: string; name: string; mime: string | null; size: number };
+
+export type ChatAgentStatus = "available" | "busy" | "away";
+
+export type ChatAgentRow = {
+  profile_id: string;
+  status: ChatAgentStatus;
+  max_chats: number | null;
+  sound: boolean;
+  last_seen_at: string | null;
+  last_assigned_at: string | null;
+  updated_at: string;
+};
+
+export type ChatSettingsRow = {
+  id: boolean;
+  config: Json;
+  updated_at: string;
+  updated_by: string | null;
 };
 
 export type ChatSavedReply = {
@@ -282,6 +308,36 @@ export type AutomationRun = {
   created_at: string;
 };
 
+export type DealStage = "prospecting" | "proposal" | "negotiation" | "won" | "lost";
+
+export type Deal = {
+  id: string;
+  lead_id: string;
+  title: string;
+  value_cop: number;
+  stage: DealStage;
+  probability: number;
+  expected_close: string | null;
+  owner_id: string | null;
+  notes: string | null;
+  closed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type LeadDocument = {
+  id: string;
+  lead_id: string;
+  title: string;
+  path: string;
+  size: number;
+  mime: string | null;
+  uploaded_by: string | null;
+  created_at: string;
+};
+
+export type ActivityReaction = { activity_id: string; user_id: string; emoji: string; created_at: string };
+
 export type TicketStatus = "open" | "in_progress" | "waiting" | "resolved" | "closed";
 export type TicketPriority = "critical" | "high" | "medium" | "low";
 
@@ -331,7 +387,7 @@ export type PortalDocument = {
   created_at: string;
 };
 
-export type ChatChannel = "web" | "whatsapp";
+export type ChatChannel = "web" | "whatsapp" | "messenger" | "instagram";
 export type WaDelivery = "sent" | "delivered" | "read" | "failed";
 
 export type WaTemplate = {
@@ -387,7 +443,7 @@ export type WaMessage = {
   created_at: string;
 };
 
-export type ChatSender = "visitor" | "agent" | "system";
+export type ChatSender = "visitor" | "agent" | "system" | "bot";
 
 export type ChatMessage = {
   id: number;
@@ -399,6 +455,8 @@ export type ChatMessage = {
   external_id: string | null;
   delivery: WaDelivery | null;
   internal: boolean;
+  attachment: ChatAttachment | null;
+  meta: Json | null;
 };
 
 export type BookingSettings = {
@@ -532,6 +590,18 @@ export type Database = {
         Update: Partial<ChatSavedReply>;
         Relationships: [];
       };
+      chat_settings: {
+        Row: ChatSettingsRow;
+        Insert: Partial<ChatSettingsRow>;
+        Update: Partial<ChatSettingsRow>;
+        Relationships: [];
+      };
+      chat_agents: {
+        Row: ChatAgentRow;
+        Insert: Partial<ChatAgentRow>;
+        Update: Partial<ChatAgentRow>;
+        Relationships: [];
+      };
       chat_messages: {
         Row: ChatMessage;
         Insert: Partial<ChatMessage>;
@@ -572,6 +642,30 @@ export type Database = {
         Row: AutomationRun;
         Insert: Partial<AutomationRun>;
         Update: Partial<AutomationRun>;
+        Relationships: [];
+      };
+      lead_favorites: {
+        Row: { user_id: string; lead_id: string; created_at: string };
+        Insert: { lead_id: string; user_id?: string };
+        Update: never;
+        Relationships: [];
+      };
+      activity_reactions: {
+        Row: ActivityReaction;
+        Insert: { activity_id: string; emoji: string; user_id?: string };
+        Update: never;
+        Relationships: [];
+      };
+      deals: {
+        Row: Deal;
+        Insert: Partial<Deal> & { lead_id: string; title: string };
+        Update: Partial<Deal>;
+        Relationships: [];
+      };
+      lead_documents: {
+        Row: LeadDocument;
+        Insert: Partial<LeadDocument> & { lead_id: string; title: string; path: string };
+        Update: Partial<LeadDocument>;
         Relationships: [];
       };
       tickets: {
@@ -666,9 +760,27 @@ export type Database = {
       chat_send: { Args: { p_token: string; p_body: string }; Returns: number };
       chat_end: { Args: { p_token: string }; Returns: undefined };
       chat_agent_send: {
-        Args: { p_conversation: string; p_body: string; p_internal?: boolean };
+        Args: { p_conversation: string; p_body: string; p_internal?: boolean; p_attachment?: Json | null };
         Returns: number;
       };
+      chat_send_file: { Args: { p_token: string; p: Json }; Returns: number };
+      chat_public_config: { Args: { p_locale?: string }; Returns: Json };
+      chat_agent_heartbeat: { Args: Record<string, never>; Returns: Json };
+      chat_agent_set: { Args: { p: Json; p_profile?: string | null }; Returns: undefined };
+      chat_transfer: { Args: { p_conversation: string; p_to: string; p_note?: string | null }; Returns: undefined };
+      chat_save_summary: { Args: { p_conversation: string; p_summary: string }; Returns: undefined };
+      chat_create_ticket: { Args: { p_conversation: string; p: Json }; Returns: Json };
+      chat_report: { Args: { p_days?: number }; Returns: Json };
+      chat_team: { Args: Record<string, never>; Returns: Json };
+      meta_inbound: {
+        Args: { p_channel: string; p_user: string; p_name: string | null; p_body: string; p_mid: string };
+        Returns: Json;
+      };
+      meta_agent_message: {
+        Args: { p_conversation: string; p_author: string | null; p_body: string; p_mid: string };
+        Returns: number;
+      };
+      meta_seen: { Args: { p_channel: string; p_user: string; p_status: string; p_until: string }; Returns: undefined };
       chat_offline_notice: { Args: { p_token: string }; Returns: undefined };
       chat_rate: { Args: { p_token: string; p_rating: number; p_comment?: string | null }; Returns: undefined };
       chat_create_lead: { Args: { p_conversation: string; p: Json }; Returns: string };
@@ -742,6 +854,14 @@ export type Database = {
       notifications_mark_all_read: { Args: Record<string, never>; Returns: undefined };
       global_search: { Args: { p_q: string }; Returns: Json };
       automations_run_now: { Args: Record<string, never>; Returns: number };
+      home_dashboard: { Args: { p_days?: number }; Returns: Json };
+      crm_kpis: { Args: { p_days?: number }; Returns: Json };
+      staff_create_lead: { Args: { p: Json }; Returns: string };
+      import_leads: { Args: { p_rows: Json }; Returns: Json };
+      staff_book_appointment: {
+        Args: { p_lead: string; p_start: string; p_channel: MeetingChannel; p_notes?: string | null };
+        Returns: string;
+      };
       wa_audience_count: { Args: { p_segment: Json }; Returns: number };
       wa_campaign_queue: { Args: { p_campaign: string }; Returns: number };
       wa_claim_batch: {

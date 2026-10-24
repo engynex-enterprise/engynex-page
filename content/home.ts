@@ -27,6 +27,19 @@ const es = {
   count: "Leads",
   automations: "Automatizaciones activas",
   automationsHint: "{n} reglas trabajando por ti",
+  range: "Periodo",
+  ranges: { "7": "7 días", "30": "30 días", "90": "90 días" } as Record<string, string>,
+  vsPrevN: "vs. {n} días anteriores",
+  conversion: "{pct} de {n} visitantes",
+  leadsByDay: "Leads por día",
+  leadsByDayHint: "Por color de calificación",
+  tiers: { green: "Verdes", yellow: "Amarillos", red: "Rojos" },
+  funnelValue: "Valor por etapa",
+  sources: "Origen de los leads",
+  sourcesHint: "De dónde llegaron en el periodo",
+  noData: "Sin datos en este periodo.",
+  day: "Día",
+  leadsLabel: "Leads",
 };
 
 export type HomeCopy = typeof es;
@@ -58,6 +71,19 @@ const en: HomeCopy = {
   count: "Leads",
   automations: "Active automations",
   automationsHint: "{n} rules working for you",
+  range: "Period",
+  ranges: { "7": "7 days", "30": "30 days", "90": "90 days" },
+  vsPrevN: "vs. previous {n} days",
+  conversion: "{pct} of {n} visitors",
+  leadsByDay: "Leads per day",
+  leadsByDayHint: "By qualification color",
+  tiers: { green: "Green", yellow: "Yellow", red: "Red" },
+  funnelValue: "Value by stage",
+  sources: "Lead sources",
+  sourcesHint: "Where they came from in the period",
+  noData: "No data in this period.",
+  day: "Day",
+  leadsLabel: "Leads",
 };
 
 export const homeCopy: Record<Locale, HomeCopy> = { es, en };

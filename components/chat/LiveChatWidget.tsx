@@ -11,29 +11,49 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Loader2, MessagesSquare, MoreHorizontal, SendHorizontal, Star, X } from "lucide-react";
+import { Bot, Loader2, MessagesSquare, MoreHorizontal, Paperclip, SendHorizontal, Star, X } from "lucide-react";
 import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
-import type { Database } from "@/lib/supabase/types";
+import type { ChatAttachment, Database, Json } from "@/lib/supabase/types";
 import { getVisitorId } from "@/lib/visitor";
 import { trackContact } from "@/lib/tracking";
 import { AGENTS_CHANNEL, OPEN_CHAT_EVENT, liveChatCopy } from "@/content/liveChat";
+import { chatWidgetCopy } from "@/content/chatWidget";
+import { chatProCopy } from "@/content/chatPro";
+import {
+  ATTACHMENT_ACCEPT,
+  SITE_VISITORS_CHANNEL,
+  VISITOR_INVITE_EVENT,
+  inviteFor,
+  pathExcluded,
+  readableOn,
+  type AgentPresence,
+  type ChatTexts,
+  type FieldMode,
+  type PublicChatConfig,
+  type VisitorInvite,
+  type VisitorPresence,
+} from "@/lib/chatConfig";
 import { inputClass } from "@/components/auth/inputClass";
 import { buttonClasses } from "@/components/ui/Button";
+import { AttachmentView, uploadChatFile } from "./Attachment";
+import { RichText } from "./RichText";
 import type { Locale } from "@/i18n/config";
 import { ding } from "@/lib/ding";
 import { cn } from "@/lib/utils";
 
 type Message = {
   id: number;
-  sender: "visitor" | "agent" | "system";
+  sender: "visitor" | "agent" | "system" | "bot";
   body: string;
+  attachment?: ChatAttachment | null;
   created_at: string;
   agent: string | null;
 };
 
 type Fetched = {
   topic: string;
+  name: string;
   status: "open" | "closed";
   agent_seen_at: string | null;
   rated: boolean;
@@ -80,6 +100,40 @@ const supabase = () => (client ??= createClient());
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const INVITE_KEY = "engynex-chat-invite-dismissed";
+const EXIT_KEY = "engynex-chat-exit-shown";
+const TAB_KEY = "engynex-chat-tab";
+
+/** Color del acento (ajustes del portal) como estilo en línea; sin color, mandan las clases. */
+type Accent = React.CSSProperties | undefined;
+const accentStyle = (color: string | null | undefined): Accent =>
+  color ? { backgroundColor: color, color: readableOn(color) } : undefined;
+
+/** Identificador aleatorio de esta pestaña para la presencia (no es una cookie). */
+let tabMemory: { key: string; since: string } | null = null;
+function tabIdentity() {
+  if (tabMemory) return tabMemory;
+  try {
+    const saved = sessionStorage.getItem(TAB_KEY);
+    if (saved) return (tabMemory = JSON.parse(saved) as { key: string; since: string });
+  } catch {
+    // Sin almacenamiento: vale solo mientras la página esté abierta.
+  }
+  tabMemory = { key: crypto.randomUUID(), since: new Date().toISOString() };
+  try {
+    sessionStorage.setItem(TAB_KEY, JSON.stringify(tabMemory));
+  } catch {
+    // Igual que arriba.
+  }
+  return tabMemory;
+}
+
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0] ?? "")
+    .join("")
+    .toUpperCase();
 
 /**
  * Chat en vivo del sitio.
@@ -95,12 +149,35 @@ const INVITE_KEY = "engynex-chat-invite-dismissed";
  * - Si cierra la pestaña, la conversación sigue: al volver, se recupera.
  * - Sin asesores conectados, responde solo con el horario de atención.
  * - Al cerrar la conversación, pide una calificación de 1 a 5.
- * - Invitación según la página y aviso en el título de la pestaña.
+ * - Invitación según la página, al intentar salir o enviada por un asesor, y
+ *   aviso en el título de la pestaña.
+ * - Apariencia, campos, páginas e invitaciones vienen de los ajustes del portal
+ *   (chat_public_config); adjuntos, respuestas del bot y formato ligero.
+ * - Presencia anónima en el sitio para que los asesores vean quién navega.
  */
 export function LiveChatWidget({ locale }: { locale: Locale }) {
   const t = liveChatCopy[locale].widget;
+  const w = chatWidgetCopy[locale];
   const [open, setOpen] = useState(false);
   const token = useSyncExternalStore(subscribeToken, readToken, () => null);
+
+  /* ---------------- Ajustes públicos ---------------- */
+
+  const [config, setConfig] = useState<PublicChatConfig | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void supabase()
+      .rpc("chat_public_config", { p_locale: locale })
+      .then(({ data }) => {
+        if (!alive) return;
+        if (data) setConfig(data as unknown as PublicChatConfig);
+        setLoaded(true);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [locale]);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [topic, setTopic] = useState<string | null>(null);
@@ -113,7 +190,22 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
   const [rated, setRated] = useState(false);
   const [hasAgentReply, setHasAgentReply] = useState(false);
   const [invite, setInvite] = useState(false);
+  const [inviteOverride, setInviteOverride] = useState<string | null>(null);
+  const [agents, setAgents] = useState<AgentPresence[]>([]);
+  const [convName, setConvName] = useState<string | null>(null);
   const pathname = usePathname();
+
+  const hiddenHere = !!config && (!config.enabled || pathExcluded(pathname, config.exclude_paths ?? []));
+  const active = loaded && !hiddenHere;
+  const texts: ChatTexts = {
+    title: config?.texts?.title || t.title,
+    launcher: config?.texts?.launcher || t.launcher,
+    greeting: config?.texts?.greeting || t.greeting,
+    greeting_away: config?.texts?.greeting_away || t.greetingAway,
+    invite: config?.texts?.invite || t.invite.default,
+  };
+  const accent = accentStyle(config?.color);
+  const left = config?.position === "left";
 
   const lastId = messages.at(-1)?.id ?? 0;
   const lastIdRef = useRef(0);
@@ -141,6 +233,7 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
       return;
     }
     setTopic(result.topic);
+    setConvName(result.name);
     setStatus(result.status);
     setAgentSeenAt(result.agent_seen_at);
     setRated(result.rated);
@@ -234,27 +327,105 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
 
   /* ---------------- Invitación según la página ---------------- */
 
+  const rule = config ? inviteFor(pathname, config.invites ?? []) : null;
+  const inviteDelay = (rule?.delay ?? config?.invite_delay ?? 20) * 1000;
   useEffect(() => {
-    if (token || open) return;
+    if (!active || token || open) return;
     try {
       if (sessionStorage.getItem(INVITE_KEY)) return;
     } catch {
       return;
     }
-    const id = window.setTimeout(() => setInvite(true), 20_000);
+    const id = window.setTimeout(() => setInvite(true), inviteDelay);
     return () => window.clearTimeout(id);
-  }, [token, open]);
+  }, [active, token, open, inviteDelay]);
+
+  // Intención de salida (solo con mouse): una vez por sesión.
+  const exitIntent = active && !!config?.exit_intent && !token && !open;
+  useEffect(() => {
+    if (!exitIntent || !window.matchMedia("(pointer: fine)").matches) return;
+    const onOut = (event: MouseEvent) => {
+      if (event.relatedTarget || event.clientY > 0) return;
+      try {
+        if (sessionStorage.getItem(EXIT_KEY)) return;
+        sessionStorage.setItem(EXIT_KEY, "1");
+      } catch {
+        return;
+      }
+      setInvite(true);
+    };
+    document.addEventListener("mouseout", onOut);
+    return () => document.removeEventListener("mouseout", onOut);
+  }, [exitIntent]);
+
+  /* ---------------- Presencia en el sitio e invitación de un asesor ---------------- */
+
+  const live = useRef({ token, open, invite: texts.invite });
+  useEffect(() => {
+    live.current = { token, open, invite: texts.invite };
+  });
+  const visitorsRef = useRef<RealtimeChannel | null>(null);
+  const presence = useCallback(
+    (): VisitorPresence => ({
+      role: "visitor",
+      page: pathname,
+      title: document.title.slice(0, 120),
+      locale,
+      referrer: (() => {
+        try {
+          return document.referrer ? new URL(document.referrer).hostname : null;
+        } catch {
+          return null;
+        }
+      })(),
+      since: tabIdentity().since,
+      chatting: !!token,
+      name: token ? convName : null,
+    }),
+    [pathname, locale, token, convName],
+  );
+  const presenceRef = useRef(presence);
+  useEffect(() => {
+    presenceRef.current = presence;
+  });
+
+  useEffect(() => {
+    if (!active) return;
+    const { key } = tabIdentity();
+    const channel = supabase()
+      .channel(SITE_VISITORS_CHANNEL, { config: { presence: { key }, broadcast: { self: false } } })
+      .on("broadcast", { event: VISITOR_INVITE_EVENT }, ({ payload }) => {
+        const p = payload as Partial<VisitorInvite> | undefined;
+        if (p?.key !== key || live.current.token || live.current.open) return;
+        // Del mensaje solo se usa el nombre del asesor; el texto es el de los ajustes.
+        const agent = String(p.agent ?? "").slice(0, 30).trim();
+        setInviteOverride(agent ? `${agent} · ${live.current.invite}` : live.current.invite);
+        setInvite(true);
+      })
+      .subscribe((state) => {
+        if (state === "SUBSCRIBED") void channel.track(presenceRef.current());
+      });
+    visitorsRef.current = channel;
+    return () => {
+      visitorsRef.current = null;
+      void supabase().removeChannel(channel);
+    };
+  }, [active]);
+
+  useEffect(() => {
+    void visitorsRef.current?.track(presence());
+  }, [presence]);
 
   const dismissInvite = () => {
     setInvite(false);
+    setInviteOverride(null);
     try {
       sessionStorage.setItem(INVITE_KEY, "1");
     } catch {
       // Sin almacenamiento: puede volver a aparecer en otra página.
     }
   };
-  const section = pathname.split("/")[2] ?? "";
-  const inviteText = t.invite[section] ?? t.invite.default;
+  const inviteText = inviteOverride ?? rule?.text ?? texts.invite;
 
   /* ---------------- Presencia de asesores (solo con el panel abierto) ---------------- */
 
@@ -263,7 +434,11 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
     const channel = supabase()
       .channel(AGENTS_CHANNEL)
       .on("presence", { event: "sync" }, () => {
-        setAgentsOnline(Object.keys(channel.presenceState()).length > 0);
+        const here = Object.values(channel.presenceState<AgentPresence>())
+          .map((list) => list[0])
+          .filter((a): a is AgentPresence & { presence_ref: string } => !!a && a.status !== "away");
+        setAgentsOnline(here.length > 0);
+        setAgents(here);
       })
       .subscribe();
     return () => {
@@ -312,7 +487,11 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
     void channelRef.current?.send({ type: "broadcast", event: "typing", payload: { from: "visitor" } });
   };
 
-  const greeting = agentsOnline === false ? t.greetingAway : t.greeting;
+  const away = config?.open_now === false || agentsOnline === false;
+  const greeting = away ? texts.greeting_away : texts.greeting;
+  const agentNames = [...new Set(agents.map((a) => a.name).filter(Boolean))].slice(0, 3);
+
+  if (!loaded || (hiddenHere && !token)) return null;
 
   return (
     <>
@@ -320,7 +499,10 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
       {invite && !open && (
         <div
           role="status"
-          className="fixed bottom-24 right-5 z-50 w-[min(19rem,calc(100vw-2.5rem))] rounded-3xl rounded-br-md bg-surface p-4 pr-10 shadow-[0_18px_50px_-16px_rgba(11,16,32,0.55)] ring-1 ring-line motion-safe:animate-[fade-in_300ms_ease-out] dark:bg-card"
+          className={cn(
+            "fixed bottom-24 z-50 w-[min(19rem,calc(100vw-2.5rem))] rounded-3xl bg-surface p-4 pr-10 shadow-[0_18px_50px_-16px_rgba(11,16,32,0.55)] ring-1 ring-line motion-safe:animate-[fade-in_300ms_ease-out] dark:bg-card",
+            left ? "left-5 rounded-bl-md" : "right-5 rounded-br-md",
+          )}
         >
           <button
             type="button"
@@ -338,7 +520,7 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
             }}
             className="flex items-start gap-3 text-left"
           >
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-deep-700">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-deep-700" style={accent}>
               <Image src="/images/logos/favico.png" alt="" width={20} height={20} className="h-5 w-5 object-contain" />
             </span>
             <span>
@@ -356,15 +538,17 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
         onClick={() => (open ? close() : setOpen(true))}
         aria-expanded={open}
         aria-controls="live-chat-panel"
-        aria-label={unread ? `${t.launcher} · ${t.unread.replace("{n}", String(unread))}` : t.launcher}
+        aria-label={unread ? `${texts.launcher} · ${t.unread.replace("{n}", String(unread))}` : texts.launcher}
+        style={accent}
         className={cn(
-          "fixed bottom-5 right-5 z-50 inline-flex h-14 items-center gap-2.5 rounded-full bg-deep-700 pl-4 pr-5 text-[0.95rem] font-semibold text-white shadow-[0_14px_34px_-12px_rgba(11,16,32,0.6)] ring-1 ring-white/10 transition-[transform,background-color] hover:bg-deep-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 motion-safe:hover:-translate-y-0.5 dark:bg-brand-green dark:text-deep-950 dark:hover:bg-brand-green-dark",
+          "fixed bottom-5 z-50 inline-flex h-14 items-center gap-2.5 rounded-full bg-deep-700 pl-4 pr-5 text-[0.95rem] font-semibold text-white shadow-[0_14px_34px_-12px_rgba(11,16,32,0.6)] ring-1 ring-white/10 transition-[transform,background-color,filter] hover:bg-deep-600 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 motion-safe:hover:-translate-y-0.5 dark:bg-brand-green dark:text-deep-950 dark:hover:bg-brand-green-dark",
+          left ? "left-5" : "right-5",
           "max-sm:w-14 max-sm:justify-center max-sm:px-0",
           open && "max-md:hidden",
         )}
       >
         {open ? <X className="h-6 w-6" aria-hidden /> : <MessagesSquare className="h-6 w-6" aria-hidden />}
-        <span className="max-sm:sr-only">{t.launcher}</span>
+        <span className="max-sm:sr-only">{texts.launcher}</span>
         {unread > 0 && !open && (
           <span
             aria-hidden
@@ -385,12 +569,13 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
         hidden={!open}
         className={cn(
           "fixed z-[55] flex flex-col overflow-hidden bg-surface text-heading shadow-[0_24px_70px_-20px_rgba(11,16,32,0.5)] ring-1 ring-line dark:bg-card",
-          "inset-0 md:inset-auto md:bottom-24 md:right-5 md:h-[min(38rem,calc(100dvh-8rem))] md:w-[24rem] md:rounded-3xl",
+          "inset-0 md:inset-auto md:bottom-24 md:h-[min(38rem,calc(100dvh-8rem))] md:w-[24rem] md:rounded-3xl",
+          left ? "md:left-5" : "md:right-5",
         )}
       >
         {/* Encabezado */}
         <div className="flex items-center gap-3 border-b border-line px-5 py-4">
-          <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-deep-700">
+          <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-deep-700" style={accent}>
             <Image src="/images/logos/favico.png" alt="" width={26} height={26} className="h-6.5 w-6.5 object-contain" />
             <span
               aria-hidden
@@ -402,12 +587,26 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
           </span>
           <div className="min-w-0 flex-1">
             <h2 id={titleId} className="text-base leading-tight text-heading">
-              {t.title}
+              {texts.title}
             </h2>
             {agentsOnline !== null && (
               <p className="mt-0.5 truncate text-xs text-muted">{agentsOnline ? t.agentsOnline : t.agentsAway}</p>
             )}
           </div>
+          {config?.show_agents !== false && agentNames.length > 0 && (
+            <div className="flex -space-x-2" title={agentNames.join(", ")}>
+              <span className="sr-only">{w.agentsHere.replace("{names}", agentNames.join(", "))}</span>
+              {agentNames.map((name) => (
+                <span
+                  key={name}
+                  aria-hidden
+                  className="grid h-8 w-8 place-items-center rounded-full bg-card-soft text-[0.7rem] font-bold text-heading ring-2 ring-surface dark:bg-white/10 dark:ring-card"
+                >
+                  {initials(name)}
+                </span>
+              ))}
+            </div>
+          )}
           {token && (
             <div className="relative">
               <button
@@ -446,6 +645,7 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
           <Conversation
             locale={locale}
             token={token}
+            topic={topic}
             messages={messages}
             askRating={status === "closed" && hasAgentReply && !rated}
             onRated={() => setRated(true)}
@@ -453,11 +653,12 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
             agentSeenAt={agentSeenAt}
             typing={typing}
             greeting={greeting}
+            accent={accent}
             onSent={() => void load(token)}
             onTyping={notifyTyping}
           />
         ) : (
-          <StartForm locale={locale} greeting={greeting} agentsOnline={agentsOnline} />
+          <StartForm locale={locale} greeting={greeting} agentsOnline={agentsOnline} fields={config?.fields ?? null} accent={accent} />
         )}
       </div>
     </>
@@ -468,8 +669,33 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
 /*  Inicio: datos de contacto y primer mensaje                         */
 /* ------------------------------------------------------------------ */
 
-function StartForm({ locale, greeting, agentsOnline }: { locale: Locale; greeting: string; agentsOnline: boolean | null }) {
+/** Modos efectivos: siempre queda al menos un dato de contacto. */
+function contactModes(fields: { email: FieldMode; phone: FieldMode } | null) {
+  let email: FieldMode = fields?.email ?? "optional";
+  let phone: FieldMode = fields?.phone ?? "optional";
+  if (email === "hidden" && phone === "hidden") email = phone = "optional";
+  if (email === "hidden") phone = "required";
+  if (phone === "hidden") email = "required";
+  return { email, phone };
+}
+
+function StartForm({
+  locale,
+  greeting,
+  agentsOnline,
+  fields,
+  accent,
+}: {
+  locale: Locale;
+  greeting: string;
+  agentsOnline: boolean | null;
+  fields: { email: FieldMode; phone: FieldMode } | null;
+  accent: Accent;
+}) {
   const t = liveChatCopy[locale].widget;
+  const w = chatWidgetCopy[locale];
+  const modes = contactModes(fields);
+  const eitherContact = modes.email === "optional" && modes.phone === "optional";
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "", website: "" });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -479,11 +705,17 @@ function StartForm({ locale, greeting, agentsOnline }: { locale: Locale; greetin
   const set = (key: keyof typeof form) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [key]: event.target.value }));
 
+  const emailLabel = modes.email === "required" ? t.email : eitherContact ? t.email : w.emailOptional;
+  const phoneLabel = modes.phone === "required" ? w.phoneRequired : eitherContact ? t.phone : w.phoneOptional;
+  const hint = eitherContact ? t.contactHint : modes.phone === "hidden" ? w.contactEmail : modes.email === "hidden" ? w.contactPhone : null;
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const email = form.email.trim();
-    const phone = form.phone.trim();
+    const email = modes.email === "hidden" ? "" : form.email.trim();
+    const phone = modes.phone === "hidden" ? "" : form.phone.trim();
     if (!form.name.trim() || !form.message.trim() || (!email && !phone)) return setError(t.errors.required);
+    if (modes.email === "required" && !email) return setError(w.errors.emailRequired);
+    if (modes.phone === "required" && !phone) return setError(w.errors.phoneRequired);
     if (email && !EMAIL_RE.test(email)) return setError(t.errors.email);
     setError(null);
     setBusy(true);
@@ -501,7 +733,16 @@ function StartForm({ locale, greeting, agentsOnline }: { locale: Locale; greetin
     });
     setBusy(false);
     if (rpcError || !data) {
-      return setError(rpcError?.message.includes("rate_limited") ? t.errors.rate : t.errors.generic);
+      const msg = rpcError?.message ?? "";
+      return setError(
+        msg.includes("rate_limited")
+          ? t.errors.rate
+          : msg.includes("chat_disabled")
+            ? w.errors.disabled
+            : msg.includes("invalid")
+              ? w.errors.invalid
+              : t.errors.generic,
+      );
     }
     const token = (data as { token: string }).token;
     // Nadie conectado: respuesta automática con el horario de atención.
@@ -521,20 +762,42 @@ function StartForm({ locale, greeting, agentsOnline }: { locale: Locale; greetin
             <label htmlFor={ids.name} className="mb-1 block text-xs font-semibold text-muted">
               {t.name}
             </label>
-            <input id={ids.name} data-autofocus value={form.name} onChange={set("name")} autoComplete="name" maxLength={120} className={field} />
+            <input id={ids.name} data-autofocus value={form.name} onChange={set("name")} autoComplete="name" maxLength={120} required className={field} />
           </div>
-          <div>
-            <label htmlFor={ids.email} className="mb-1 block text-xs font-semibold text-muted">
-              {t.email}
-            </label>
-            <input id={ids.email} type="email" value={form.email} onChange={set("email")} autoComplete="email" maxLength={200} className={field} />
-          </div>
-          <div>
-            <label htmlFor={ids.phone} className="mb-1 block text-xs font-semibold text-muted">
-              {t.phone}
-            </label>
-            <input id={ids.phone} type="tel" value={form.phone} onChange={set("phone")} autoComplete="tel" maxLength={40} className={field} />
-          </div>
+          {modes.email !== "hidden" && (
+            <div>
+              <label htmlFor={ids.email} className="mb-1 block text-xs font-semibold text-muted">
+                {emailLabel}
+              </label>
+              <input
+                id={ids.email}
+                type="email"
+                value={form.email}
+                onChange={set("email")}
+                autoComplete="email"
+                maxLength={200}
+                required={modes.email === "required"}
+                className={field}
+              />
+            </div>
+          )}
+          {modes.phone !== "hidden" && (
+            <div>
+              <label htmlFor={ids.phone} className="mb-1 block text-xs font-semibold text-muted">
+                {phoneLabel}
+              </label>
+              <input
+                id={ids.phone}
+                type="tel"
+                value={form.phone}
+                onChange={set("phone")}
+                autoComplete="tel"
+                maxLength={40}
+                required={modes.phone === "required"}
+                className={field}
+              />
+            </div>
+          )}
           <div>
             <label htmlFor={ids.message} className="mb-1 block text-xs font-semibold text-muted">
               {t.message}
@@ -545,6 +808,7 @@ function StartForm({ locale, greeting, agentsOnline }: { locale: Locale; greetin
               onChange={set("message")}
               rows={3}
               maxLength={2000}
+              required
               className={cn(inputClass, "h-auto resize-none rounded-xl py-2.5 text-sm leading-relaxed")}
             />
           </div>
@@ -559,7 +823,7 @@ function StartForm({ locale, greeting, agentsOnline }: { locale: Locale; greetin
             aria-hidden
             className="absolute -left-[9999px] h-0 w-0 opacity-0"
           />
-          <p className="text-xs text-muted">{t.contactHint}</p>
+          {hint && <p className="text-xs text-muted">{hint}</p>}
         </div>
       </div>
       <div className="border-t border-line px-5 py-4">
@@ -568,7 +832,7 @@ function StartForm({ locale, greeting, agentsOnline }: { locale: Locale; greetin
             {error}
           </p>
         )}
-        <button type="submit" disabled={busy} className={buttonClasses("primary", "md", "w-full disabled:opacity-60")}>
+        <button type="submit" disabled={busy} style={accent} className={buttonClasses("primary", "md", "w-full disabled:opacity-60")}>
           {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
           {t.start}
         </button>
@@ -591,6 +855,7 @@ function StartForm({ locale, greeting, agentsOnline }: { locale: Locale; greetin
 function Conversation({
   locale,
   token,
+  topic,
   messages,
   askRating,
   onRated,
@@ -598,11 +863,13 @@ function Conversation({
   agentSeenAt,
   typing,
   greeting,
+  accent,
   onSent,
   onTyping,
 }: {
   locale: Locale;
   token: string;
+  topic: string | null;
   messages: Message[];
   askRating: boolean;
   onRated: () => void;
@@ -610,15 +877,22 @@ function Conversation({
   agentSeenAt: string | null;
   typing: string | null;
   greeting: string;
+  accent: Accent;
   onSent: () => void;
   onTyping: () => void;
 }) {
   const t = liveChatCopy[locale].widget;
+  const w = chatWidgetCopy[locale];
+  const pro = chatProCopy[locale];
   const [body, setBody] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
+  // Sobre la burbuja propia (color de los ajustes), ¿el adjunto va en claro u oscuro?
+  const ownTone = accent ? (accent.color === "#ffffff" ? "dark" : "light") : "dark";
 
   // Bajar al último mensaje cuando llega algo nuevo.
   const last = messages.at(-1)?.id;
@@ -642,6 +916,24 @@ function Conversation({
     onSent();
   };
 
+  const attach = async (file: File) => {
+    if (!topic) return;
+    setUploading(true);
+    setError(null);
+    const result = await uploadChatFile(supabase(), topic, file);
+    if ("error" in result) {
+      setUploading(false);
+      return setError(pro.attach.errors[result.error]);
+    }
+    const { error: rpcError } = await supabase().rpc("chat_send_file", {
+      p_token: token,
+      p: result.attachment as unknown as Json,
+    });
+    setUploading(false);
+    if (rpcError) return setError(rpcError.message.includes("rate_limited") ? t.errors.rate : pro.attach.errors.upload);
+    onSent();
+  };
+
   const time = (iso: string) =>
     new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(new Date(iso));
 
@@ -659,27 +951,41 @@ function Conversation({
             if (m.sender === "system") {
               return (
                 <li key={m.id} className="py-2 text-center text-xs text-muted">
-                  {t.system[m.body] ?? m.body}
+                  {w.system[m.body] ?? t.system[m.body] ?? m.body}
                 </li>
               );
             }
             const mine = m.sender === "visitor";
+            const bot = m.sender === "bot";
             const prev = messages[i - 1];
-            const showName = !mine && (prev?.sender !== "agent" || prev.agent !== m.agent);
+            const showName = !mine && (prev?.sender !== m.sender || prev.agent !== m.agent);
+            const onlyFile = !!m.attachment && m.body === `📎 ${m.attachment.name}`;
             return (
               <li key={m.id} className={cn("flex flex-col", mine ? "items-end" : "items-start")}>
-                {showName && <span className="mb-1 ml-1 text-xs font-semibold text-muted">{m.agent || t.someone}</span>}
-                <p
+                {showName && (
+                  <span className="mb-1 ml-1 flex items-center gap-1 text-xs font-semibold text-muted">
+                    {bot && <Bot className="h-3.5 w-3.5" aria-hidden />}
+                    {bot ? pro.bot : m.agent || t.someone}
+                  </span>
+                )}
+                <div
+                  style={mine ? accent : undefined}
                   className={cn(
-                    "max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+                    "grid max-w-[85%] gap-2 whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
                     mine
                       ? "rounded-br-md bg-deep-700 text-white dark:bg-brand-green dark:text-deep-950"
                       : "rounded-bl-md bg-surface-soft text-heading dark:bg-white/[0.08]",
+                    m.attachment && "p-2",
                   )}
                   title={time(m.created_at)}
                 >
-                  {m.body}
-                </p>
+                  {m.attachment && <AttachmentView supabase={supabase()} attachment={m.attachment} tone={mine ? ownTone : "light"} />}
+                  {!onlyFile && (
+                    <p className={cn(m.attachment && "px-2 pb-1")}>
+                      <RichText text={m.body} />
+                    </p>
+                  )}
+                </div>
                 {mine && m.id === lastVisitor?.id && (
                   <span className="mr-1 mt-1 text-[0.7rem] text-muted">
                     {seen ? t.seen : t.sent} · {time(m.created_at)}
@@ -705,7 +1011,7 @@ function Conversation({
         )}
       </div>
 
-      {askRating && <RatingPrompt locale={locale} token={token} onRated={onRated} />}
+      {askRating && <RatingPrompt locale={locale} token={token} onRated={onRated} accent={accent} />}
 
       {status === "closed" && (
         <p className="border-t border-line bg-surface-soft px-5 py-2.5 text-xs text-muted dark:bg-white/[0.04]">
@@ -726,6 +1032,29 @@ function Conversation({
           </p>
         )}
         <div className="flex items-end gap-2">
+          <input
+            ref={fileRef}
+            type="file"
+            accept={ATTACHMENT_ACCEPT.join(",")}
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = "";
+              if (file) void attach(file);
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading || !topic}
+            aria-label={uploading ? pro.attach.uploading : w.attach}
+            title={uploading ? pro.attach.uploading : w.attach}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-surface-soft hover:text-heading disabled:opacity-40 dark:hover:bg-white/[0.06]"
+          >
+            {uploading ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : <Paperclip className="h-5 w-5" aria-hidden />}
+          </button>
           <label htmlFor={inputId} className="sr-only">
             {t.placeholder}
           </label>
@@ -752,6 +1081,7 @@ function Conversation({
             type="submit"
             disabled={busy || !body.trim()}
             aria-label={t.send}
+            style={accent}
             className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-deep-700 text-white transition-colors hover:bg-deep-600 disabled:opacity-40 dark:bg-brand-green dark:text-deep-950"
           >
             {busy ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : <SendHorizontal className="h-5 w-5" aria-hidden />}
@@ -766,7 +1096,7 @@ function Conversation({
 /*  Calificación al cerrar                                             */
 /* ------------------------------------------------------------------ */
 
-function RatingPrompt({ locale, token, onRated }: { locale: Locale; token: string; onRated: () => void }) {
+function RatingPrompt({ locale, token, onRated, accent }: { locale: Locale; token: string; onRated: () => void; accent: Accent }) {
   const t = liveChatCopy[locale].widget.rating;
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -830,6 +1160,7 @@ function RatingPrompt({ locale, token, onRated }: { locale: Locale; token: strin
           type="button"
           onClick={submit}
           disabled={!rating || state === "busy"}
+          style={accent}
           className="inline-flex h-10 items-center gap-2 rounded-full bg-deep-700 px-5 text-sm font-semibold text-white disabled:opacity-40 dark:bg-brand-green dark:text-deep-950"
         >
           {state === "busy" && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}

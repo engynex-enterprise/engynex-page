@@ -14,10 +14,14 @@ import { cn } from "@/lib/utils";
 
 export default async function PortalHome({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ r?: string }>;
 }) {
   const { locale } = await params;
+  const { r } = await searchParams;
+  const days = r === "7" || r === "90" ? Number(r) : 30;
   if (!isLocale(locale)) notFound();
   const { supabase, profile } = await requireProfile(locale);
   const t = portalCopy[locale].portal;
@@ -133,7 +137,7 @@ export default async function PortalHome({
   }
 
   // ---------------------- Empleados ----------------------
-  return <BusinessHome locale={locale} supabase={supabase} profile={profile} hello={hello} />;
+  return <BusinessHome locale={locale} supabase={supabase} profile={profile} hello={hello} days={days} />;
 }
 
 function QuickCard({

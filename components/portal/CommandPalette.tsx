@@ -44,6 +44,13 @@ export function CommandPalette({
         event.preventDefault();
         setOpen((v) => !v);
       }
+      // "/" abre el buscador, salvo que se esté escribiendo en un campo.
+      const target = event.target as HTMLElement | null;
+      const typing = target?.closest("input, textarea, select, [contenteditable=true]");
+      if (event.key === "/" && !typing && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
+        setOpen(true);
+      }
     };
     const onOpen = () => setOpen(true);
     window.addEventListener("keydown", onKey);

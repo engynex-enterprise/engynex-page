@@ -21,6 +21,9 @@ export type IntegrationKey =
   | "whatsapp_access_token"
   | "whatsapp_app_secret"
   | "whatsapp_verify_token"
+  | "meta_page_id"
+  | "meta_page_token"
+  | "instagram_account_id"
   | "ads_feed_user"
   | "ads_feed_password"
   | "ads_conversion_qualified"
@@ -49,6 +52,9 @@ const ENV_FALLBACK: Record<IntegrationKey, string> = {
   whatsapp_access_token: "WHATSAPP_ACCESS_TOKEN",
   whatsapp_app_secret: "WHATSAPP_APP_SECRET",
   whatsapp_verify_token: "WHATSAPP_VERIFY_TOKEN",
+  meta_page_id: "META_PAGE_ID",
+  meta_page_token: "META_PAGE_TOKEN",
+  instagram_account_id: "INSTAGRAM_ACCOUNT_ID",
   ads_feed_user: "ADS_FEED_USER",
   ads_feed_password: "ADS_FEED_PASSWORD",
   ads_conversion_qualified: "ADS_CONVERSION_QUALIFIED",

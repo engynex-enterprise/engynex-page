@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
   Building2,
   CalendarDays,
-  ChevronsLeft,
-  ChevronsRight,
+  ChevronDown,
+  ChevronsUpDown,
   CircleHelp,
   ExternalLink,
   FileBarChart,
@@ -23,16 +24,17 @@ import {
   Megaphone,
   Menu,
   MessagesSquare,
+  MoreHorizontal,
   Plug,
   Search,
   Settings,
   UserCog,
+  UserPlus,
   UserRound,
   Workflow,
   X,
   type LucideIcon,
 } from "lucide-react";
-import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GreenLeadAlerts } from "@/components/crm/GreenLeadAlerts";
 import { ChatAlerts } from "@/components/chat/ChatAlerts";
@@ -46,6 +48,7 @@ import { cn } from "@/lib/utils";
 
 type NavKey = Exclude<keyof (typeof portalCopy)["es"]["portal"]["nav"], "site">;
 type Group = keyof (typeof shellCopy)["es"]["groups"] | "main";
+type Counter = "chat" | "tickets" | "tasks";
 
 interface NavItem {
   key: NavKey;
@@ -54,25 +57,26 @@ interface NavItem {
   group: Group;
   /** Roles que lo ven; sin lista, todos. */
   roles?: AppRole[];
+  counter?: Counter;
 }
 
 const CHAT_ROLES: AppRole[] = ["admin", "sales", "support"];
 
 /**
- * Módulos del portal, agrupados como en Meta Business Suite. Los permisos
- * reales los imponen las páginas (requireProfile) y la base de datos (RLS).
+ * Módulos del portal agrupados en secciones plegables. Los permisos reales
+ * los imponen las páginas (requireProfile) y la base de datos (RLS).
  */
 const NAV: NavItem[] = [
   { key: "home", path: "", icon: Home, group: "main" },
   { key: "crm", path: "crm", icon: KanbanSquare, group: "sales", roles: ["admin", "sales", "marketing"] },
-  { key: "chat", path: "chat", icon: MessagesSquare, group: "sales", roles: CHAT_ROLES },
+  { key: "chat", path: "chat", icon: MessagesSquare, group: "sales", roles: CHAT_ROLES, counter: "chat" },
   { key: "followups", path: "seguimiento", icon: MailCheck, group: "sales", roles: ["admin", "sales", "marketing"] },
-  { key: "tasks", path: "tareas", icon: ListChecks, group: "sales", roles: ["admin", "sales", "support"] },
+  { key: "tasks", path: "tareas", icon: ListChecks, group: "sales", roles: ["admin", "sales", "support"], counter: "tasks" },
   { key: "agenda", path: "agenda", icon: CalendarDays, group: "sales", roles: ["admin", "sales"] },
   { key: "campaigns", path: "campanas", icon: Megaphone, group: "marketing", roles: ["admin", "marketing"] },
   { key: "analytics", path: "analitica", icon: BarChart3, group: "marketing", roles: ["admin", "marketing", "sales"] },
   { key: "reports", path: "reportes", icon: FileBarChart, group: "marketing", roles: ["admin", "sales", "marketing"] },
-  { key: "support", path: "soporte", icon: Headset, group: "service", roles: ["admin", "support", "sales"] },
+  { key: "support", path: "soporte", icon: Headset, group: "service", roles: ["admin", "support", "sales"], counter: "tickets" },
   { key: "accounts", path: "clientes", icon: Building2, group: "service", roles: ["admin", "sales", "support"] },
   { key: "tickets", path: "soporte", icon: LifeBuoy, group: "client", roles: ["client", "provider"] },
   { key: "documents", path: "documentos", icon: FolderOpen, group: "client", roles: ["client", "provider"] },
@@ -84,59 +88,76 @@ const NAV: NavItem[] = [
 
 const GROUP_ORDER: Group[] = ["main", "sales", "marketing", "service", "client", "admin"];
 
-/* Menú contraído (solo iconos), recordado en el navegador. */
-const COLLAPSE_KEY = "engynex-portal-nav";
-const COLLAPSE_EVENT = "engynex-portal-nav-change";
-const readCollapsed = () => {
+/* Secciones plegadas, recordadas en el navegador. */
+const FOLD_KEY = "engynex-portal-folded";
+const FOLD_EVENT = "engynex-portal-folded-change";
+const readFolded = () => {
   try {
-    return localStorage.getItem(COLLAPSE_KEY) === "collapsed";
+    return localStorage.getItem(FOLD_KEY) ?? "";
   } catch {
-    return false;
+    return "";
   }
 };
-const subscribeCollapsed = (cb: () => void) => {
-  window.addEventListener(COLLAPSE_EVENT, cb);
-  return () => window.removeEventListener(COLLAPSE_EVENT, cb);
+const subscribeFolded = (cb: () => void) => {
+  window.addEventListener(FOLD_EVENT, cb);
+  return () => window.removeEventListener(FOLD_EVENT, cb);
 };
-const setCollapsedStored = (value: boolean) => {
+const toggleFolded = (group: string) => {
+  const set = new Set(readFolded().split(",").filter(Boolean));
+  if (set.has(group)) set.delete(group);
+  else set.add(group);
   try {
-    localStorage.setItem(COLLAPSE_KEY, value ? "collapsed" : "expanded");
+    localStorage.setItem(FOLD_KEY, [...set].join(","));
   } catch {
     // Sin almacenamiento: vale solo para esta página.
   }
-  window.dispatchEvent(new Event(COLLAPSE_EVENT));
+  window.dispatchEvent(new Event(FOLD_EVENT));
 };
 
+const initialsOf = (name: string) =>
+  name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+
 /**
- * Marco del portal con el lenguaje de las herramientas de Meta (Business
- * Suite): barra superior blanca con buscador, ayuda, notificaciones y cuenta;
- * menú lateral agrupado y plegable; contenido sobre gris #F0F2F5.
+ * Marco del portal con el diseño de CRM de referencia: barra lateral gris
+ * claro (espacio de trabajo, buscador con "/", secciones plegables con
+ * contadores y tarjeta de usuario) y área blanca con encabezado de página
+ * (título, ayuda, configuración, notificaciones, equipo e "Invitar").
  */
 export function PortalShell({
   locale,
   profile,
+  team,
+  counts,
   children,
 }: {
   locale: Locale;
   profile: Pick<Profile, "id" | "full_name" | "email" | "role" | "kind">;
+  team: { id: string; name: string }[];
+  counts: { tickets: number; tasks: number };
   children: React.ReactNode;
 }) {
   const t = portalCopy[locale].portal;
   const s = shellCopy[locale];
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [accountOpen, setAccountOpen] = useState(false);
+  const [userMenu, setUserMenu] = useState(false);
   const [chatUnread, setChatUnread] = useState(0);
-  const collapsed = useSyncExternalStore(subscribeCollapsed, readCollapsed, () => false);
-  const accountRef = useRef<HTMLDivElement>(null);
+  const folded = useSyncExternalStore(subscribeFolded, readFolded, () => "");
+  const userRef = useRef<HTMLDivElement>(null);
   const base = `/${locale}/portal`;
+  const employee = profile.kind === "employee";
 
   // Cerrar menús al navegar.
   const [lastPath, setLastPath] = useState(pathname);
   if (lastPath !== pathname) {
     setLastPath(pathname);
     setMobileOpen(false);
-    setAccountOpen(false);
+    setUserMenu(false);
   }
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -145,216 +166,246 @@ export function PortalShell({
     };
   }, [mobileOpen]);
   useEffect(() => {
-    if (!accountOpen) return;
+    if (!userMenu) return;
     const onDown = (event: PointerEvent) => {
-      if (!accountRef.current?.contains(event.target as Node)) setAccountOpen(false);
+      if (!userRef.current?.contains(event.target as Node)) setUserMenu(false);
     };
     window.addEventListener("pointerdown", onDown);
     return () => window.removeEventListener("pointerdown", onDown);
-  }, [accountOpen]);
+  }, [userMenu]);
 
   const items = NAV.filter((item) => !item.roles || item.roles.includes(profile.role));
   const href = (item: NavItem) => (item.path ? `${base}/${item.path}` : base);
   const isActive = (item: NavItem) => (item.path ? pathname.startsWith(href(item)) : pathname === base);
   const label = (item: NavItem) => t.nav[item.key];
+  const current = items.find(isActive);
   const name = profile.full_name ?? profile.email;
-  const initials = name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
+  const counter = (c?: Counter) => (c === "chat" ? chatUnread : c === "tickets" ? counts.tickets : c === "tasks" ? counts.tasks : 0);
+  const foldedSet = new Set(folded.split(",").filter(Boolean));
 
-  const navList = (compact: boolean) => (
-    <nav aria-label={t.menu} className="flex flex-col gap-0.5">
-      {GROUP_ORDER.map((group) => {
-        const groupItems = items.filter((i) => i.group === group);
-        if (groupItems.length === 0) return null;
-        return (
-          <div key={group} className={cn(group !== "main" && "mt-3 border-t border-line pt-3")}>
-            {group !== "main" && !compact && (
-              <p className="px-3 pb-1.5 text-[0.8rem] font-semibold text-muted">{s.groups[group]}</p>
-            )}
-            <ul className="grid gap-0.5">
-              {groupItems.map((item) => {
-                const active = isActive(item);
-                const Icon = item.icon;
-                return (
-                  <li key={item.key}>
-                    <Link
-                      href={href(item)}
-                      aria-current={active ? "page" : undefined}
-                      title={compact ? label(item) : undefined}
-                      className={cn(
-                        "relative flex h-10 items-center gap-3 rounded-md text-[0.94rem] transition-colors",
-                        compact ? "justify-center px-0" : "px-3",
-                        active ? "bg-[var(--meta-active)] font-semibold text-heading" : "text-heading hover:bg-[var(--meta-hover)]",
-                      )}
-                    >
-                      <Icon className={cn("h-5 w-5 shrink-0", active ? "text-accent" : "text-muted")} aria-hidden />
-                      {!compact && <span className="min-w-0 flex-1 truncate">{label(item)}</span>}
-                      {item.key === "chat" && chatUnread > 0 && (
-                        <span
+  const sidebar = (
+    <div className="flex h-full flex-col">
+      {/* Espacio de trabajo */}
+      <div className="flex items-center gap-3 px-4 pb-3 pt-4">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-deep-700 shadow-sm">
+          <Image src="/images/logos/favico.png" alt="" width={24} height={24} className="h-6 w-6 object-contain" />
+        </span>
+        <Link href={base} className="min-w-0 flex-1">
+          <span className="block truncate text-[0.95rem] font-semibold text-heading">Engynex</span>
+          <span className="block truncate text-xs text-muted">
+            {s.workspace} · {employee ? t.roleLabel[profile.role] : t.kindLabel[profile.kind]}
+          </span>
+        </Link>
+        <Link href={`/${locale}`} aria-label={t.nav.site} title={t.nav.site} className="grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-[var(--meta-hover)] hover:text-heading">
+          <ChevronsUpDown className="h-4 w-4" aria-hidden />
+        </Link>
+      </div>
+
+      {/* Buscador */}
+      <div className="px-4 pb-2">
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event(OPEN_SEARCH_EVENT))}
+          className="flex h-10 w-full items-center gap-2.5 rounded-[10px] bg-[#efeff1] px-3 text-left text-sm text-muted transition-colors hover:bg-[#e8e8eb] dark:bg-white/[0.06] dark:hover:bg-white/[0.09]"
+        >
+          <Search className="h-4 w-4 shrink-0" aria-hidden />
+          <span className="min-w-0 flex-1">{s.search.split(" ")[0]}</span>
+          <kbd className="grid h-5 min-w-5 place-items-center rounded-md border border-line-strong bg-surface px-1 text-[0.7rem] font-semibold text-muted">/</kbd>
+        </button>
+      </div>
+
+      {/* Navegación */}
+      <nav aria-label={t.menu} className="min-h-0 flex-1 overflow-y-auto px-3 pb-4">
+        {GROUP_ORDER.map((group) => {
+          const groupItems = items.filter((i) => i.group === group);
+          if (groupItems.length === 0) return null;
+          const isFolded = group !== "main" && foldedSet.has(group);
+          return (
+            <div key={group} className="mt-3 first:mt-1">
+              {group !== "main" && (
+                <button
+                  type="button"
+                  onClick={() => toggleFolded(group)}
+                  aria-expanded={!isFolded}
+                  className="flex w-full items-center gap-2 px-2 py-1.5 text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-muted hover:text-heading"
+                >
+                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isFolded && "-rotate-90")} aria-hidden />
+                  {s.groups[group]}
+                </button>
+              )}
+              {!isFolded && (
+                <ul className="mt-0.5 grid gap-0.5">
+                  {groupItems.map((item) => {
+                    const active = isActive(item);
+                    const Icon = item.icon;
+                    const n = counter(item.counter);
+                    return (
+                      <li key={item.key}>
+                        <Link
+                          href={href(item)}
+                          aria-current={active ? "page" : undefined}
                           className={cn(
-                            "grid h-5 min-w-5 place-items-center rounded-full bg-red-600 px-1.5 text-[0.7rem] font-bold text-white",
-                            compact && "absolute right-1.5 top-1",
+                            "flex h-9 items-center gap-3 rounded-[10px] px-2.5 text-[0.92rem] transition-colors",
+                            active
+                              ? "bg-surface font-semibold text-heading shadow-[0_1px_2px_rgba(16,24,40,0.08),0_0_0_1px_rgba(16,24,40,0.04)]"
+                              : "text-body hover:bg-[#efeff1] hover:text-heading dark:hover:bg-white/[0.06]",
                           )}
                         >
-                          {chatUnread}
-                        </span>
-                      )}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+                          <Icon className={cn("h-[18px] w-[18px] shrink-0", active ? "text-heading" : "text-muted")} strokeWidth={1.8} aria-hidden />
+                          <span className="min-w-0 flex-1 truncate">{label(item)}</span>
+                          {n > 0 && (
+                            <span className="grid h-5 min-w-5 place-items-center rounded-md border border-line-strong bg-surface px-1.5 text-[0.7rem] font-semibold tabular-nums text-heading">
+                              {n > 99 ? "99+" : n}
+                            </span>
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </nav>
+
+      {/* Usuario */}
+      <div ref={userRef} className="relative border-t border-line p-3">
+        <div className="flex items-center gap-3 rounded-[10px] p-1.5">
+          <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-deep-700 text-xs font-bold text-white dark:bg-white dark:text-deep-700">
+            {initialsOf(name)}
+            <span aria-hidden className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-[var(--sidebar)]" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[0.92rem] font-semibold text-heading">{name}</span>
+            <span className="block truncate text-xs text-muted">{profile.email}</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setUserMenu((v) => !v)}
+            aria-expanded={userMenu}
+            aria-label={s.more}
+            className="grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-[var(--meta-hover)] hover:text-heading"
+          >
+            <MoreHorizontal className="h-5 w-5" aria-hidden />
+          </button>
+        </div>
+        {userMenu && (
+          <div className="absolute bottom-full left-3 right-3 z-50 mb-2 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
+            <Link href={`${base}/perfil`} className="flex h-10 items-center gap-3 rounded-lg px-2.5 text-sm text-heading hover:bg-[var(--meta-hover)]">
+              <UserRound className="h-4 w-4 text-muted" aria-hidden />
+              {t.nav.profile}
+            </Link>
+            <Link href={`/${locale}`} className="flex h-10 items-center gap-3 rounded-lg px-2.5 text-sm text-heading hover:bg-[var(--meta-hover)]">
+              <ExternalLink className="h-4 w-4 text-muted" aria-hidden />
+              {t.nav.site}
+            </Link>
+            <div className="flex h-10 items-center gap-3 rounded-lg px-2.5 text-sm text-heading">
+              <ThemeToggle label="Tema" tone="light" />
+            </div>
+            <form action={`/${locale}/auth/signout`} method="post">
+              <button type="submit" className="flex h-10 w-full items-center gap-3 rounded-lg px-2.5 text-left text-sm text-red-600 hover:bg-[var(--meta-hover)]">
+                <LogOut className="h-4 w-4" aria-hidden />
+                {portalCopy[locale].userMenu.signOut}
+              </button>
+            </form>
           </div>
-        );
-      })}
-    </nav>
+        )}
+      </div>
+    </div>
   );
 
   const pages = items.map((item) => ({ label: label(item), href: href(item), icon: item.icon }));
+  const iconButton = "grid h-9 w-9 place-items-center rounded-full text-heading transition-colors hover:bg-[var(--meta-hover)]";
 
   return (
-    <div className="portal-theme min-h-dvh bg-surface-soft text-body">
-      {/* ---------------- Barra superior ---------------- */}
-      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-2 bg-surface px-2 shadow-[0_1px_2px_rgba(0,0,0,0.1)] sm:px-4 dark:bg-card">
-        <button
-          type="button"
-          onClick={() => setMobileOpen(true)}
-          aria-label={t.menu}
-          aria-expanded={mobileOpen}
-          className="grid h-10 w-10 place-items-center rounded-full hover:bg-[var(--meta-hover)] lg:hidden"
-        >
-          <Menu className="h-5 w-5" aria-hidden />
-        </button>
-        <Link href={base} className="flex shrink-0 items-center gap-2 px-1" aria-label="Engynex">
-          <Logo variant="adaptive" height={22} />
-          <span className="hidden rounded-md bg-card-soft px-2 py-0.5 text-xs font-bold text-heading sm:inline">{t.brand}</span>
-        </Link>
+    <div className="portal-theme min-h-dvh bg-surface text-body">
+      {/* Barra lateral (escritorio) */}
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[17.5rem] border-r border-line bg-[var(--sidebar)] lg:block">{sidebar}</aside>
 
-        <div className="flex flex-1 justify-center px-2">
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new Event(OPEN_SEARCH_EVENT))}
-            className="flex h-10 w-full max-w-md items-center gap-2 rounded-full bg-card-soft px-4 text-left text-[0.94rem] text-muted transition-colors hover:brightness-[0.97]"
-          >
-            <Search className="h-4 w-4 shrink-0" aria-hidden />
-            <span className="min-w-0 flex-1 truncate">{s.search}</span>
-            <kbd className="hidden rounded border border-line-strong px-1.5 text-[0.7rem] sm:inline">Ctrl K</kbd>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <Link
-            href={`/${locale}/ayuda`}
-            aria-label={s.help}
-            title={s.help}
-            className="hidden h-10 w-10 place-items-center rounded-full bg-card-soft text-heading hover:brightness-95 sm:grid"
-          >
-            <CircleHelp className="h-5 w-5" aria-hidden />
-          </Link>
-          <NotificationsBell locale={locale} userId={profile.id} />
-          <div ref={accountRef} className="relative">
-            <button
-              type="button"
-              onClick={() => setAccountOpen((v) => !v)}
-              aria-expanded={accountOpen}
-              aria-label={s.account}
-              className="grid h-10 w-10 place-items-center rounded-full bg-deep-700 text-xs font-bold text-white ring-offset-2 ring-offset-surface hover:ring-2 hover:ring-line-strong dark:bg-white dark:text-deep-700"
-            >
-              {initials}
-            </button>
-            {accountOpen && (
-              <div className="absolute right-0 top-12 z-50 w-72 rounded-lg bg-surface p-2 shadow-[0_12px_28px_0_rgba(0,0,0,0.2),0_2px_4px_0_rgba(0,0,0,0.1)] dark:bg-card">
-                <div className="flex items-center gap-3 rounded-lg p-2">
-                  <span className="grid h-11 w-11 place-items-center rounded-full bg-deep-700 text-sm font-bold text-white dark:bg-white dark:text-deep-700">
-                    {initials}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-[0.95rem] font-semibold text-heading">{name}</span>
-                    <span className="block text-xs text-muted">{t.roleLabel[profile.role]}</span>
-                  </span>
-                </div>
-                <div className="my-1 border-t border-line" />
-                <Link href={`${base}/perfil`} className="flex h-11 items-center gap-3 rounded-md px-2 text-[0.94rem] text-heading hover:bg-[var(--meta-hover)]">
-                  <span className="grid h-9 w-9 place-items-center rounded-full bg-card-soft"><UserRound className="h-5 w-5" aria-hidden /></span>
-                  {t.nav.profile}
-                </Link>
-                <Link href={`/${locale}`} className="flex h-11 items-center gap-3 rounded-md px-2 text-[0.94rem] text-heading hover:bg-[var(--meta-hover)]">
-                  <span className="grid h-9 w-9 place-items-center rounded-full bg-card-soft"><ExternalLink className="h-5 w-5" aria-hidden /></span>
-                  {t.nav.site}
-                </Link>
-                <div className="flex h-11 items-center gap-3 rounded-md px-2 text-[0.94rem] text-heading">
-                  <ThemeToggle label="Tema" tone="light" />
-                </div>
-                <form action={`/${locale}/auth/signout`} method="post">
-                  <button type="submit" className="flex h-11 w-full items-center gap-3 rounded-md px-2 text-left text-[0.94rem] text-heading hover:bg-[var(--meta-hover)]">
-                    <span className="grid h-9 w-9 place-items-center rounded-full bg-card-soft"><LogOut className="h-5 w-5" aria-hidden /></span>
-                    {portalCopy[locale].userMenu.signOut}
-                  </button>
-                </form>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* ---------------- Menú lateral (escritorio) ---------------- */}
-      <aside
-        className={cn(
-          "fixed bottom-0 left-0 top-14 z-30 hidden flex-col bg-surface shadow-[1px_0_2px_rgba(0,0,0,0.06)] transition-[width] lg:flex dark:bg-card",
-          collapsed ? "w-[4.5rem]" : "w-64",
-        )}
-      >
-        <div className="min-h-0 flex-1 overflow-y-auto px-2 py-3">{navList(collapsed)}</div>
-        <div className="border-t border-line p-2">
-          <button
-            type="button"
-            onClick={() => setCollapsedStored(!collapsed)}
-            aria-label={collapsed ? s.expand : s.collapse}
-            title={collapsed ? s.expand : s.collapse}
-            className={cn(
-              "flex h-10 w-full items-center gap-3 rounded-md text-[0.94rem] text-muted hover:bg-[var(--meta-hover)]",
-              collapsed ? "justify-center" : "px-3",
-            )}
-          >
-            {collapsed ? <ChevronsRight className="h-5 w-5" aria-hidden /> : <ChevronsLeft className="h-5 w-5" aria-hidden />}
-            {!collapsed && s.collapse}
-          </button>
-        </div>
-      </aside>
-
-      {/* ---------------- Menú móvil ---------------- */}
+      {/* Barra lateral (celular) */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button type="button" aria-label={portalCopy[locale].userMenu.close} onClick={() => setMobileOpen(false)} className="absolute inset-0 bg-black/40" />
-          <aside className="absolute inset-y-0 left-0 flex w-72 flex-col bg-surface shadow-2xl dark:bg-card">
-            <div className="flex h-14 items-center justify-between px-3">
-              <Logo variant="adaptive" height={22} />
-              <button
-                type="button"
-                onClick={() => setMobileOpen(false)}
-                aria-label={portalCopy[locale].userMenu.close}
-                className="grid h-10 w-10 place-items-center rounded-full hover:bg-[var(--meta-hover)]"
-              >
-                <X className="h-5 w-5" aria-hidden />
-              </button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-4">{navList(false)}</div>
+          <aside className="absolute inset-y-0 left-0 w-[17.5rem] bg-[var(--sidebar)] shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setMobileOpen(false)}
+              aria-label={portalCopy[locale].userMenu.close}
+              className="absolute right-2 top-3 z-10 grid h-9 w-9 place-items-center rounded-full hover:bg-[var(--meta-hover)]"
+            >
+              <X className="h-5 w-5" aria-hidden />
+            </button>
+            {sidebar}
           </aside>
         </div>
       )}
 
-      {/* ---------------- Contenido ---------------- */}
-      <main className={cn("pt-14 transition-[padding]", collapsed ? "lg:pl-[4.5rem]" : "lg:pl-64")}>
-        <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">{children}</div>
-      </main>
+      <div className="lg:pl-[17.5rem]">
+        {/* Encabezado de página */}
+        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-line bg-surface/95 px-4 backdrop-blur sm:px-6">
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            aria-label={t.menu}
+            aria-expanded={mobileOpen}
+            className="grid h-9 w-9 place-items-center rounded-full hover:bg-[var(--meta-hover)] lg:hidden"
+          >
+            <Menu className="h-5 w-5" aria-hidden />
+          </button>
+          <div id="portal-title-slot" className="portal-title-slot flex min-w-0 flex-1 items-baseline gap-2">
+            <span className="portal-title-fallback truncate text-xl font-semibold text-heading">{current ? label(current) : ""}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Link href={`/${locale}/ayuda`} aria-label={s.help} title={s.help} className={cn(iconButton, "hidden sm:grid")}>
+              <CircleHelp className="h-5 w-5" strokeWidth={1.8} aria-hidden />
+            </Link>
+            {profile.role === "admin" && (
+              <Link href={`${base}/configuracion`} aria-label={s.settings} title={s.settings} className={cn(iconButton, "hidden sm:grid")}>
+                <Settings className="h-5 w-5" strokeWidth={1.8} aria-hidden />
+              </Link>
+            )}
+            <NotificationsBell locale={locale} userId={profile.id} />
+          </div>
+          {employee && team.length > 0 && (
+            <Link href={profile.role === "admin" ? `${base}/usuarios` : base} aria-label={s.team} title={s.team} className="ml-1 hidden items-center md:flex">
+              {team.slice(0, 4).map((m, i) => (
+                <span
+                  key={m.id}
+                  title={m.name}
+                  className={cn(
+                    "grid h-9 w-9 place-items-center rounded-full border-2 border-surface text-[0.7rem] font-bold text-white",
+                    ["bg-deep-700", "bg-brand-green-dark", "bg-sky-600", "bg-violet-600"][i % 4],
+                    i > 0 && "-ml-2.5",
+                  )}
+                >
+                  {initialsOf(m.name)}
+                </span>
+              ))}
+              {team.length > 4 && (
+                <span className="-ml-2.5 grid h-9 w-9 place-items-center rounded-full border-2 border-surface bg-[var(--meta-active)] text-[0.7rem] font-bold text-accent">
+                  +{team.length - 4}
+                </span>
+              )}
+            </Link>
+          )}
+          {profile.role === "admin" && (
+            <Link
+              href={`${base}/usuarios`}
+              className="ml-2 hidden h-10 items-center gap-2 rounded-[10px] bg-action px-4 text-sm font-semibold text-deep-700 transition-colors hover:bg-action-hover sm:inline-flex"
+            >
+              <UserPlus className="h-4 w-4" aria-hidden />
+              {s.invite}
+            </Link>
+          )}
+        </header>
+
+        <main className="mx-auto w-full max-w-[1680px] px-4 py-6 sm:px-6">{children}</main>
+      </div>
 
       <CommandPalette locale={locale} pages={pages} />
       {(profile.role === "admin" || profile.role === "sales") && <GreenLeadAlerts locale={locale} />}
-      {CHAT_ROLES.includes(profile.role) && <ChatAlerts locale={locale} userId={profile.id} onUnread={setChatUnread} />}
+      {CHAT_ROLES.includes(profile.role) && <ChatAlerts locale={locale} userId={profile.id} name={profile.full_name ?? profile.email} onUnread={setChatUnread} />}
     </div>
   );
 }

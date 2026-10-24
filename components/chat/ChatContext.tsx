@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Eye, Loader2, Star, UserPlus } from "lucide-react";
+import { Eye, Loader2, Sparkles, Star, UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Lead, PageView } from "@/lib/supabase/types";
 import { liveChatCopy } from "@/content/liveChat";
@@ -31,10 +31,12 @@ export function ChatContext({
   locale,
   conversation: c,
   presencePage,
+  onSummarize,
 }: {
   locale: Locale;
   conversation: InboxConversation;
   presencePage: string | null;
+  onSummarize: () => Promise<void>;
 }) {
   const t = liveChatCopy[locale].inbox;
   const ctx = t.context;
@@ -55,6 +57,7 @@ export function ChatContext({
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [summarizing, setSummarizing] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -112,11 +115,42 @@ export function ChatContext({
     return t.duration.h.replace("{n}", (s / 3600).toFixed(1));
   };
   const block = "border-b border-line px-5 py-4";
-  const label = "text-xs font-semibold text-muted";
+  const label = "text-xs font-medium uppercase tracking-[0.06em] text-muted";
 
   return (
     <aside aria-label={ctx.title} className="hidden min-h-0 flex-col overflow-y-auto xl:flex">
-      <h2 className="border-b border-line px-5 py-4 text-sm text-heading">{ctx.title}</h2>
+      <h2 className="border-b border-line px-5 py-4 text-[0.98rem] font-semibold text-heading">{ctx.title}</h2>
+
+      {/* Resumen con IA */}
+      <div className={block}>
+        <div className="flex items-center justify-between gap-2">
+          <p className={cn(label, "flex items-center gap-1.5")}>
+            <Sparkles className="h-3.5 w-3.5 text-accent" aria-hidden />
+            {t.summary.title}
+          </p>
+          <button
+            type="button"
+            disabled={summarizing}
+            onClick={async () => {
+              setSummarizing(true);
+              await onSummarize();
+              setSummarizing(false);
+            }}
+            className="inline-flex h-7 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-accent hover:bg-[var(--meta-active)] disabled:opacity-50"
+          >
+            {summarizing && <Loader2 className="h-3 w-3 animate-spin" aria-hidden />}
+            {summarizing ? t.summary.busy : c.summary ? t.summary.remake : t.summary.make}
+          </button>
+        </div>
+        {c.summary ? (
+          <>
+            <p className="mt-2 whitespace-pre-line rounded-xl bg-[var(--meta-active)]/60 px-3 py-2.5 text-[0.82rem] leading-relaxed text-heading">{c.summary}</p>
+            {c.summary_at && <p className="mt-1 text-[0.7rem] text-muted">{fmt(c.summary_at)}</p>}
+          </>
+        ) : (
+          <p className="mt-1 text-xs text-muted">{t.summary.empty}</p>
+        )}
+      </div>
 
       {c.channel === "web" && (
         <div className={block}>
@@ -136,7 +170,7 @@ export function ChatContext({
       <div className={block}>
         <p className={label}>{ctx.lead}</p>
         {lead ? (
-          <Link href={`/${locale}/portal/crm/${lead.id}`} className="mt-2 flex items-center gap-2 rounded-lg bg-surface-soft p-3 hover:bg-card-soft dark:bg-white/[0.05]">
+          <Link href={`/${locale}/portal/crm/${lead.id}`} className="mt-2 flex items-center gap-2 rounded-xl p-3 ring-1 ring-line hover:bg-[var(--meta-hover)] dark:bg-white/[0.03]">
             <span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", tierStyles[lead.tier].dot)} aria-hidden />
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-bold text-heading">{lead.name}</span>

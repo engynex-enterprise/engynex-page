@@ -767,38 +767,49 @@ h3,
 }
 
 /* ==========================================================================
-   Portal — sistema visual de la plataforma de Meta (Business Suite / Ads
-   Library), medido con REA: fondo #F0F2F5, texto #1C1E21, secundario
-   #65676B, tarjetas blancas de 8 px con sombra suave y sin borde, campos con
-   radio de 6 px. Los colores de marca (verde y marino) hacen de acento.
+   Portal — estilo de CRM moderno (referencia del cliente: Conceptzilla):
+   barra lateral gris claro #F7F7F8 con el elemento activo en blanco, área de
+   trabajo blanca, tarjetas con línea fina (sin sombra marcada), tablas de
+   cabecera en mayúsculas, píldoras de estado con contorno y botones con
+   radio de 10 px. El verde Engynex es el acento.
    ========================================================================== */
 .portal-theme {
-  --surface-soft: #f0f2f5;
-  --card-soft: #f0f2f5;
-  --line: #e4e6eb;
-  --line-strong: #ced0d4;
-  --heading: #1c1e21;
-  --body: #1c1e21;
-  --muted: #65676b;
-  --meta-shadow: 0 0 5px rgba(0, 0, 0, 0.1), 0 0 1px rgba(0, 0, 0, 0.1);
-  --meta-hover: #f2f2f2;
-  --meta-active: #ebf5df;
-  --btn-radius: 6px;
-  --field-radius: 6px;
+  --surface: #ffffff;
+  --surface-soft: #f7f7f8;
+  --card: #ffffff;
+  --card-soft: #f4f4f5;
+  --line: #ececee;
+  --line-strong: #dcdce0;
+  --heading: #18181b;
+  --body: #27272a;
+  --muted: #71717a;
+  --sidebar: #f7f7f8;
+  --meta-shadow: 0 0 0 1px #ececee, 0 1px 2px rgba(16, 24, 40, 0.04);
+  --meta-hover: #f4f4f5;
+  --meta-active: #eef7e3;
+  --btn-radius: 10px;
+  --field-radius: 10px;
   font-size: 15px;
 }
 
 .dark .portal-theme {
-  --surface: #242526;
-  --surface-soft: #18191a;
-  --card: #242526;
-  --card-soft: #3a3b3c;
-  --line: #3e4042;
-  --line-strong: #4e4f50;
-  --heading: #e4e6eb;
-  --body: #e4e6eb;
-  --muted: #b0b3b8;
-  --meta-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --meta-hover: #3a3b3c;
-  --meta-active: color-mix(in oklab, #9fdb4f 16%, #242526);
+  --surface: #18181b;
+  --surface-soft: #111113;
+  --card: #18181b;
+  --card-soft: #27272a;
+  --line: #2a2a2e;
+  --line-strong: #3f3f46;
+  --heading: #f4f4f5;
+  --body: #e4e4e7;
+  --muted: #a1a1aa;
+  --sidebar: #111113;
+  --meta-shadow: 0 0 0 1px #2a2a2e;
+  --meta-hover: #27272a;
+  --meta-active: color-mix(in oklab, #9fdb4f 14%, #18181b);
+}
+
+/* Si una página publica su título en la barra superior, se oculta el de
+   respaldo (nombre de la sección). */
+.portal-title-slot:has(.portal-page-title) .portal-title-fallback {
+  display: none;
 }

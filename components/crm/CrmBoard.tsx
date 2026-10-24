@@ -67,17 +67,22 @@ export function CrmBoard({
   employees,
   canEdit,
   currentUserId,
+  visibleIds,
 }: {
   locale: Locale;
   initialLeads: CrmLead[];
   employees: Employee[];
   canEdit: boolean;
   currentUserId: string;
+  /** Dentro del CRM: filtros y búsqueda los pone la tabla; aquí solo el embudo. */
+  visibleIds?: Set<string>;
 }) {
+  const embedded = !!visibleIds;
   const t = crmCopy[locale];
   const problems = leadFormCopy[locale].steps.problem.options;
   const [leads, setLeads] = useState(initialLeads);
-  const [view, setView] = useState<"board" | "list">("board");
+  const [viewState, setView] = useState<"board" | "list">("board");
+  const view = embedded ? "board" : viewState;
   const [query, setQuery] = useState("");
   const [tier, setTier] = useState<LeadTier | "all">("all");
   const [owner, setOwner] = useState<string>("all");
@@ -119,6 +124,7 @@ export function CrmBoard({
   }, []);
 
   const filtered = useMemo(() => {
+    if (visibleIds) return leads.filter((l) => visibleIds.has(l.id));
     const q = query.trim().toLowerCase();
     return leads.filter(
       (l) =>
@@ -132,7 +138,7 @@ export function CrmBoard({
           l.email.toLowerCase().includes(q) ||
           (l.company ?? "").toLowerCase().includes(q)),
     );
-  }, [leads, query, tier, owner, currentUserId]);
+  }, [leads, query, tier, owner, currentUserId, visibleIds]);
 
   const openValue = filtered
     .filter((l) => !["won", "lost"].includes(l.status))
@@ -172,7 +178,7 @@ export function CrmBoard({
       </p>
 
       {/* Filtros */}
-      <div className="mb-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+      <div className={cn("mb-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between", embedded && "hidden")}>
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <label className="relative block md:w-80">
             <span className="sr-only">{t.crm.search}</span>

@@ -4,16 +4,23 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { MessagesSquare, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import type { ChatMessage } from "@/lib/supabase/types";
+import type { ChatAgentRow, ChatAgentStatus, ChatMessage } from "@/lib/supabase/types";
 import { AGENTS_CHANNEL, liveChatCopy } from "@/content/liveChat";
+import type { AgentPresence } from "@/lib/chatConfig";
 import { ding } from "@/lib/ding";
 import type { Locale } from "@/i18n/config";
 
 type Alert = { id: number; conversation: string; name: string; body: string };
 
+/** Lo emite el menú "Mi estado" de la bandeja al cambiar estado o sonido. */
+export const AGENT_STATUS_EVENT = "engynex-agent-status";
+export type AgentStatusDetail = { status: ChatAgentStatus; sound: boolean };
+
 /**
  * Para los asesores, en todo el portal:
- * - Los marca "en línea" (presencia) para que el visitante lo vea en el chat.
+ * - Los marca "en línea" (presencia, con su nombre y estado) para que el
+ *   visitante lo vea en el chat, y envía un latido cada minuto: la asignación
+ *   automática solo elige asesores conectados y disponibles.
  * - Cuenta los mensajes sin leer (para el menú).
  * - Avisa cuando un visitante escribe: con sonido siempre (salvo si ya tiene
  *   abierta esa conversación) y con una tarjeta fuera de la bandeja.
@@ -21,10 +28,12 @@ type Alert = { id: number; conversation: string; name: string; body: string };
 export function ChatAlerts({
   locale,
   userId,
+  name,
   onUnread,
 }: {
   locale: Locale;
   userId: string;
+  name: string;
   onUnread: (n: number) => void;
 }) {
   const t = liveChatCopy[locale].inbox;
@@ -47,10 +56,34 @@ export function ChatAlerts({
     };
     void refreshUnread();
 
+    // Estado propio: lo trae el latido y lo cambia el menú "Mi estado".
+    const me: AgentStatusDetail = { status: "available", sound: true };
+    const firstName = name.split(/\s+/)[0] ?? "";
     const presence = supabase.channel(AGENTS_CHANNEL, { config: { presence: { key: userId } } });
+    let subscribed = false;
+    const track = () => {
+      if (subscribed) void presence.track({ role: "agent", name: firstName, status: me.status } satisfies AgentPresence);
+    };
     presence.subscribe((state) => {
-      if (state === "SUBSCRIBED") void presence.track({ role: "agent" });
+      subscribed = state === "SUBSCRIBED";
+      track();
     });
+    const heartbeat = async () => {
+      const { data } = await supabase.rpc("chat_agent_heartbeat");
+      const row = data as ChatAgentRow | null;
+      if (row && (row.status !== me.status || row.sound !== me.sound)) {
+        me.status = row.status;
+        me.sound = row.sound;
+        track();
+      }
+    };
+    void heartbeat();
+    const beat = window.setInterval(() => void heartbeat(), 60_000);
+    const onStatus = (event: Event) => {
+      Object.assign(me, (event as CustomEvent<AgentStatusDetail>).detail);
+      track();
+    };
+    window.addEventListener(AGENT_STATUS_EVENT, onStatus);
 
     const changes = supabase
       .channel("chat-alerts")
@@ -65,7 +98,7 @@ export function ChatAlerts({
           const viewing =
             inInbox && params.get("c") === message.conversation_id && document.visibilityState === "visible";
           if (viewing) return;
-          ding();
+          if (me.sound) ding();
           const { data } = await supabase
             .from("chat_conversations")
             .select("name")
@@ -97,10 +130,12 @@ export function ChatAlerts({
       .subscribe();
 
     return () => {
+      window.clearInterval(beat);
+      window.removeEventListener(AGENT_STATUS_EVENT, onStatus);
       void supabase.removeChannel(presence);
       void supabase.removeChannel(changes);
     };
-  }, [userId, locale, t.visitor, t.newMessage]);
+  }, [userId, name, locale, t.visitor, t.newMessage]);
 
   if (alerts.length === 0) return null;
   const dismiss = (conversation: string) => setAlerts((list) => list.filter((a) => a.conversation !== conversation));

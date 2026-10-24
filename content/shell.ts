@@ -1,7 +1,12 @@
 import type { Locale } from "@/i18n/config";
 
 const es = {
-  groups: { sales: "Ventas", marketing: "Marketing", service: "Atención", client: "Tu cuenta", admin: "Configuración" },
+  groups: { sales: "Operación de ventas", marketing: "Marketing e informes", service: "Atención al cliente", client: "Tu cuenta", admin: "Configuración" },
+  workspace: "Portal",
+  invite: "Invitar",
+  team: "Equipo",
+  settings: "Configuración",
+  more: "Más opciones",
   automations: "Automatizaciones",
   search: "Buscar en Engynex",
   searchPlaceholder: "Busca leads, conversaciones, solicitudes, clientes o páginas…",
@@ -28,7 +33,12 @@ const es = {
 export type ShellCopy = typeof es;
 
 const en: ShellCopy = {
-  groups: { sales: "Sales", marketing: "Marketing", service: "Service", client: "Your account", admin: "Settings" },
+  groups: { sales: "Sales operations", marketing: "Marketing & reports", service: "Customer care", client: "Your account", admin: "Settings" },
+  workspace: "Portal",
+  invite: "Invite",
+  team: "Team",
+  settings: "Settings",
+  more: "More options",
   automations: "Automations",
   search: "Search Engynex",
   searchPlaceholder: "Search leads, conversations, requests, clients or pages…",
