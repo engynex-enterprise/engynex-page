@@ -3,8 +3,8 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 
 /**
- * Historia como lista limpia: el año en grande a la izquierda y el hito a la
- * derecha, separados por líneas finas. Sin conectores ni medallones.
+ * Historia en columnas, como los hitos de meta.com: una línea fina arriba, el
+ * año en negrita, el hito y una línea de contexto. En móvil se apila.
  */
 export function Timeline({
   eyebrow,
@@ -28,23 +28,21 @@ export function Timeline({
         subtitle={subtitle}
         size="lg"
       />
-      <ol className="mx-auto mt-14 max-w-4xl border-b border-line-strong">
+      <ol className="mt-14 grid gap-x-8 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((m, i) => (
           <Reveal
             as="li"
             key={m.year}
             delay={(i % 4) * 90}
-            className="grid gap-2 border-t border-line-strong py-8 sm:grid-cols-[11rem_1fr] sm:gap-10"
+            className="border-t border-line-strong pb-10 pt-6 lg:pb-0"
           >
-            <p className="text-[clamp(2rem,3.2vw,2.75rem)] font-medium leading-none tracking-[-0.02em] text-heading">
+            <p className="text-[clamp(2.5rem,4vw,3.25rem)] font-bold leading-none tracking-[-0.02em] text-heading">
               {m.year}
             </p>
-            <div>
-              <h3 className="text-xl font-medium text-heading">{m.title}</h3>
-              <p className="mt-2 text-base leading-relaxed text-body">
-                {m.desc}
-              </p>
-            </div>
+            <h3 className="mt-5 text-xl font-bold text-heading">{m.title}</h3>
+            <p className="mt-2 text-base leading-relaxed text-muted">
+              {m.desc}
+            </p>
           </Reveal>
         ))}
       </ol>

@@ -5,25 +5,29 @@ type Variant =
   | "primary"
   | "secondary"
   | "glass"
+  | "dark"
   | "ghost"
   | "outline-light"
   | "outline";
 type Size = "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-60 disabled:pointer-events-none";
+  "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-deep-700 dark:focus-visible:ring-action focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-60 disabled:pointer-events-none";
 
 /**
  * Botones píldora al estilo meta.com: planos, sin sombras ni desplazamientos.
  * Sobre fotografía se combinan `primary` (azul) y `glass` (gris translúcido).
  */
 const variants: Record<Variant, string> = {
-  primary: "bg-action text-white hover:bg-action-hover",
+  /** Verde primario #9FDB4F con texto marino. */
+  primary: "bg-action text-deep-700 hover:bg-action-hover",
+  /** Marino secundario #1F2A46; en oscuro se invierte para no perderse. */
+  dark: "bg-deep-700 text-white hover:bg-deep-600 dark:bg-white dark:text-deep-700 dark:hover:bg-deep-100",
   secondary:
     "bg-card-soft text-heading hover:bg-line dark:bg-white/10 dark:hover:bg-white/15",
   /** Gris translúcido con desenfoque, para usar sobre fotografía. */
   glass:
-    "bg-[rgba(241,244,247,0.72)] text-[#0a1317] backdrop-blur-md hover:bg-[rgba(241,244,247,0.92)]",
+    "bg-[rgba(241,244,247,0.72)] text-deep-700 backdrop-blur-md hover:bg-[rgba(241,244,247,0.92)]",
   // Para fondos oscuros.
   ghost: "bg-white/10 text-white backdrop-blur hover:bg-white/20",
   "outline-light":

@@ -241,7 +241,7 @@ function Scene({ slide, priority }: { slide: HeroSlide; priority: boolean }) {
         <p
           aria-hidden
           style={layer(1)}
-          className="hero-layer hidden max-w-[14ch] text-balance text-right text-[clamp(2.75rem,7vw,6.5rem)] font-medium leading-[0.98] tracking-[-0.04em] text-white md:block"
+          className="hero-layer hidden max-w-[14ch] text-balance text-right text-[clamp(2.75rem,7vw,6.5rem)] font-bold leading-[0.98] tracking-[-0.04em] text-white md:block"
         >
           {slide.titleHighlight}
         </p>

@@ -15,56 +15,57 @@
    ========================================================================== */
 
 @theme {
-  /* Brand — primario verde */
-  --color-brand-green: #98ca3f;
-  --color-brand-green-light: #b5da74;
-  --color-brand-green-dark: #557a1c;
+  /* Brand — primario verde #9FDB4F. Como texto sobre blanco no alcanza
+     contraste: para texto se usa `-dark` (#467316, 5.6:1). */
+  --color-brand-green: #9fdb4f;
+  --color-brand-green-light: #b6e57a;
+  --color-brand-green-dark: #467316;
 
-  /* Brand — secundario azul */
-  --color-brand-blue: #0791e6;
-  --color-brand-blue-light: #3fadf0;
-  --color-brand-blue-dark: #0670b8;
+  /* Brand — secundario azul marino #1F2A46: titulares, botones oscuros y
+     secciones oscuras. `-light` es su versión legible sobre fondos oscuros. */
+  --color-brand-blue: #1f2a46;
+  --color-brand-blue-light: #9fb0d8;
+  --color-brand-blue-dark: #141c31;
 
-  /* Adicionales — pizarra (#273B47), acero (#7E96A5) y niebla (#F3F8FB) en
-     una escala, para secciones oscuras, texto y superficies. */
-  --color-deep-950: #0f1a21;
-  --color-deep-900: #14222b;
-  --color-deep-800: #1c2e39;
-  --color-deep-700: #273b47;
-  --color-deep-600: #3a5160;
-  --color-deep-500: #5b7282;
-  --color-deep-400: #7e96a5;
-  --color-deep-200: #c9d6de;
-  --color-deep-100: #f3f8fb;
+  /* Escala del marino #1F2A46 para secciones oscuras, texto y superficies. */
+  --color-deep-950: #0b1020;
+  --color-deep-900: #121a2e;
+  --color-deep-800: #18213a;
+  --color-deep-700: #1f2a46;
+  --color-deep-600: #2c3a5e;
+  --color-deep-500: #4a5674;
+  --color-deep-400: #7a849c;
+  --color-deep-200: #c9cfdb;
+  --color-deep-100: #f1f4f7;
 
-  /* Navy — casi negro (tono del logo) */
-  --color-navy-950: #0f1a21;
+  /* Navy casi negro y neutros sobre navy: los usa el footer, que conserva su
+     diseño original. */
+  --color-navy-950: #0a0b10;
   --color-navy-900: #101119;
   --color-navy-800: #171922;
   --color-navy-700: #20222d;
   --color-navy-600: #2b2e3a;
   --color-navy-500: #3a3e4c;
 
-  /* Neutros para texto sobre navy */
   --color-ink-100: #f6f7f9;
   --color-ink-200: #d8dbe2;
   --color-ink-300: #a6abb7;
   --color-ink-400: #787d8a;
 
-  /* Tipografía — cuerpo Nunito, títulos OpenDyslexic */
+  /* Tipografía — Figtree en titulares y cuerpo */
   --font-sans: var(--font-figtree), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-display: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
 
-  /* Acción (botones y enlaces): el azul Engynex en el tono que admite texto
-     blanco, en el papel que tiene el azul en meta.com. */
-  --color-action: #0670b8;
-  --color-action-hover: #055d99;
+  /* Acción: el verde primario hace el papel del azul de meta.com. Lleva
+     texto marino (#1F2A46, 8.6:1). */
+  --color-action: #9fdb4f;
+  --color-action-hover: #b6e57a;
 
   /* Radios y sombras */
   --radius-4xl: 2rem;
-  --shadow-glow: 0 0 0 1px rgba(152, 202, 63, 0.2),
-    0 20px 60px -15px rgba(152, 202, 63, 0.4);
+  --shadow-glow: 0 0 0 1px rgba(159, 219, 79, 0.2),
+    0 20px 60px -15px rgba(159, 219, 79, 0.4);
 
   /* Animaciones */
   --animate-float: float 6s ease-in-out infinite;
@@ -276,7 +277,7 @@
    -------------------------------------------------------------------------- */
 :root {
   --background: #ffffff;
-  --foreground: #273b47;
+  --foreground: #1f2a46;
   color-scheme: light;
 
   /* Superficies */
@@ -290,16 +291,16 @@
   --line-strong: #cbd2d9;
 
   /* Texto */
-  --heading: #0a1317;
-  --body: #1c2b33;
-  --muted: #465a69;
+  --heading: #1f2a46;
+  --body: #2f3a52;
+  --muted: #566079;
 
   /* Acento legible sobre fondo claro */
-  --accent: #0670b8;
-  --accent-soft: #e7f1fa;
+  --accent: #467316;
+  --accent-soft: color-mix(in oklab, #9fdb4f 22%, white);
 
-  --hue-green: #557a1c;
-  --hue-blue: #0670b8;
+  --hue-green: #467316;
+  --hue-blue: #1f2a46;
   --hue-violet: #6d28d9;
   --hue-teal: #0f766e;
   --hue-amber: #b45309;
@@ -308,34 +309,34 @@
   --hue-indigo: #4338ca;
 
   /* Sombras teñidas de pizarra */
-  --shadow-card-value: 0 1px 2px rgba(39, 59, 71, 0.05),
-    0 8px 24px -14px rgba(39, 59, 71, 0.18);
-  --shadow-card-hover-value: 0 2px 4px rgba(39, 59, 71, 0.06),
-    0 24px 50px -18px rgba(39, 59, 71, 0.28);
+  --shadow-card-value: 0 1px 2px rgba(31, 42, 70, 0.05),
+    0 8px 24px -14px rgba(31, 42, 70, 0.18);
+  --shadow-card-hover-value: 0 2px 4px rgba(31, 42, 70, 0.06),
+    0 24px 50px -18px rgba(31, 42, 70, 0.28);
 }
 
 .dark {
-  --background: #0f1a21;
-  --foreground: #f3f8fb;
+  --background: #0b1020;
+  --foreground: #f1f4f7;
   color-scheme: dark;
 
-  --surface: #0f1a21;
-  --surface-soft: #14222b;
-  --card: #1c2e39;
-  --card-soft: #273b47;
+  --surface: #0b1020;
+  --surface-soft: #121a2e;
+  --card: #18213a;
+  --card-soft: #1f2a46;
 
   --line: color-mix(in oklab, white 10%, transparent);
   --line-strong: color-mix(in oklab, white 18%, transparent);
 
-  --heading: #f3f8fb;
-  --body: #b9c8d1;
-  --muted: #7e96a5;
+  --heading: #f1f4f7;
+  --body: #c9cfdb;
+  --muted: #9aa3b8;
 
-  --accent: #3fadf0;
-  --accent-soft: color-mix(in oklab, #3fadf0 16%, transparent);
+  --accent: #9fdb4f;
+  --accent-soft: color-mix(in oklab, #9fdb4f 16%, transparent);
 
-  --hue-green: #98ca3f;
-  --hue-blue: #3fadf0;
+  --hue-green: #9fdb4f;
+  --hue-blue: #9fb0d8;
   --hue-violet: #a78bfa;
   --hue-teal: #2dd4bf;
   --hue-amber: #fbbf24;
@@ -345,9 +346,9 @@
 
   --shadow-card-value: 0 0 0 1px rgba(255, 255, 255, 0.06),
     0 18px 40px -22px rgba(0, 0, 0, 0.8);
-  --shadow-card-hover-value: 0 0 0 1px rgba(152, 202, 63, 0.3),
+  --shadow-card-hover-value: 0 0 0 1px rgba(159, 219, 79, 0.3),
     0 26px 60px -24px rgba(0, 0, 0, 0.85),
-    0 0 40px -12px rgba(152, 202, 63, 0.2);
+    0 0 40px -12px rgba(159, 219, 79, 0.2);
 }
 
 * {
@@ -369,14 +370,16 @@ body {
   transition: background-color 0.25s ease;
 }
 
-/* Titulares: Figtree en peso medio y tracking ligeramente cerrado, como en
-   meta.com. El peso y el tamaño los pone cada componente. */
+/* Titulares: Figtree en negrita con tracking ligeramente cerrado. La regla va
+   fuera de capa, así que el peso gana a cualquier utilidad de los componentes:
+   todos los títulos del sitio quedan en negrita. El tamaño lo pone cada uno. */
 h1,
 h2,
 h3,
 .font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.015em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.15;
 }
 
@@ -600,7 +603,7 @@ h3,
    degradado de navy + los halos de marca, para que la sección no quede
    como un rectángulo negro plano junto a las demás. */
 .dark .bg-mesh {
-  background-color: #0f1a21;
+  background-color: #0b1020;
   background-image: radial-gradient(
       at 10% 0%,
       color-mix(in oklab, var(--color-brand-green) 20%, transparent) 0px,

@@ -1,8 +1,17 @@
 import Image from "next/image";
-import { Check, Sparkles, TrendingUp } from "lucide-react";
+import {
+  Activity,
+  CalendarCheck,
+  Check,
+  Clock,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
+import { SpecRow } from "@/components/ui/SpecRow";
 import type { CatalogGroup, SlaRow, UseCase } from "@/content/serviceExtras";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +26,8 @@ interface Copy {
 /** Tarjeta gris sobre blanco, blanca sobre gris (como meta.com). */
 const cardSurface = (tone: Tone) =>
   tone === "muted" ? "bg-card" : "bg-surface-soft";
+
+const slaIcons = [ShieldCheck, Activity, Clock, CalendarCheck];
 
 function Heading({ copy }: { copy: Copy }) {
   return (
@@ -128,28 +139,22 @@ export function SlaGrid({
 }) {
   if (rows.length === 0) return null;
 
+  // Fila de especificaciones de meta.com: icono, cifra en negrita y etiqueta.
+  const items = rows.map((row, i) => ({
+    icon: slaIcons[i % slaIcons.length],
+    value: row.value,
+    label: row.label,
+  }));
+
   return (
     <Section tone={tone}>
       <Heading copy={copy} />
-      <dl className="mt-12 grid gap-4 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
-        {rows.map((row, i) => (
-          <Reveal
-            key={row.label}
-            delay={(i % 4) * 80}
-            className={cn(
-              "flex h-full flex-col-reverse justify-end rounded-3xl p-8 sm:p-10",
-              cardSurface(tone),
-            )}
-          >
-            <dt className="mt-3 text-sm leading-relaxed text-muted">
-              {row.label}
-            </dt>
-            <dd className="text-[2.5rem] font-light leading-tight tracking-[-0.02em] text-heading">
-              {row.value}
-            </dd>
-          </Reveal>
-        ))}
-      </dl>
+      <Reveal className="mt-12 sm:mt-16">
+        <SpecRow
+          items={items}
+          className={cn(rows.length === 3 && "sm:grid-cols-3!")}
+        />
+      </Reveal>
     </Section>
   );
 }
@@ -182,11 +187,11 @@ export function UseCases({
               )}
             >
               <Sparkles
-                className="h-7 w-7 text-action"
+                className="h-7 w-7 text-accent"
                 strokeWidth={1.75}
                 aria-hidden
               />
-              <h3 className="mt-8 text-[1.75rem] font-light leading-tight text-heading">
+              <h3 className="mt-8 text-[1.75rem] font-bold leading-tight text-heading">
                 {item.title}
               </h3>
               <p className="mt-4 flex-1 text-base leading-relaxed text-body">
@@ -231,14 +236,14 @@ export function EquipmentCatalog({
                 cardSurface(tone),
               )}
             >
-              <h3 className="text-xl font-medium text-heading">
+              <h3 className="text-xl font-bold text-heading">
                 {group.title}
               </h3>
               <ul className="mt-6 flex-1 space-y-3">
                 {group.items.map((item) => (
                   <li key={item} className="flex items-start gap-3">
                     <Check
-                      className="mt-0.5 h-4 w-4 shrink-0 text-action"
+                      className="mt-0.5 h-4 w-4 shrink-0 text-accent"
                       strokeWidth={2.5}
                       aria-hidden
                     />

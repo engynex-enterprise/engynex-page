@@ -63,7 +63,7 @@ export function Testimonials({
   };
 
   return (
-        // "mesh" se conserva por compatibilidad, pero ya no lleva fondo decorativo.
+    // "mesh" se conserva por compatibilidad, pero ya no lleva fondo decorativo.
     <Section tone={tone === "mesh" ? "light" : tone}>
       <div
         onMouseEnter={() => setPaused(true)}
@@ -111,12 +111,12 @@ export function Testimonials({
                       />
                     ))}
                   </span>
-                  <p className="mt-2 text-base font-semibold text-heading">
+                  <p className="mt-2 text-base font-bold text-heading">
                     {item.name}
                   </p>
                   <p className="text-sm text-muted">{item.role}</p>
                   {item.metric && (
-                    <p className="mt-4 inline-flex items-center rounded-full bg-surface-soft px-4 py-1.5 text-sm font-semibold text-heading">
+                    <p className="mt-4 inline-flex items-center rounded-full bg-surface-soft px-4 py-1.5 text-sm font-bold text-heading">
                       {item.metric}
                     </p>
                   )}

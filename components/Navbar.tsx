@@ -369,7 +369,7 @@ export function Navbar({
                   href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
                   className="inline-flex h-11 items-center gap-2 rounded-full px-3 text-sm font-medium text-heading transition-colors hover:text-accent"
                 >
-                  <Phone className="h-4 w-4 text-action" />
+                  <Phone className="h-4 w-4 text-accent" />
                   {siteConfig.phoneDisplay}
                 </a>
               </div>
@@ -482,7 +482,7 @@ function MenuLink({
     >
       <span
         className={cn(
-          "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-soft text-action transition-colors duration-200 group-hover:bg-card dark:text-accent",
+          "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-soft text-accent transition-colors duration-200 group-hover:bg-card dark:text-accent",
         )}
       >
         <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />

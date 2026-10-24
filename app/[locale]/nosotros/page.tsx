@@ -91,7 +91,7 @@ export default async function AboutPage({
                 className="flex flex-col justify-center rounded-3xl bg-surface-soft p-8 sm:p-10"
               >
                 <Icon
-                  className="h-7 w-7 text-action"
+                  className="h-7 w-7 text-accent"
                   strokeWidth={1.75}
                   aria-hidden
                 />
@@ -126,7 +126,7 @@ export default async function AboutPage({
                 className="h-full rounded-3xl bg-card p-8 sm:p-10"
               >
                 <Icon
-                  className="h-7 w-7 text-action"
+                  className="h-7 w-7 text-accent"
                   strokeWidth={1.75}
                   aria-hidden
                 />
@@ -189,7 +189,7 @@ export default async function AboutPage({
                 className="h-full rounded-3xl bg-card p-8 sm:p-10"
               >
                 <Icon
-                  className="h-7 w-7 text-action"
+                  className="h-7 w-7 text-accent"
                   strokeWidth={1.75}
                   aria-hidden
                 />

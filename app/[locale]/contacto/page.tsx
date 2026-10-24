@@ -151,7 +151,7 @@ export default async function ContactPage({
                 const inner = (
                   <>
                     <Icon
-                      className="h-6 w-6 text-action"
+                      className="h-6 w-6 text-accent"
                       strokeWidth={1.75}
                       aria-hidden
                     />
@@ -232,7 +232,7 @@ export default async function ContactPage({
                 className="group flex h-full flex-col rounded-3xl bg-card p-8 transition-colors hover:bg-card-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action sm:p-10"
               >
                 <c.Icon
-                  className="h-7 w-7 text-action"
+                  className="h-7 w-7 text-accent"
                   strokeWidth={1.75}
                   aria-hidden
                 />

@@ -3,6 +3,7 @@ import { Figtree } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { QuickStart } from "@/components/QuickStart";
 import { FloatingActions } from "@/components/FloatingActions";
 import { WhatsAppWidget } from "@/components/WhatsAppWidget";
 import { locales, isLocale, type Locale } from "@/i18n/config";
@@ -105,6 +106,7 @@ export default async function LocaleLayout({
           menu={buildMegaMenu(locale)}
         />
         <main className="flex-1">{children}</main>
+        <QuickStart locale={locale} copy={dict.quickStart} />
         <Footer locale={locale} dict={dict} />
         <FloatingActions topLabel={dict.common.backToTop} />
         <WhatsAppWidget chat={dict.chat} />

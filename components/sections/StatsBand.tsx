@@ -12,10 +12,9 @@ export interface StatItem {
 }
 
 /**
- * Cifras en grande, sin tarjetas, iconos ni fondo decorativo.
- *
- * El número es la sección: tipografía grande en peso medio, una línea fina
- * encima de cada cifra y el contexto debajo. Nada más.
+ * Cifras en grande, sin tarjetas, iconos ni fondo decorativo, como las fichas
+ * técnicas de meta.com: titular centrado, cifra en negrita, la etiqueta debajo
+ * y una línea de contexto. Nada más.
  */
 export function StatsBand({
   eyebrow,
@@ -49,14 +48,13 @@ export function StatsBand({
             eyebrow={eyebrow}
             title={title}
             subtitle={subtitle}
-            align="left"
             size="lg"
           />
         )}
 
         <dl
           className={cn(
-            "grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4",
+            "grid grid-cols-1 gap-x-10 gap-y-12 text-center sm:grid-cols-2 lg:grid-cols-4",
             title ? "mt-16" : "mt-0",
           )}
         >
@@ -64,17 +62,17 @@ export function StatsBand({
             <Reveal
               key={stat.label}
               delay={(i % 4) * 90}
-              className="flex h-full flex-col border-t border-line-strong pt-6"
+              className="flex h-full flex-col items-center"
             >
               {/* dt antes que dd en el DOM; la cifra se muestra primero con order */}
-              <dt className="order-2 mt-4 text-base font-medium text-heading">
+              <dt className="order-2 mt-3 text-base font-bold text-heading">
                 {stat.label}
               </dt>
-              <dd className="order-1 text-[clamp(2.75rem,4.6vw,3.75rem)] font-medium leading-none tracking-[-0.02em] text-heading">
+              <dd className="order-1 text-[clamp(2.75rem,4.6vw,3.75rem)] font-bold leading-none tracking-[-0.02em] text-heading">
                 <Counter value={stat.value} />
               </dd>
               {stat.detail && (
-                <dd className="order-3 mt-1.5 text-sm leading-relaxed text-body">
+                <dd className="order-3 mt-1.5 max-w-[16rem] text-sm leading-relaxed text-muted">
                   {stat.detail}
                 </dd>
               )}

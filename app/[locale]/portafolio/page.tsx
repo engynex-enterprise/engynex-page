@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Section } from "@/components/ui/Section";
+import { Container } from "@/components/ui/Container";
+import { SplitFeature } from "@/components/ui/SplitFeature";
+import { projects, categoryLabels } from "@/content/portfolio";
 import { PageHero } from "@/components/sections/PageHero";
 import { CtaBand } from "@/components/sections/CtaBand";
 import { StatsBand } from "@/components/sections/StatsBand";
@@ -38,6 +41,7 @@ export default async function PortfolioPage({
   if (!isLocale(locale)) notFound();
   const dict = getDictionary(locale);
   const t = dict.portfolioPage;
+  const featured = projects[0];
 
   return (
     <>
@@ -48,7 +52,48 @@ export default async function PortfolioPage({
         image="/images/portfolio-1.jpg"
       />
 
+      {/* Proyecto destacado: bloque dividido de meta.com */}
+      {featured && (
+        <section className="bg-surface pt-16 sm:pt-24">
+          <Container>
+            <SplitFeature
+              image={featured.image}
+              imageAlt={featured[locale].title}
+              eyebrow={categoryLabels[featured.category][locale]}
+              title={featured[locale].title}
+              description={featured[locale].summary}
+              primary={{
+                label: dict.ctaBand.primary,
+                href: localizedHref(locale, "contacto"),
+              }}
+              secondary={{
+                label: dict.common.viewServices,
+                href: localizedHref(locale, "servicios"),
+              }}
+            >
+              <p className="mt-6 text-sm text-muted">{t.resultLabel}</p>
+              <p className="mt-1 text-[clamp(1.75rem,2.8vw,2.25rem)] font-bold leading-tight text-heading">
+                {featured[locale].result}
+              </p>
+              <ul className="mt-5 flex flex-wrap gap-2">
+                {featured.tags.map((tag) => (
+                  <li
+                    key={tag}
+                    className="rounded-full px-3 py-1.5 text-xs font-semibold text-heading ring-1 ring-line"
+                  >
+                    {tag}
+                  </li>
+                ))}
+              </ul>
+            </SplitFeature>
+          </Container>
+        </section>
+      )}
+
       <Section tone="light">
+        <h2 className="mb-8 text-center text-[clamp(2rem,3.6vw,3rem)] leading-[1.1] text-heading">
+          {t.hero.eyebrow}
+        </h2>
         <PortfolioGrid
           locale={locale}
           allLabel={t.all}

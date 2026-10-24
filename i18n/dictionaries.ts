@@ -110,6 +110,22 @@ const es = {
       { value: "10", label: "Años de experiencia" },
     ],
   },
+  ui: {
+    from: "Desde",
+    quote: "Cotizar",
+    demo: "Solicitar demo",
+    faqTitle: "Preguntas frecuentes",
+    prev: "Anterior",
+    next: "Siguiente",
+    viewAll: "Ver todo",
+  },
+  quickStart: {
+    title: "Recibe una propuesta para tu proyecto",
+    label: "Correo electrónico",
+    placeholder: "tucorreo@empresa.com",
+    submit: "Empezar",
+    note: "Te respondemos en menos de 24 horas hábiles. Cotización y asesoría sin compromiso. Al continuar, aceptas que te contactemos sobre tu solicitud.",
+  },
   homePage: {
     exploreTitle: "Explora servicios, productos y soluciones de Engynex",
     quote: "Cotizar",
@@ -119,6 +135,9 @@ const es = {
     whyTitle: "¿Por qué elegir Engynex?",
     latestTitle: "Lo último de Engynex",
     subscriptionKicker: "Web por suscripción",
+    railTitle: "Explora todo lo que hacemos",
+    railSubtitle: "Dieciséis servicios que funcionan como un solo sistema.",
+    aboutTitle: "Un solo equipo, de la idea al resultado",
   },
   heroSlides: {
     controls: {
@@ -927,6 +946,22 @@ const en = {
       { value: "10", label: "Years of experience" },
     ],
   },
+  ui: {
+    from: "Starting at",
+    quote: "Get a quote",
+    demo: "Request a demo",
+    faqTitle: "FAQs",
+    prev: "Previous",
+    next: "Next",
+    viewAll: "View all",
+  },
+  quickStart: {
+    title: "Get a proposal for your project",
+    label: "Email",
+    placeholder: "you@company.com",
+    submit: "Get started",
+    note: "We reply within 24 business hours. Free, no-commitment quote and advice. By continuing, you agree to be contacted about your request.",
+  },
   homePage: {
     exploreTitle: "Explore Engynex services, products and solutions",
     quote: "Get a quote",
@@ -936,6 +971,9 @@ const en = {
     whyTitle: "Why choose Engynex?",
     latestTitle: "The latest from Engynex",
     subscriptionKicker: "Website subscription",
+    railTitle: "Explore everything we do",
+    railSubtitle: "Sixteen services that work as a single system.",
+    aboutTitle: "One team, from idea to results",
   },
   heroSlides: {
     controls: {

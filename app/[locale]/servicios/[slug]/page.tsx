@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Image from "next/image";
-import { Check } from "lucide-react";
+import Link from "next/link";
+import { Award, Check, ShieldCheck, TrendingUp } from "lucide-react";
 import { Section } from "@/components/ui/Section";
-import { SectionHeading, Eyebrow } from "@/components/ui/SectionHeading";
+import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
-import { Button } from "@/components/ui/Button";
+import { buttonClasses } from "@/components/ui/Button";
+import { StickyBar } from "@/components/ui/StickyBar";
+import { SplitFeature } from "@/components/ui/SplitFeature";
+import { SpecRow } from "@/components/ui/SpecRow";
+import { CardRail } from "@/components/ui/CardRail";
 import { Accordion } from "@/components/Accordion";
-import { MediaTile } from "@/components/ui/MediaTile";
 import { PricingTable } from "@/components/PricingTable";
 import { CtaBand } from "@/components/sections/CtaBand";
 import { ServiceHero } from "@/components/services/ServiceHero";
@@ -20,7 +23,7 @@ import {
   EquipmentCatalog,
 } from "@/components/services/ServiceSections";
 import { services, getService } from "@/content/services";
-import { servicePlans } from "@/content/pricing";
+import { servicePlans, formatCOP } from "@/content/pricing";
 import { extraServiceFaqs } from "@/content/faqs";
 import { getServiceProcess } from "@/content/serviceProcess";
 import {
@@ -128,6 +131,46 @@ const sectionOrder: Record<ServiceFamily, string[]> = {
 
 type Tone = "light" | "muted";
 
+/** Iconos de la fila de beneficios (decorativos, en orden). */
+const benefitIcons = [Award, TrendingUp, ShieldCheck];
+
+/**
+ * Titular de sección de meta.com: centrado, grande y en negrita, una línea
+ * gris debajo y, opcionalmente, un botón píldora con contorno.
+ */
+function CenteredTitle({
+  title,
+  subtitle,
+  action,
+  className,
+}: {
+  title: string;
+  subtitle?: string;
+  action?: { label: string; href: string };
+  className?: string;
+}) {
+  return (
+    <div className={cn("mx-auto max-w-3xl text-center", className)}>
+      <h2 className="text-balance text-[clamp(2rem,3.6vw,3rem)] font-bold leading-[1.15] text-heading">
+        {title}
+      </h2>
+      {subtitle && (
+        <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
+          {subtitle}
+        </p>
+      )}
+      {action && (
+        <Link
+          href={action.href}
+          className={buttonClasses("outline", "md", "mt-8")}
+        >
+          {action.label}
+        </Link>
+      )}
+    </div>
+  );
+}
+
 export default async function ServiceDetailPage({
   params,
 }: {
@@ -143,8 +186,18 @@ export default async function ServiceDetailPage({
   const copy = service[locale];
   const family = serviceFamily(slug);
 
-  const related = services.filter((s) => s.slug !== slug).slice(0, 2);
+  const related = services.filter((s) => s.slug !== slug);
   const plans = servicePlans[slug] ?? [];
+
+  // Precio de arranque para la barra fija: el plan más económico con precio.
+  const cheapest = plans
+    .filter((p): p is typeof p & { price: number } => p.price !== null)
+    .sort((a, b) => a.price - b.price)[0];
+  const startingPrice = cheapest
+    ? `${formatCOP(cheapest.price)}${
+        cheapest.billing === "monthly" ? ` ${t.plans.monthly}` : ""
+      }`
+    : undefined;
   const faqs = [...copy.faqs, ...(extraServiceFaqs[slug]?.[locale] ?? [])];
   const process = getServiceProcess(slug)?.[locale];
 
@@ -169,43 +222,29 @@ export default async function ServiceDetailPage({
 
   const overview: Builder = (tone) => (
     <Section key="overview" tone={tone}>
-      <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-16">
-        <div className="lg:sticky lg:top-28">
-          <Eyebrow>{t.detail.overviewTitle}</Eyebrow>
-          <h2 className="mt-3 text-balance text-[clamp(2rem,3.6vw,3rem)] font-medium leading-[1.15] text-heading">
-            {copy.title}
-          </h2>
-          <p className="mt-6 text-lg leading-relaxed text-body">{copy.intro}</p>
-          <p className="mt-4 text-lg leading-relaxed text-body">
-            {copy.description}
-          </p>
-          <div className="mt-8">
-            <Button href={contactHref} variant="primary">
-              {t.ctaService}
-            </Button>
-          </div>
-        </div>
-
-        <ul className="grid gap-4 sm:grid-cols-2">
-          {copy.features.map((feature, i) => (
-            <Reveal
-              key={feature}
-              as="li"
-              delay={(i % 2) * 80}
-              className={cn("h-full rounded-3xl p-8", cardSurface(tone))}
-            >
+      <SplitFeature
+        image={service.image}
+        imageAlt={copy.title}
+        eyebrow={t.detail.overviewTitle}
+        title={copy.title}
+        description={copy.description}
+        primary={{ label: t.ctaService, href: contactHref }}
+      >
+        <ul className="mt-8 divide-y divide-line border-y border-line">
+          {copy.features.map((feature) => (
+            <li key={feature} className="flex items-start gap-4 py-4">
               <Check
-                className="h-6 w-6 text-action"
-                strokeWidth={2}
+                className="mt-0.5 h-5 w-5 shrink-0 text-accent"
+                strokeWidth={2.5}
                 aria-hidden
               />
-              <p className="mt-6 text-xl font-medium leading-snug text-heading">
+              <span className="text-base font-bold leading-snug text-heading">
                 {feature}
-              </p>
-            </Reveal>
+              </span>
+            </li>
           ))}
         </ul>
-      </div>
+      </SplitFeature>
     </Section>
   );
 
@@ -273,31 +312,23 @@ export default async function ServiceDetailPage({
 
   const benefits: Builder = (tone) => (
     <Section key="benefits" tone={tone}>
-      <SectionHeading
-        eyebrow={t.hero.eyebrow}
+      <CenteredTitle
         title={t.detail.benefitsTitle}
-        size="lg"
+        action={{ label: dict.ui.quote, href: contactHref }}
       />
-      <ul className="mt-12 grid gap-4 sm:mt-16 md:grid-cols-3">
-        {copy.benefits.map((benefit, i) => (
-          <Reveal
-            key={benefit.title}
-            as="li"
-            delay={(i % 3) * 80}
-            className={cn("h-full rounded-3xl p-8 sm:p-10", cardSurface(tone))}
-          >
-            <p className="text-sm font-semibold text-accent">
-              {String(i + 1).padStart(2, "0")}
-            </p>
-            <h3 className="mt-6 text-[1.75rem] font-light leading-tight text-heading">
-              {benefit.title}
-            </h3>
-            <p className="mt-4 text-base leading-relaxed text-body">
-              {benefit.description}
-            </p>
-          </Reveal>
-        ))}
-      </ul>
+      <Reveal className="mt-12 sm:mt-16">
+        <SpecRow
+          className={cn(
+            "max-w-5xl!",
+            copy.benefits.length === 3 && "grid-cols-1! sm:grid-cols-3!",
+          )}
+          items={copy.benefits.map((benefit, i) => ({
+            icon: benefitIcons[i % benefitIcons.length],
+            value: benefit.title,
+            label: benefit.description,
+          }))}
+        />
+      </Reveal>
     </Section>
   );
 
@@ -313,69 +344,31 @@ export default async function ServiceDetailPage({
       )
     : null;
 
-  /** En las familias con fotografía el entregable va acompañado de imagen. */
-  const withPhoto = family === "build" || family === "creative";
   const deliverables: Builder = (tone) => (
     <Section key="deliverables" tone={tone}>
-      <div
-        className={cn(
-          "grid lg:gap-16",
-          withPhoto
-            ? "gap-12 lg:grid-cols-2 lg:items-center"
-            : "gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start",
-        )}
-      >
-        {withPhoto && (
-          <div className="relative order-2 aspect-[4/3] overflow-hidden rounded-3xl bg-deep-800 lg:order-1">
-            <Image
-              src={service.image}
-              alt={copy.title}
-              fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover"
-            />
-          </div>
-        )}
-
-        <div
-          className={cn(
-            withPhoto ? "order-1 lg:order-2" : "contents",
-          )}
-        >
-          <h2 className="text-balance text-[clamp(2rem,3.6vw,3rem)] font-medium leading-[1.15] text-heading">
-            {t.detail.deliverablesTitle}
-          </h2>
-          <ul
+      <CenteredTitle title={t.detail.deliverablesTitle} />
+      <ul className="mx-auto mt-12 grid max-w-5xl gap-3 sm:mt-16 sm:grid-cols-2">
+        {copy.deliverables.map((item, i) => (
+          <Reveal
+            key={item}
+            as="li"
+            delay={(i % 4) * 60}
             className={cn(
-              "space-y-3",
-              withPhoto
-                ? "mt-8"
-                : "sm:grid sm:grid-cols-2 sm:gap-3 sm:space-y-0",
+              "flex items-start gap-4 rounded-3xl p-6",
+              cardSurface(tone),
             )}
           >
-            {copy.deliverables.map((item, i) => (
-              <Reveal
-                key={item}
-                as="li"
-                delay={(i % 4) * 60}
-                className={cn(
-                  "flex items-start gap-4 rounded-2xl p-5",
-                  cardSurface(tone),
-                )}
-              >
-                <Check
-                  className="mt-0.5 h-5 w-5 shrink-0 text-action"
-                  strokeWidth={2.5}
-                  aria-hidden
-                />
-                <span className="text-base font-medium text-heading">
-                  {item}
-                </span>
-              </Reveal>
-            ))}
-          </ul>
-        </div>
-      </div>
+            <Check
+              className="mt-0.5 h-5 w-5 shrink-0 text-accent"
+              strokeWidth={2.5}
+              aria-hidden
+            />
+            <span className="text-base font-bold leading-snug text-heading">
+              {item}
+            </span>
+          </Reveal>
+        ))}
+      </ul>
     </Section>
   );
 
@@ -383,11 +376,9 @@ export default async function ServiceDetailPage({
     plans.length > 0
       ? (tone) => (
           <Section key="plans" tone={tone} id="planes">
-            <SectionHeading
-              eyebrow={t.plans.eyebrow}
+            <CenteredTitle
               title={t.plans.title}
               subtitle={t.plans.subtitle}
-              size="lg"
               className="mb-12 sm:mb-16"
             />
             <PricingTable
@@ -404,52 +395,59 @@ export default async function ServiceDetailPage({
 
   const faqSection: Builder = (tone) => (
     <Section key="faq" tone={tone}>
-      <SectionHeading
-        title={t.detail.faqsTitle}
-        size="lg"
-        className="mb-10 sm:mb-12"
+      <h2 className="text-[clamp(2rem,3.6vw,3rem)] font-bold leading-[1.15] text-heading">
+        {dict.ui.faqTitle}
+      </h2>
+      <Accordion items={faqs} className="mt-10 sm:mt-12" />
+      <h3 className="mt-16 text-2xl font-bold text-heading sm:mt-20 sm:text-[1.75rem]">
+        {t.commonFaqsTitle}
+      </h3>
+      <Accordion
+        items={t.commonFaqs}
+        defaultOpen={null}
+        className="mt-6 sm:mt-8"
       />
-      <div className="mx-auto max-w-4xl space-y-14">
-        <Accordion items={faqs} />
-        <div>
-          <h3 className="mb-4 text-xl font-medium text-heading">
-            {t.commonFaqsTitle}
-          </h3>
-          <Accordion items={t.commonFaqs} />
-        </div>
-      </div>
     </Section>
   );
 
+  /** Carril fotográfico con el resto del catálogo (a sangre, sin Container). */
   const relatedSection: Builder =
     related.length > 0
       ? (tone) => (
-          <Section key="related" tone={tone}>
-            <SectionHeading
-              eyebrow={t.hero.eyebrow}
-              title={t.detail.relatedTitle}
-              size="lg"
-              className="mb-12 sm:mb-16"
+          <section
+            key="related"
+            className={cn(
+              "py-16 text-body sm:py-24",
+              // Sobre gris, las flechas del carril pasan a blanco para verse.
+              tone === "muted"
+                ? "bg-surface-soft [&_button]:bg-card"
+                : "bg-surface",
+            )}
+          >
+            <Container className="mb-8 flex flex-wrap items-end justify-between gap-4 sm:mb-10">
+              <h2 className="text-[clamp(2rem,3.6vw,3rem)] font-bold leading-[1.15] text-heading">
+                {t.detail.relatedTitle}
+              </h2>
+              <Link
+                href={localizedHref(locale, "servicios")}
+                className={buttonClasses("outline", "md")}
+              >
+                {dict.ui.viewAll}
+              </Link>
+            </Container>
+            <CardRail
+              label={t.detail.relatedTitle}
+              prevLabel={dict.ui.prev}
+              nextLabel={dict.ui.next}
+              cards={related.map((s) => ({
+                key: s.slug,
+                title: s[locale].title,
+                caption: s[locale].tagline,
+                image: s.image,
+                href: localizedHref(locale, `servicios/${s.slug}`),
+              }))}
             />
-            <div className="grid gap-4 md:grid-cols-2">
-              {related.map((s) => {
-                const rc = s[locale];
-                return (
-                  <MediaTile
-                    key={s.slug}
-                    image={s.image}
-                    imageAlt={rc.title}
-                    kicker={rc.tagline}
-                    title={rc.title}
-                    primary={{
-                      label: t.viewDetail,
-                      href: localizedHref(locale, `servicios/${s.slug}`),
-                    }}
-                  />
-                );
-              })}
-            </div>
-          </Section>
+          </section>
         )
       : null;
 
@@ -482,6 +480,13 @@ export default async function ServiceDetailPage({
           href: `https://wa.me/${siteConfig.whatsapp}`,
           external: true,
         }}
+      />
+
+      <StickyBar
+        title={copy.title}
+        priceLabel={startingPrice ? dict.ui.from : undefined}
+        price={startingPrice}
+        action={{ label: dict.ui.quote, href: contactHref }}
       />
 
       {sections.map((build, i) => build(i % 2 === 0 ? "light" : "muted"))}

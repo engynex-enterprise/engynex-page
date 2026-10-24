@@ -76,7 +76,7 @@ export function ServiceProcess({
               <p className="text-sm font-semibold text-accent">
                 {String(i + 1).padStart(2, "0")}
               </p>
-              <h3 className="mt-6 text-xl font-medium leading-snug text-heading">
+              <h3 className="mt-6 text-xl font-bold leading-snug text-heading">
                 {step.title}
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-body">
@@ -103,7 +103,7 @@ export function ServiceProcess({
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-xl font-medium leading-snug text-heading">
+                  <h3 className="text-xl font-bold leading-snug text-heading">
                     {step.title}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-body">

@@ -4,7 +4,9 @@ import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { MediaTile } from "@/components/ui/MediaTile";
 import { buttonClasses } from "@/components/ui/Button";
-import { getService } from "@/content/services";
+import { CardRail } from "@/components/ui/CardRail";
+import { SplitFeature } from "@/components/ui/SplitFeature";
+import { getService, services } from "@/content/services";
 import { products } from "@/content/products";
 import { projects, categoryLabels } from "@/content/portfolio";
 import { servicePlans, formatCOP } from "@/content/pricing";
@@ -96,15 +98,93 @@ export function ServiceShowcase({
             );
           })}
         </div>
+      </Container>
+    </section>
+  );
+}
 
-        <div className="mt-12 flex justify-center">
-          <Link
-            href={localizedHref(locale, "servicios")}
-            className={buttonClasses("secondary", "lg")}
-          >
-            {t.allServices}
-          </Link>
-        </div>
+/**
+ * Los dieciséis servicios en un carril horizontal, bajo un titular centrado
+ * con su botón de contorno ("Explore the tech" de meta.com).
+ */
+export function ServiceRail({
+  locale,
+  dict,
+}: {
+  locale: Locale;
+  dict: Dictionary;
+}) {
+  const t = dict.homePage;
+  return (
+    <section className="overflow-hidden bg-surface pb-16 sm:pb-24">
+      <Container className="text-center">
+        <h2 className="text-[clamp(2rem,3.6vw,3rem)] leading-[1.1] text-heading">
+          {t.railTitle}
+        </h2>
+        <p className="mx-auto mt-3 max-w-xl text-base text-muted sm:text-lg">
+          {t.railSubtitle}
+        </p>
+        <Link
+          href={localizedHref(locale, "servicios")}
+          className={buttonClasses("outline", "md", "mt-6")}
+        >
+          {t.allServices}
+        </Link>
+      </Container>
+      <div className="mt-10 sm:mt-12">
+        <CardRail
+          label={t.railTitle}
+          prevLabel={dict.heroSlides.controls.prev}
+          nextLabel={dict.heroSlides.controls.next}
+          cards={services.map((service) => ({
+            key: service.slug,
+            title: service[locale].title,
+            caption: service[locale].tagline,
+            image: service.image,
+            href: localizedHref(locale, `servicios/${service.slug}`),
+          }))}
+        />
+      </div>
+    </section>
+  );
+}
+
+/** Bloque dividido: quiénes somos, con la foto del equipo. */
+export function AboutSplit({
+  locale,
+  dict,
+}: {
+  locale: Locale;
+  dict: Dictionary;
+}) {
+  return (
+    <section className="bg-surface pb-16 sm:pb-24">
+      <Container>
+        <SplitFeature
+          image="/images/about-team.jpg"
+          eyebrow={dict.whyUs.eyebrow}
+          title={dict.homePage.aboutTitle}
+          description={dict.whyUs.subtitle}
+          primary={{
+            label: dict.ctaBand.primary,
+            href: localizedHref(locale, "contacto"),
+          }}
+          secondary={{
+            label: dict.common.learnMore,
+            href: localizedHref(locale, "nosotros"),
+          }}
+        >
+          <ul className="mt-8 grid gap-5 sm:grid-cols-2">
+            {dict.whyUs.items.map((item) => (
+              <li key={item.title}>
+                <p className="font-bold text-heading">{item.title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">
+                  {item.description}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </SplitFeature>
       </Container>
     </section>
   );
@@ -148,7 +228,7 @@ export function ProductShelf({
                       className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                     />
                     {product.badge && (
-                      <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#0a1317]">
+                      <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold text-deep-700">
                         {dict.badges[product.badge]}
                       </span>
                     )}

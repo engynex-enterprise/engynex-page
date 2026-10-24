@@ -42,7 +42,7 @@ export function TrustStrip({
                   tone === "muted" ? "bg-card" : "bg-surface-soft",
                 )}
               >
-                <Icon className="h-7 w-7 text-action" strokeWidth={1.75} aria-hidden />
+                <Icon className="h-7 w-7 text-accent" strokeWidth={1.75} aria-hidden />
                 <h3 className="mt-8 text-[1.75rem] font-light leading-tight text-heading">
                   {item.title}
                 </h3>

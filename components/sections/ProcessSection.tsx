@@ -49,14 +49,14 @@ export function ProcessSection({
               )}
             >
               <Icon
-                className="h-7 w-7 text-action"
+                className="h-7 w-7 text-accent"
                 strokeWidth={1.75}
                 aria-hidden
               />
               <p className="mt-8 text-sm font-semibold text-accent">
                 {process.stepLabel} {i + 1}
               </p>
-              <h3 className="mt-2 text-[1.75rem] font-light leading-tight text-heading">
+              <h3 className="mt-2 text-[1.75rem] font-bold leading-tight text-heading">
                 {step.title}
               </h3>
               <p className="mt-4 text-sm leading-relaxed text-body">

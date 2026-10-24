@@ -12,7 +12,8 @@ import { cn } from "@/lib/utils";
 
 /**
  * Rejilla de proyectos al estilo "The latest from Meta": fotografía con radio
- * de 24 px y, debajo, la categoría, el título y el resultado en texto plano.
+ * de 24 px y, debajo, la categoría, el título en negrita, el resumen y el
+ * resultado en una píldora junto a las tecnologías.
  * Los filtros son píldoras grises; la activa va en el color del titular.
  */
 export function PortfolioGrid({
@@ -77,21 +78,31 @@ export function PortfolioGrid({
               </div>
 
               <div className="mt-5 px-1">
-                <p className="text-sm font-medium text-muted">
+                <p className="text-sm font-semibold text-accent">
                   {categoryLabels[project.category][locale]}
                 </p>
-                <h3 className="mt-1 text-xl font-medium text-heading">
+                <h3 className="mt-1 text-2xl font-bold text-heading">
                   {copy.title}
                 </h3>
-                <p className="mt-2 max-w-xl text-base leading-relaxed text-body">
+                <p className="mt-2 max-w-xl text-base leading-relaxed text-muted">
                   {copy.summary}
                 </p>
-                <p className="mt-3 text-sm text-muted">
-                  {resultLabel}:{" "}
-                  <span className="font-semibold text-heading">
-                    {copy.result}
-                  </span>
-                </p>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <p className="inline-flex items-center rounded-full bg-surface-soft px-4 py-1.5 text-sm text-muted">
+                    {resultLabel}:&nbsp;
+                    <span className="font-bold text-heading">
+                      {copy.result}
+                    </span>
+                  </p>
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full px-3 py-1.5 text-xs font-semibold text-heading ring-1 ring-line"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             </article>
           );

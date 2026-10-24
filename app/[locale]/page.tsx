@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { HeroSlider } from "@/components/sections/HeroSlider";
 import {
+  AboutSplit,
   LatestWork,
   ProductShelf,
+  ServiceRail,
   ServiceShowcase,
 } from "@/components/sections/HomeShowcase";
 import { TrustStrip } from "@/components/sections/TrustStrip";
@@ -15,8 +17,9 @@ import { buildHeroSlides } from "@/lib/heroSlides";
 /**
  * Home, con la estructura de meta.com: hero fotográfico a sangre, un titular
  * centrado con la vitrina de tarjetas (servicios y la oferta de suscripción),
- * la repisa de productos, las garantías sobre gris, lo último del portafolio
- * y una tarjeta fotográfica de cierre.
+ * el carril con los dieciséis servicios, la repisa de productos, el bloque
+ * dividido de quiénes somos, las garantías sobre gris, lo último del
+ * portafolio y una tarjeta fotográfica de cierre.
  */
 export default async function HomePage({
   params,
@@ -36,7 +39,11 @@ export default async function HomePage({
 
       <ServiceShowcase locale={locale} dict={dict} />
 
+      <ServiceRail locale={locale} dict={dict} />
+
       <ProductShelf locale={locale} dict={dict} />
+
+      <AboutSplit locale={locale} dict={dict} />
 
       <TrustStrip items={dict.trust} title={dict.homePage.whyTitle} />
 

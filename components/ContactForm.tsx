@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Send, CheckCircle2, Loader2, ChevronDown } from "lucide-react";
 import { services } from "@/content/services";
 import { products } from "@/content/products";
@@ -23,6 +23,17 @@ export function ContactForm({
 }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const emailRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+
+  // Llega desde la fila "Recibe una propuesta" (QuickStart) con ?email=…:
+  // precarga el correo y lleva el foco al primer campo que falta.
+  useEffect(() => {
+    const email = new URLSearchParams(window.location.search).get("email");
+    if (!email || !emailRef.current) return;
+    emailRef.current.value = email;
+    nameRef.current?.focus();
+  }, []);
 
   const validate = (data: FormData) => {
     const next: Record<string, string> = {};
@@ -68,7 +79,7 @@ export function ContactForm({
         className="flex h-full flex-col items-center justify-center rounded-3xl bg-card p-10 text-center"
       >
         <CheckCircle2
-          className="h-10 w-10 text-action"
+          className="h-10 w-10 text-accent"
           strokeWidth={1.75}
           aria-hidden
         />
@@ -91,6 +102,7 @@ export function ContactForm({
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label={form.name} error={errors.name}>
           <input
+            ref={nameRef}
             name="name"
             type="text"
             placeholder={form.namePlaceholder}
@@ -100,6 +112,7 @@ export function ContactForm({
         </Field>
         <Field label={form.email} error={errors.email}>
           <input
+            ref={emailRef}
             name="email"
             type="email"
             placeholder={form.emailPlaceholder}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
+  Boxes,
   Check,
   ChevronLeft,
   PlayCircle,
@@ -12,13 +13,16 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
-import { SectionHeading, Eyebrow } from "@/components/ui/SectionHeading";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
-import { Button, ButtonExternal } from "@/components/ui/Button";
-import { MediaTile } from "@/components/ui/MediaTile";
+import { ButtonExternal, buttonClasses } from "@/components/ui/Button";
+import { StickyBar } from "@/components/ui/StickyBar";
+import { SplitFeature } from "@/components/ui/SplitFeature";
+import { SpecRow } from "@/components/ui/SpecRow";
+import { CardRail } from "@/components/ui/CardRail";
 import { Accordion } from "@/components/Accordion";
 import { ProductIcon } from "@/components/ProductIcon";
-import { ProductCard } from "@/components/ProductCard";
+import { PageHero } from "@/components/sections/PageHero";
 import { CtaBand } from "@/components/sections/CtaBand";
 import {
   products,
@@ -73,7 +77,7 @@ function relatedProducts(product: Product): Product[] {
   const others = products.filter(
     (p) => p.slug !== product.slug && p.category !== product.category,
   );
-  return [...sameCategory, ...others].slice(0, 3);
+  return [...sameCategory, ...others];
 }
 
 export default async function ProductDetailPage({
@@ -97,14 +101,28 @@ export default async function ProductDetailPage({
   return (
     <>
       {/* ================= HERO ================= */}
-      <section className="bg-surface-soft pt-16">
-        <Container className="pb-16 pt-8 sm:pb-24 sm:pt-10">
+      <PageHero
+        eyebrow={category ? category[locale].title : t.hero.eyebrow}
+        title={copy.title}
+        subtitle={copy.tagline}
+        image={product.image}
+      />
+
+      {/* Barra de producto pegada bajo la navegación, como en meta.com */}
+      <StickyBar
+        title={copy.title}
+        action={{ label: dict.ui.demo, href: contactHref }}
+      />
+
+      {/* ============= EN QUÉ CONSISTE ============= */}
+      <section className="bg-surface pb-16 pt-8 sm:pb-24 sm:pt-10">
+        <Container>
           <nav aria-label="breadcrumb">
             <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
               <li>
                 <Link
                   href={productsHref}
-                  className="inline-flex items-center gap-1 rounded-full font-medium text-heading transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
+                  className="inline-flex items-center gap-1 rounded-full font-semibold text-heading transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
                 >
                   <ChevronLeft className="h-4 w-4" aria-hidden />
                   {t.detail.back}
@@ -116,161 +134,177 @@ export default async function ProductDetailPage({
                   <li>{category[locale].title}</li>
                 </>
               )}
+              <li aria-hidden>/</li>
+              <li aria-current="page" className="text-heading">
+                {copy.title}
+              </li>
             </ol>
           </nav>
 
-          <div className="mx-auto mt-12 max-w-4xl text-center sm:mt-16">
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {category && <Eyebrow>{category[locale].title}</Eyebrow>}
-              {product.badge && (
-                <span className="rounded-full bg-card px-3 py-1 text-xs font-semibold text-heading">
-                  {dict.badges[product.badge]}
-                </span>
-              )}
-            </div>
-            <h1 className="mt-4 text-balance text-[clamp(2.5rem,6vw,5rem)] font-medium leading-[1.02] tracking-[-0.03em] text-heading">
-              {copy.title}
-            </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-balance text-lg leading-relaxed text-muted sm:text-xl">
-              {copy.tagline}
-            </p>
-
-            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button href={contactHref} variant="primary" size="lg">
-                {t.cta}
-              </Button>
-              <ButtonExternal
-                href={`https://wa.me/${siteConfig.whatsapp}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="outline"
-                size="lg"
-              >
-                {dict.common.talkToUs}
-              </ButtonExternal>
-            </div>
-
-            <p className="mt-6 text-sm text-muted">
-              <span className="font-semibold text-heading">
-                {t.audienceLabel}:
-              </span>{" "}
-              {copy.audience}
-            </p>
+          <div className="mt-10 sm:mt-14">
+            <SplitFeature
+              image={product.image}
+              eyebrow={t.detail.overviewTitle}
+              title={copy.title}
+              description={copy.intro}
+            >
+              <p className="mt-4 text-base leading-relaxed text-body">
+                {copy.description}
+              </p>
+              <p className="mt-6 text-sm text-muted">
+                {product.badge && (
+                  <span className="mr-2 inline-flex rounded-full bg-surface-soft px-3 py-1 text-xs font-semibold text-heading">
+                    {dict.badges[product.badge]}
+                  </span>
+                )}
+                <span className="font-bold text-heading">
+                  {t.audienceLabel}:
+                </span>{" "}
+                {copy.audience}
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href={contactHref}
+                  className={buttonClasses("primary", "lg")}
+                >
+                  {t.cta}
+                </Link>
+                <ButtonExternal
+                  href={`https://wa.me/${siteConfig.whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="secondary"
+                  size="lg"
+                >
+                  {dict.common.talkToUs}
+                </ButtonExternal>
+              </div>
+            </SplitFeature>
           </div>
+        </Container>
+      </section>
 
-          {/* Maqueta del producto: una "pantalla" neutra con sus funciones reales */}
-          <Reveal className="mx-auto mt-14 max-w-5xl sm:mt-16">
-            <div className="rounded-3xl bg-card p-2.5 sm:p-3">
-              <div className="overflow-hidden rounded-[1.125rem] bg-surface ring-1 ring-line">
-                {/* Barra superior */}
-                <div className="flex items-center justify-between gap-4 border-b border-line px-4 py-3 sm:px-5">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
-                      <ProductIcon name={product.icon} className="h-5 w-5" />
-                    </span>
-                    <span className="truncate text-sm font-medium text-heading">
-                      {copy.title}
-                    </span>
-                  </div>
-                  <div aria-hidden className="flex items-center gap-2">
-                    <span className="hidden h-7 w-40 rounded-full bg-card-soft sm:block" />
-                    <span className="h-7 w-7 rounded-full bg-card-soft" />
-                  </div>
+      {/* ============= QUÉ INCLUYE: maqueta + cifras ============= */}
+      <Section tone="muted">
+        <SectionHeading title={t.featuresTitle} size="lg" />
+
+        {/* Maqueta del producto: una "pantalla" neutra con sus funciones reales */}
+        <Reveal className="mx-auto mt-12 max-w-5xl sm:mt-14">
+          <div className="rounded-3xl bg-card p-2.5 sm:p-3">
+            <div className="overflow-hidden rounded-[1.125rem] bg-surface ring-1 ring-line">
+              {/* Barra superior */}
+              <div className="flex items-center justify-between gap-4 border-b border-line px-4 py-3 sm:px-5">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                    <ProductIcon name={product.icon} className="h-5 w-5" />
+                  </span>
+                  <span className="truncate text-sm font-bold text-heading">
+                    {copy.title}
+                  </span>
+                </div>
+                <div aria-hidden className="flex items-center gap-2">
+                  <span className="hidden h-7 w-40 rounded-full bg-card-soft sm:block" />
+                  <span className="h-7 w-7 rounded-full bg-card-soft" />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-[13rem_1fr]">
+                {/* Menú lateral */}
+                <div
+                  aria-hidden
+                  className="hidden space-y-2 border-r border-line p-4 md:block"
+                >
+                  <div className="h-8 rounded-lg bg-accent-soft" />
+                  {[70, 85, 60, 75, 55].map((w) => (
+                    <div key={w} className="flex h-8 items-center px-2">
+                      <span
+                        className="h-2 rounded-full bg-card-soft"
+                        style={{ width: `${w}%` }}
+                      />
+                    </div>
+                  ))}
                 </div>
 
-                <div className="grid md:grid-cols-[13rem_1fr]">
-                  {/* Menú lateral */}
-                  <div
-                    aria-hidden
-                    className="hidden space-y-2 border-r border-line p-4 md:block"
-                  >
-                    <div className="h-8 rounded-lg bg-accent-soft" />
-                    {[70, 85, 60, 75, 55].map((w) => (
-                      <div key={w} className="flex h-8 items-center px-2">
-                        <span
-                          className="h-2 rounded-full bg-card-soft"
-                          style={{ width: `${w}%` }}
-                        />
+                {/* Contenido */}
+                <div className="p-4 sm:p-6">
+                  <div aria-hidden className="grid grid-cols-3 gap-3">
+                    {[0, 1, 2].map((k) => (
+                      <div
+                        key={k}
+                        className="rounded-2xl bg-card-soft p-3 sm:p-4"
+                      >
+                        <span className="block h-2 w-1/2 rounded-full bg-line" />
+                        <span className="mt-3 block h-4 w-3/4 rounded-full bg-line sm:h-5" />
                       </div>
                     ))}
                   </div>
 
-                  {/* Contenido */}
-                  <div className="p-4 sm:p-6">
-                    <div aria-hidden className="grid grid-cols-3 gap-3">
-                      {[0, 1, 2].map((k) => (
-                        <div
-                          key={k}
-                          className="rounded-2xl bg-card-soft p-3 sm:p-4"
-                        >
-                          <span className="block h-2 w-1/2 rounded-full bg-line" />
-                          <span className="mt-3 block h-4 w-3/4 rounded-full bg-line sm:h-5" />
-                        </div>
-                      ))}
-                    </div>
+                  <ul className="mt-4 divide-y divide-line rounded-2xl ring-1 ring-line">
+                    {copy.features.map((feature) => (
+                      <li
+                        key={feature}
+                        className="flex items-start gap-3 px-4 py-3.5 text-left"
+                      >
+                        <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
+                          <Check
+                            className="h-3 w-3"
+                            strokeWidth={3}
+                            aria-hidden
+                          />
+                        </span>
+                        <span className="text-sm leading-snug text-body">
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
 
-                    <ul className="mt-4 divide-y divide-line rounded-2xl ring-1 ring-line">
-                      {copy.features.slice(0, 4).map((feature) => (
-                        <li
-                          key={feature}
-                          className="flex items-start gap-3 px-4 py-3.5 text-left"
-                        >
-                          <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
-                            <Check
-                              className="h-3 w-3"
-                              strokeWidth={3}
-                              aria-hidden
-                            />
-                          </span>
-                          <span className="text-sm leading-snug text-body">
-                            {feature}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div className="mt-4 flex items-center gap-2.5 rounded-2xl bg-card-soft px-4 py-3">
-                      <PlayCircle
-                        className="h-5 w-5 shrink-0 text-accent"
-                        aria-hidden
-                      />
-                      <span className="text-left text-sm font-medium text-heading">
-                        {t.detail.demoNote}
-                      </span>
-                    </div>
+                  <div className="mt-4 flex items-center gap-2.5 rounded-2xl bg-card-soft px-4 py-3">
+                    <PlayCircle
+                      className="h-5 w-5 shrink-0 text-accent"
+                      aria-hidden
+                    />
+                    <span className="text-left text-sm font-semibold text-heading">
+                      {t.detail.demoNote}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-          </Reveal>
-        </Container>
-      </section>
+          </div>
+        </Reveal>
 
-      {/* ============= EN QUÉ CONSISTE + BENEFICIOS ============= */}
-      <Section tone="light">
-        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-          <div>
-            <Eyebrow>{t.detail.overviewTitle}</Eyebrow>
-            <h2 className="mt-3 text-balance text-[clamp(2rem,3.6vw,3rem)] font-medium leading-[1.15] text-heading">
-              {copy.title}
-            </h2>
-          </div>
-          <div className="space-y-5 text-lg leading-relaxed text-body">
-            <p>{copy.intro}</p>
-            <p className="text-muted">{copy.description}</p>
-          </div>
+        {/* Ficha técnica: solo cifras que salen del contenido */}
+        <div className="mx-auto mt-14 max-w-2xl sm:mt-16 sm:[&>dl]:grid-cols-2">
+          <SpecRow
+            items={[
+              {
+                icon: Boxes,
+                value: String(copy.modules.length),
+                label: t.detail.modulesTitle,
+              },
+              {
+                icon: PlayCircle,
+                value: "24 h",
+                label: t.detail.demoNote,
+              },
+            ]}
+          />
         </div>
+      </Section>
 
-        <ul className="mt-14 grid gap-4 md:grid-cols-3">
+      {/* ============= BENEFICIOS ============= */}
+      <Section tone="light">
+        <ul className="grid gap-4 md:grid-cols-3">
           {copy.benefits.map((benefit, i) => (
             <li
               key={benefit.title}
               className="rounded-3xl bg-surface-soft p-8 sm:p-10"
             >
-              <span className="text-sm font-semibold tabular-nums text-accent">
+              <span className="text-sm font-bold tabular-nums text-accent">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <h3 className="mt-8 text-[1.75rem] font-light leading-tight text-heading">
+              <h3 className="mt-8 text-[1.75rem] font-bold leading-tight text-heading">
                 {benefit.title}
               </h3>
               <p className="mt-4 text-sm leading-relaxed text-body">
@@ -279,17 +313,6 @@ export default async function ProductDetailPage({
             </li>
           ))}
         </ul>
-
-        <MediaTile
-          size="wide"
-          className="mt-4"
-          image={product.image}
-          kicker={copy.title}
-          title={copy.tagline}
-          description={t.detail.demoNote}
-          primary={{ label: t.cta, href: contactHref }}
-          secondary={{ label: t.detail.allProducts, href: productsHref }}
-        />
       </Section>
 
       {/* ============= MÓDULOS ============= */}
@@ -307,7 +330,7 @@ export default async function ProductDetailPage({
                 strokeWidth={2}
                 aria-hidden
               />
-              <p className="mt-6 text-lg font-medium leading-snug text-heading">
+              <p className="mt-6 text-lg font-bold leading-snug text-heading">
                 {module}
               </p>
             </li>
@@ -317,35 +340,33 @@ export default async function ProductDetailPage({
 
       {/* ============= CÓMO LO ENTREGAMOS ============= */}
       <Section tone="light">
-        <SectionHeading
+        <SplitFeature
+          reverse
+          image="/images/about-team.jpg"
           eyebrow={t.whyEyebrow}
           title={t.whyTitle}
-          subtitle={t.whySubtitle}
-          size="lg"
-        />
-        <ul className="mt-12 grid gap-4 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
-          {t.why.map((item, i) => {
-            const Icon = whyIcons[i % whyIcons.length];
-            return (
-              <li
-                key={item.title}
-                className="rounded-3xl bg-surface-soft p-8 sm:p-10"
-              >
-                <Icon
-                  className="h-7 w-7 text-accent"
-                  strokeWidth={1.75}
-                  aria-hidden
-                />
-                <h3 className="mt-8 text-[1.75rem] font-light leading-tight text-heading">
-                  {item.title}
-                </h3>
-                <p className="mt-4 text-sm leading-relaxed text-body">
-                  {item.description}
-                </p>
-              </li>
-            );
-          })}
-        </ul>
+          description={t.whySubtitle}
+          primary={{ label: t.cta, href: contactHref }}
+        >
+          <ul className="mt-8 grid gap-6 sm:grid-cols-2">
+            {t.why.map((item, i) => {
+              const Icon = whyIcons[i % whyIcons.length];
+              return (
+                <li key={item.title}>
+                  <Icon
+                    className="h-6 w-6 text-accent"
+                    strokeWidth={1.75}
+                    aria-hidden
+                  />
+                  <p className="mt-3 font-bold text-heading">{item.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted">
+                    {item.description}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        </SplitFeature>
       </Section>
 
       {/* ============= FAQ ============= */}
@@ -358,7 +379,7 @@ export default async function ProductDetailPage({
         <div className="mx-auto max-w-3xl space-y-12">
           <Accordion items={copy.faqs} />
           <div>
-            <h3 className="mb-5 text-xl font-medium text-heading">
+            <h3 className="mb-5 text-xl font-bold text-heading">
               {t.faqsTitle}
             </h3>
             <Accordion items={t.faqs} />
@@ -366,27 +387,37 @@ export default async function ProductDetailPage({
         </div>
       </Section>
 
-      {/* ============= RELACIONADOS ============= */}
-      <Section tone="light">
-        <SectionHeading
-          eyebrow={t.intro.eyebrow}
-          title={t.detail.relatedTitle}
-          size="lg"
-        />
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {related.map((item, i) => (
-            <Reveal key={item.slug} delay={(i % 3) * 90} className="h-full">
-              <ProductCard
-                product={item}
-                locale={locale}
-                ctaLabel={t.detail.viewProduct}
-                ctaHref={localizedHref(locale, `productos/${item.slug}`)}
-                badgeLabel={item.badge ? dict.badges[item.badge] : undefined}
-              />
-            </Reveal>
-          ))}
+      {/* ============= RELACIONADOS: carril de meta.com ============= */}
+      <section className="overflow-hidden bg-surface py-16 sm:py-24">
+        <Container className="text-center">
+          <h2 className="mx-auto max-w-3xl text-balance text-[clamp(2rem,3.6vw,3rem)] leading-[1.1] text-heading">
+            {t.detail.relatedTitle}
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-base text-muted sm:text-lg">
+            {t.intro.subtitle}
+          </p>
+          <Link
+            href={productsHref}
+            className={buttonClasses("outline", "md", "mt-6")}
+          >
+            {t.detail.allProducts}
+          </Link>
+        </Container>
+        <div className="mt-10 sm:mt-12">
+          <CardRail
+            label={t.detail.relatedTitle}
+            prevLabel={dict.ui.prev}
+            nextLabel={dict.ui.next}
+            cards={related.map((item) => ({
+              key: item.slug,
+              title: item[locale].title,
+              caption: item[locale].tagline,
+              image: item.image,
+              href: localizedHref(locale, `productos/${item.slug}`),
+            }))}
+          />
         </div>
-      </Section>
+      </section>
 
       <CtaBand
         locale={locale}

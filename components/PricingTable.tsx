@@ -57,7 +57,7 @@ export function PricingTable({
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-xl font-medium text-heading">
+                  <h3 className="text-xl font-bold text-heading">
                     {copy.name}
                   </h3>
                   {plan.badge && (
@@ -65,7 +65,7 @@ export function PricingTable({
                       className={cn(
                         "shrink-0 rounded-full px-3 py-1 text-xs font-semibold",
                         highlighted
-                          ? "bg-action text-white"
+                          ? "bg-action text-deep-700"
                           : "bg-accent-soft text-accent",
                       )}
                     >
@@ -77,14 +77,14 @@ export function PricingTable({
                 {/* Precio */}
                 <div className="mt-6">
                   {plan.price === null ? (
-                    <p className="text-[2.25rem] font-medium leading-tight tracking-[-0.02em] text-heading">
+                    <p className="text-[2.25rem] font-bold leading-tight tracking-[-0.02em] text-heading">
                       {t.custom}
                     </p>
                   ) : (
                     <>
                       <p className="text-sm text-muted">{t.from}</p>
                       <p className="mt-1 flex flex-wrap items-baseline gap-x-2">
-                        <span className="text-[2.25rem] font-medium leading-tight tracking-[-0.02em] text-heading">
+                        <span className="text-[2.25rem] font-bold leading-tight tracking-[-0.02em] text-heading">
                           {formatCOP(plan.price)}
                         </span>
                         <span className="text-sm text-muted">
@@ -121,7 +121,7 @@ export function PricingTable({
                   {copy.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-3">
                       <Check
-                        className="mt-0.5 h-4 w-4 shrink-0 text-action"
+                        className="mt-0.5 h-4 w-4 shrink-0 text-accent"
                         strokeWidth={2.5}
                         aria-hidden
                       />

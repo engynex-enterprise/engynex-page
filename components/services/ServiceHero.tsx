@@ -59,7 +59,7 @@ export function ServiceHero({
         </nav>
 
         <p className="mt-8 text-sm font-medium text-white/85">{copy.tagline}</p>
-        <h1 className="mt-3 max-w-4xl text-balance text-[clamp(2.5rem,6vw,5rem)] font-medium leading-[1.02] tracking-[-0.03em] text-white">
+        <h1 className="mt-3 max-w-4xl text-balance text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.02] tracking-[-0.03em] text-white">
           {copy.title}
         </h1>
         <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/85">
