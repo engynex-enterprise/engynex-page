@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { CONSENT_EVENT } from "@/lib/cookieConsent";
+import { TRACK_EVENT, type TrackDetail } from "@/lib/tracking";
 import {
   analyticsAllowed,
   clearVisitor,
@@ -103,6 +104,47 @@ export function AnalyticsTracker({ locale }: { locale: string }) {
     return () => {
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onHide);
+    };
+  }, []);
+
+  // Eventos: los que emite el código (formulario, chat, reunión) y los clics
+  // en WhatsApp, teléfono, correo, enlaces externos y elementos con data-track.
+  useEffect(() => {
+    const emit = (name: string, label?: string | null) => {
+      const visitor = getVisitorId();
+      const session = getSessionId();
+      if (!visitor || !session) return;
+      void send({ type: "event", visitor_id: visitor, session_id: session, name, label: label?.slice(0, 200) ?? null, path: window.location.pathname }, true);
+    };
+    const onTrack = (event: Event) => {
+      const { name, label } = (event as CustomEvent<TrackDetail>).detail;
+      emit(name, label);
+    };
+    const onClick = (event: MouseEvent) => {
+      const el = (event.target as HTMLElement | null)?.closest<HTMLElement>("a, button, [data-track]");
+      if (!el) return;
+      const tracked = el.closest<HTMLElement>("[data-track]")?.dataset.track;
+      const text = (el.getAttribute("aria-label") ?? el.textContent ?? "").trim().replace(/\s+/g, " ").slice(0, 80);
+      if (tracked) return emit("cta_click", tracked);
+      const href = el instanceof HTMLAnchorElement ? el.href : "";
+      if (!href) return;
+      if (/wa\.me|whatsapp\.com/i.test(href)) return emit("whatsapp_click", text || "link");
+      if (href.startsWith("tel:")) return emit("phone_click", href.slice(4));
+      if (href.startsWith("mailto:")) return emit("email_click", href.slice(7).split("?")[0]);
+      if (/\.(pdf|docx?|xlsx?|zip)(\?|$)/i.test(href)) return emit("file_download", href.split("/").pop() ?? href);
+      try {
+        const url = new URL(href);
+        if (url.origin !== window.location.origin) return emit("outbound_click", url.hostname.replace(/^www\./, ""));
+        if (/\/cotizar|\/contacto|\/agendar/.test(url.pathname) && el.className.includes("bg-")) emit("cta_click", text || url.pathname);
+      } catch {
+        // Enlace inválido: se ignora.
+      }
+    };
+    window.addEventListener(TRACK_EVENT, onTrack);
+    document.addEventListener("click", onClick, { capture: true });
+    return () => {
+      window.removeEventListener(TRACK_EVENT, onTrack);
+      document.removeEventListener("click", onClick, { capture: true });
     };
   }, []);
 

@@ -1,0 +1,98 @@
+import type { Locale } from "@/i18n/config";
+
+/** Textos del resumen de analítica. */
+const es = {
+  kpis: {
+    visitors: "Visitantes",
+    newVisitors: "Nuevos",
+    sessions: "Sesiones",
+    pagesPerSession: "Páginas por sesión",
+    sessionTime: "Duración de la sesión",
+    bounce: "Rebote",
+    leads: "Leads",
+    conversion: "Conversión",
+  },
+  traffic: "Tráfico",
+  trafficHint: "Por día, comparado con el periodo anterior",
+  leadsByDay: "Leads por día",
+  leadsHint: "Verdes y el resto",
+  labels: {
+    visitors: "Visitantes",
+    views: "Vistas",
+    previous: "Periodo anterior",
+    leads: "Leads",
+    green: "Verdes",
+    others: "Amarillos y rojos",
+    day: "Día",
+    table: "Ver como tabla",
+    chart: "Ver gráfica",
+  },
+  channels: "Canales",
+  topPages: "Páginas más vistas",
+  funnel: "Del visitante a la venta",
+  devices: "Dispositivos",
+  seeAll: "Ver detalle",
+  views: "vistas",
+  insights: "Lo más importante",
+  insight: {
+    up: "Los visitantes subieron {n}% frente al periodo anterior.",
+    down: "Los visitantes bajaron {n}% frente al periodo anterior.",
+    bestChannel: "El canal que más leads trajo fue {channel} ({n}).",
+    topPage: "La página más vista fue {path} ({n} vistas).",
+    mobile: "{n}% de las visitas fueron desde el celular: revisa que todo se vea bien ahí.",
+    bounce: "El rebote es alto ({n}%): muchas visitas se van tras ver una sola página.",
+    noData: "Aún hay pocos datos en este periodo. Las métricas aparecen a medida que llegan visitas.",
+  },
+  funnelSteps: { visitors: "Visitantes", leads: "Leads", qualified: "Calificados", meetings: "Reuniones", won: "Ventas" },
+  noData: "Sin datos en este periodo.",
+};
+
+export type AnalyticsOverviewCopy = typeof es;
+
+const en: AnalyticsOverviewCopy = {
+  kpis: {
+    visitors: "Visitors",
+    newVisitors: "New",
+    sessions: "Sessions",
+    pagesPerSession: "Pages per session",
+    sessionTime: "Session duration",
+    bounce: "Bounce rate",
+    leads: "Leads",
+    conversion: "Conversion",
+  },
+  traffic: "Traffic",
+  trafficHint: "Per day, compared with the previous period",
+  leadsByDay: "Leads per day",
+  leadsHint: "Green and the rest",
+  labels: {
+    visitors: "Visitors",
+    views: "Views",
+    previous: "Previous period",
+    leads: "Leads",
+    green: "Green",
+    others: "Yellow and red",
+    day: "Day",
+    table: "View as table",
+    chart: "View chart",
+  },
+  channels: "Channels",
+  topPages: "Top pages",
+  funnel: "From visitor to sale",
+  devices: "Devices",
+  seeAll: "See details",
+  views: "views",
+  insights: "Highlights",
+  insight: {
+    up: "Visitors went up {n}% vs. the previous period.",
+    down: "Visitors went down {n}% vs. the previous period.",
+    bestChannel: "The channel that brought the most leads was {channel} ({n}).",
+    topPage: "The most viewed page was {path} ({n} views).",
+    mobile: "{n}% of visits were on mobile: make sure everything looks good there.",
+    bounce: "Bounce rate is high ({n}%): many visits leave after a single page.",
+    noData: "There's little data in this period yet. Metrics show up as visits come in.",
+  },
+  funnelSteps: { visitors: "Visitors", leads: "Leads", qualified: "Qualified", meetings: "Meetings", won: "Sales" },
+  noData: "No data in this period.",
+};
+
+export const analyticsOverviewCopy: Record<Locale, AnalyticsOverviewCopy> = { es, en };

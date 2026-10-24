@@ -609,6 +609,12 @@ export type Database = {
         Update: Partial<LeadActivity>;
         Relationships: [];
       };
+      analytics_events: {
+        Row: { id: number; visitor_id: string; session_id: string | null; name: string; label: string | null; path: string | null; created_at: string };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       task_comments: {
         Row: TaskComment;
         Insert: Partial<TaskComment> & { task_id: string; body: string };
@@ -943,6 +949,12 @@ export type Database = {
         Returns: undefined;
       };
       agenda_kpis: { Args: { p_days?: number }; Returns: Json };
+      track_event: { Args: { p: Json }; Returns: undefined };
+      analytics_overview: { Args: { p_from: string; p_to: string }; Returns: Json };
+      analytics_acquisition: { Args: { p_from: string; p_to: string }; Returns: Json };
+      analytics_behavior: { Args: { p_from: string; p_to: string }; Returns: Json };
+      analytics_funnel: { Args: { p_from: string; p_to: string }; Returns: Json };
+      analytics_live: { Args: Record<string, never>; Returns: Json };
       report_generate: { Args: { p_week_start: string; p_email?: boolean }; Returns: string };
       jobs_weekly_report: { Args: Record<string, never>; Returns: string | null };
       ai_pending_leads: {

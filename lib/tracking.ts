@@ -175,6 +175,14 @@ function clearCookies(pattern: RegExp) {
   }
 }
 
+/** Evento para la analítica propia (lo envía AnalyticsTracker si hay consentimiento). */
+export const TRACK_EVENT = "engynex-track";
+export type TrackDetail = { name: string; label?: string };
+export function trackEvent(name: string, label?: string) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent<TrackDetail>(TRACK_EVENT, { detail: { name, label } }));
+}
+
 /** Vista de página en navegación del lado del cliente. */
 export function trackPageView(path: string) {
   if (tagIds.gtm && window.dataLayer) window.dataLayer.push({ event: "page_view", page_path: path });
@@ -190,6 +198,7 @@ type LeadEvent = { tier: "green" | "yellow" | "red"; category?: string; email?: 
  * optimizan hacia leads que sí sirven.
  */
 export function trackLead({ tier, category, email, phone }: LeadEvent) {
+  trackEvent("form_submit", tier);
   const marketing = hasConsent("marketing");
   const qualified = tier !== "red";
 
@@ -208,6 +217,7 @@ export function trackLead({ tier, category, email, phone }: LeadEvent) {
 }
 
 export function trackBooking() {
+  trackEvent("booking");
   if (window.dataLayer) window.dataLayer.push({ event: "book_appointment" });
   if (window.gtag && !tagIds.gtm) {
     if (tagIds.ga4) gtag("event", "book_appointment");
@@ -220,6 +230,8 @@ export function trackBooking() {
 
 /** Contactos secundarios: chat en vivo y clic a WhatsApp. */
 export function trackContact(channel: "chat" | "whatsapp") {
+  // Los clics a WhatsApp ya los registra AnalyticsTracker (enlace wa.me).
+  if (channel === "chat") trackEvent("chat_start");
   if (window.dataLayer) window.dataLayer.push({ event: "contact", contact_channel: channel });
   if (window.gtag && !tagIds.gtm && tagIds.ga4) gtag("event", "contact", { contact_channel: channel });
   if (window.fbq && hasConsent("marketing")) window.fbq("track", "Contact", { channel });

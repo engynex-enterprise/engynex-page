@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { SubmitLeadResult } from "@/lib/supabase/types";
 import { readAttribution } from "@/lib/attribution";
 import { getVisitorId } from "@/lib/visitor";
-import { trackLead } from "@/lib/tracking";
+import { trackEvent, trackLead } from "@/lib/tracking";
 import { buttonClasses } from "@/components/ui/Button";
 import { Booking } from "./Booking";
 import {
@@ -86,6 +86,15 @@ export function LeadForm({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const baseId = useId();
   const firstRender = useRef(true);
+
+  // Analítica propia: inicio del formulario y hasta qué paso llega.
+  const maxStep = useRef(0);
+  useEffect(() => {
+    if (step <= maxStep.current) return;
+    if (maxStep.current === 0) trackEvent("form_start");
+    maxStep.current = step;
+    trackEvent("form_step", String(step + 1));
+  }, [step]);
 
   // Al cambiar de paso, el foco va al título (lectores de pantalla y teclado).
   useEffect(() => {

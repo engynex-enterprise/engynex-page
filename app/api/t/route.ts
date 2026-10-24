@@ -10,6 +10,25 @@ function deviceFrom(ua: string): "mobile" | "tablet" | "desktop" {
   return "desktop";
 }
 
+function browserFrom(ua: string) {
+  if (/edg\//i.test(ua)) return "Edge";
+  if (/opr\/|opera/i.test(ua)) return "Opera";
+  if (/samsungbrowser/i.test(ua)) return "Samsung";
+  if (/firefox|fxios/i.test(ua)) return "Firefox";
+  if (/chrome|crios/i.test(ua)) return "Chrome";
+  if (/safari/i.test(ua)) return "Safari";
+  return "Otro";
+}
+
+function osFrom(ua: string) {
+  if (/iphone|ipad|ipod/i.test(ua)) return "iOS";
+  if (/android/i.test(ua)) return "Android";
+  if (/windows/i.test(ua)) return "Windows";
+  if (/mac os/i.test(ua)) return "macOS";
+  if (/linux/i.test(ua)) return "Linux";
+  return "Otro";
+}
+
 /**
  * Recibe los eventos de la analítica propia (solo llegan si el visitante dio
  * consentimiento). Añade el país desde los encabezados del hosting y el tipo
@@ -38,10 +57,15 @@ export async function POST(request: NextRequest) {
       request.headers.get("cf-ipcountry") ??
       null;
     const { data, error } = await supabase.rpc("track_page_view", {
-      p: { ...body, device: deviceFrom(ua), country },
+      p: { ...body, device: deviceFrom(ua), browser: browserFrom(ua), os: osFrom(ua), country },
     });
     if (error) return new NextResponse(null, { status: 400 });
     return NextResponse.json({ id: data });
+  }
+
+  if (body.type === "event") {
+    await supabase.rpc("track_event", { p: body as never });
+    return new NextResponse(null, { status: 204 });
   }
 
   if (body.type === "leave") {
