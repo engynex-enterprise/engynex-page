@@ -4,7 +4,6 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
-import { Backdrop } from "@/components/ui/Backdrop";
 import { ServiceIcon } from "@/components/ServiceIcon";
 import { services, getService } from "@/content/services";
 import { serviceGroups } from "@/content/navigation";
@@ -43,8 +42,6 @@ export function ServicesBento({
 
   return (
     <Section tone="light" id="servicios" className="relative">
-      <Backdrop variant="soft" />
-
       <SectionHeading
         eyebrow={copy.eyebrow}
         title={copy.title}
@@ -54,7 +51,7 @@ export function ServicesBento({
         action={
           <Link
             href={localizedHref(locale, "servicios")}
-            className="group inline-flex items-center gap-2 text-base font-semibold text-heading underline-offset-8 transition-colors hover:text-accent hover:underline"
+            className="group inline-flex items-center gap-2 text-base font-medium text-accent underline-offset-8 hover:underline"
           >
             {moreLabel}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -71,14 +68,11 @@ export function ServicesBento({
             <Reveal key={service.slug} delay={i * 90}>
               <Link
                 href={localizedHref(locale, `servicios/${service.slug}`)}
-                className={cn(
-                  "group relative grid overflow-hidden rounded-3xl border border-line bg-card transition-all duration-300 hover:shadow-card-hover md:grid-cols-2",
-                  tone.border,
-                )}
+                className="group relative grid overflow-hidden rounded-[1.75rem] bg-surface-soft transition-colors duration-300 hover:bg-card-soft md:grid-cols-2"
               >
                 <div
                   className={cn(
-                    "relative aspect-[16/10] md:aspect-auto md:min-h-68",
+                    "relative m-3 aspect-[16/10] overflow-hidden rounded-[1.25rem] md:aspect-auto md:min-h-68",
                     i === 1 && "md:order-2",
                   )}
                 >
@@ -87,31 +81,25 @@ export function ServicesBento({
                     alt={c.title}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                   />
                 </div>
                 <div className="flex flex-col justify-center gap-4 p-8 sm:p-10">
                   <span
                     className={cn(
-                      "inline-flex h-12 w-12 items-center justify-center rounded-2xl transition-colors duration-300",
+                      "inline-flex h-12 w-12 items-center justify-center rounded-full",
                       tone.tile,
-                      tone.tileHover,
                     )}
                   >
                     <ServiceIcon name={service.icon} className="h-6 w-6" />
                   </span>
-                  <h3 className="text-2xl font-extrabold text-heading sm:text-3xl">
+                  <h3 className="text-2xl font-medium text-heading sm:text-3xl">
                     {c.title}
                   </h3>
                   <p className="max-w-md leading-relaxed text-body">
                     {c.description}
                   </p>
-                  <span
-                    className={cn(
-                      "mt-1 inline-flex items-center gap-2 text-sm font-semibold",
-                      tone.text,
-                    )}
-                  >
+                  <span className="mt-1 inline-flex items-center gap-2 text-sm font-medium text-accent">
                     {ctaLabel}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </span>
@@ -123,19 +111,22 @@ export function ServicesBento({
       </div>
 
       {/* Índice completo, por función */}
-      <div className="mt-4 grid gap-px overflow-hidden rounded-3xl border border-line bg-line lg:grid-cols-3">
+      <div className="mt-4 grid gap-4 lg:grid-cols-3">
         {serviceGroups.map((group, g) => (
-          <div key={group.key} className="flex flex-col bg-card p-7 sm:p-8">
-            <p className="flex items-baseline justify-between gap-3 border-b border-line pb-5">
-              <span className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-muted">
+          <div
+            key={group.key}
+            className="flex min-w-0 flex-col rounded-[1.75rem] border border-line bg-card p-6 sm:p-7"
+          >
+            <p className="flex items-baseline justify-between gap-3 border-b border-line pb-4">
+              <span className="text-base font-medium text-heading">
                 {group[locale].title}
               </span>
-              <span className="shrink-0 text-[0.66rem] font-semibold tabular-nums text-heading/35">
+              <span className="shrink-0 text-xs tabular-nums text-muted">
                 {group.slugs.length} {countLabel}
               </span>
             </p>
 
-            <ul className="flex-1 divide-y divide-line">
+            <ul className="mt-2 flex-1">
               {group.slugs.map((slug, i) => {
                 const service = getService(slug);
                 if (!service) return null;
@@ -149,19 +140,18 @@ export function ServicesBento({
                   >
                     <Link
                       href={localizedHref(locale, `servicios/${slug}`)}
-                      className="group flex items-center gap-3.5 py-3.5"
+                      className="group -mx-3 flex items-center gap-3.5 rounded-xl px-3 py-3 transition-colors hover:bg-surface-soft"
                     >
                       <span
                         className={cn(
-                          "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-300",
+                          "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
                           tone.tile,
-                          tone.tileHover,
                         )}
                       >
                         <ServiceIcon name={service.icon} className="h-4.5 w-4.5" />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-extrabold text-heading">
+                        <span className="block text-sm font-medium text-heading">
                           {c.title}
                         </span>
                         <span className="mt-0.5 block truncate text-xs text-muted">
@@ -170,8 +160,7 @@ export function ServicesBento({
                       </span>
                       <ArrowUpRight
                         className={cn(
-                          "h-4 w-4 shrink-0 text-muted opacity-0 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100",
-                          tone.textHover,
+                          "h-4 w-4 shrink-0 text-accent opacity-0 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100",
                         )}
                       />
                     </Link>

@@ -113,7 +113,6 @@ export function Navbar({
     setMobileSection(null);
   };
 
-  const solid = scrolled || mobileOpen || openPanel !== null;
 
   const isActive = (path: string) => {
     const href = localizedHref(locale, path);
@@ -131,16 +130,16 @@ export function Navbar({
       {/* Barra superior: horario, contacto y redes */}
       <div
         className={cn(
-          "overflow-hidden bg-navy-950/85 text-ink-200 backdrop-blur transition-all duration-300",
+          "overflow-hidden bg-surface-soft text-body transition-all duration-300",
           scrolled
             ? "max-h-0 border-transparent opacity-0"
-            : "max-h-14 border-b border-white/10 opacity-100",
+            : "max-h-14 border-b border-line opacity-100",
         )}
       >
         <Container>
-          <div className="flex h-10 items-center justify-between gap-3 text-xs font-semibold">
+          <div className="flex h-10 items-center justify-between gap-3 text-xs font-medium">
             <span className="hidden items-center gap-1.5 truncate whitespace-nowrap sm:inline-flex">
-              <Clock className="h-3.5 w-3.5 shrink-0 text-brand-green" />
+              <Clock className="h-3.5 w-3.5 shrink-0 text-muted" />
               <span className="hidden lg:inline">{siteConfig.hours[locale]}</span>
               <span className="inline lg:hidden">
                 {locale === "es"
@@ -151,19 +150,19 @@ export function Navbar({
             <div className="flex flex-1 items-center justify-end gap-1">
               <a
                 href={`mailto:${siteConfig.email}`}
-                className="mr-2 hidden items-center gap-1.5 whitespace-nowrap transition-colors hover:text-white lg:inline-flex"
+                className="mr-2 hidden items-center gap-1.5 whitespace-nowrap transition-colors hover:text-heading lg:inline-flex"
               >
-                <Mail className="h-3.5 w-3.5 text-brand-green" />
+                <Mail className="h-3.5 w-3.5 text-muted" />
                 {siteConfig.email}
               </a>
               <a
                 href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
-                className="mr-1 inline-flex h-8 items-center gap-1.5 whitespace-nowrap px-1 transition-colors hover:text-white"
+                className="mr-1 inline-flex h-8 items-center gap-1.5 whitespace-nowrap px-1 transition-colors hover:text-heading"
               >
-                <Phone className="h-3.5 w-3.5 text-brand-green" />
+                <Phone className="h-3.5 w-3.5 text-muted" />
                 <span>{siteConfig.phoneDisplay}</span>
               </a>
-              <span className="mx-1 hidden h-4 w-px bg-white/15 sm:block" />
+              <span className="mx-1 hidden h-4 w-px bg-line-strong sm:block" />
               {socials.map(({ href, label, Icon }) => (
                 <a
                   key={label}
@@ -171,7 +170,7 @@ export function Navbar({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-ink-300 transition-colors hover:bg-brand-green hover:text-navy-950"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-card-soft hover:text-heading"
                 >
                   <Icon className="h-4 w-4" />
                 </a>
@@ -181,13 +180,16 @@ export function Navbar({
         </Container>
       </div>
 
-      {/* Fila principal + paneles del mega menú */}
+      {/* Fila principal + paneles del mega menú. Va siempre sólida y blanca:
+          los heros son claros y una cabecera transparente con texto blanco
+          dejaría de leerse. */}
       <div
         className={cn(
           "relative transition-all duration-300",
-          solid
-            ? "border-b border-navy-900/10 bg-white/85 backdrop-blur-lg supports-[backdrop-filter]:bg-white/70 dark:border-white/10 dark:bg-navy-950/85 dark:supports-[backdrop-filter]:bg-navy-950/70"
-            : "border-b border-transparent bg-transparent",
+          "border-b bg-white/90 backdrop-blur-lg supports-[backdrop-filter]:bg-white/80 dark:bg-navy-950/90 dark:supports-[backdrop-filter]:bg-navy-950/80",
+          scrolled || openPanel !== null
+            ? "border-line shadow-[0_1px_2px_rgba(60,64,67,0.08)]"
+            : "border-line",
         )}
       >
         <Container>
@@ -201,7 +203,7 @@ export function Navbar({
               {/* Logo más pequeño en pantallas estrechas para que la barra no
                   desborde (el `!` gana al alto en línea del componente). */}
               <Logo
-                variant={solid ? "adaptive" : "white"}
+                variant="adaptive"
                 height={34}
                 className="h-7! w-auto sm:h-[34px]!"
               />
@@ -213,14 +215,10 @@ export function Navbar({
                 const panelKey = panelForRoute[route.key];
                 const active = isActive(route.path);
                 const itemClass = cn(
-                  "inline-flex h-10 items-center gap-1 rounded-full px-2.5 text-sm font-bold transition-colors xl:px-4",
-                  solid
-                    ? active
-                      ? "text-brand-green-dark dark:text-brand-green"
-                      : "text-navy-700 hover:text-brand-green-dark dark:text-ink-200 dark:hover:text-brand-green"
-                    : active
-                      ? "text-brand-green-light"
-                      : "text-ink-200 hover:text-white",
+                  "inline-flex h-10 items-center gap-1 rounded-full px-2.5 text-sm font-medium transition-colors xl:px-4",
+                  active
+                    ? "text-accent"
+                    : "text-body hover:bg-card-soft hover:text-heading dark:hover:bg-white/5",
                 );
 
                 if (!panelKey) {
@@ -244,7 +242,7 @@ export function Navbar({
                     aria-expanded={expanded}
                     aria-controls={`mega-panel-${panelKey}`}
                     onClick={() => togglePanel(panelKey)}
-                    className={cn(itemClass, expanded && "bg-brand-green/10")}
+                    className={cn(itemClass, expanded && "bg-accent-soft text-accent")}
                   >
                     {nav[route.key]}
                     <ChevronDown
@@ -260,10 +258,10 @@ export function Navbar({
             </nav>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              <ThemeToggle label={themeLabel} tone={solid ? "light" : "dark"} />
+              <ThemeToggle label={themeLabel} tone="light" />
               {/* Oculto entre lg y xl: ahí la barra ya lleva 6 enlaces + CTA. */}
               <div className="hidden sm:max-lg:block xl:block">
-                <LanguageSwitcher locale={locale} tone={solid ? "light" : "dark"} />
+                <LanguageSwitcher locale={locale} tone="light" />
               </div>
               {/* El wrapper evita mezclar `hidden` con el `inline-flex` del
                   botón: en móvil el CTA desbordaba la barra. */}
@@ -284,12 +282,7 @@ export function Navbar({
                 aria-label={mobileOpen ? nav.closeMenu : nav.openMenu}
                 aria-expanded={mobileOpen}
                 aria-controls="mobile-menu"
-                className={cn(
-                  "inline-flex h-11 w-11 items-center justify-center rounded-full transition-colors lg:hidden",
-                  solid
-                    ? "text-navy-900 hover:bg-navy-900/5 dark:text-white dark:hover:bg-white/10"
-                    : "text-white hover:bg-white/10",
-                )}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-navy-900 transition-colors hover:bg-navy-900/5 lg:hidden dark:text-white dark:hover:bg-white/10"
               >
                 {mobileOpen ? (
                   <X className="h-6 w-6" />

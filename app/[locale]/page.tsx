@@ -1,13 +1,10 @@
 import { notFound } from "next/navigation";
 import { HeroSlider } from "@/components/sections/HeroSlider";
-import { TrustStrip } from "@/components/sections/TrustStrip";
 import { ClientLogos } from "@/components/sections/ClientLogos";
-import { TechStrip } from "@/components/sections/TechStrip";
 import { Industries } from "@/components/sections/Industries";
 import { ServicesBento } from "@/components/sections/ServicesBento";
 import { SubscriptionBand } from "@/components/sections/SubscriptionBand";
 import { ProductsPreview } from "@/components/sections/ProductsPreview";
-import { WhyEngynex } from "@/components/sections/WhyEngynex";
 import { StatsBand } from "@/components/sections/StatsBand";
 import { PortfolioPreview } from "@/components/sections/PortfolioPreview";
 import { ProcessShowcase } from "@/components/sections/ProcessShowcase";
@@ -22,10 +19,13 @@ import { buildHeroSlides } from "@/lib/heroSlides";
 /**
  * Home.
  *
- * El ritmo alterna dos momentos oscuros a sangre completa (hero y cierre, más
- * el bloque de posicionamiento en el medio) con bloques claros que solo
- * cambian entre `surface` y `surface-soft`. Nada de mallas de degradado ni
- * figuras decorativas: la jerarquía la marcan la tipografía y el espacio.
+ * Lenguaje corporativo y sobrio: todo claro, alternando `surface` y
+ * `surface-soft`, con dos únicos bloques de color (la oferta en azul claro y
+ * el cierre en azul de marca). Sin fondos oscuros, mallas ni halos: la
+ * jerarquía la marcan la tipografía y el espacio.
+ *
+ * Orden: qué hacemos → prueba (clientes, cifras, casos) → cómo trabajamos →
+ * qué dicen → acción.
  */
 export default async function HomePage({
   params,
@@ -46,8 +46,6 @@ export default async function HomePage({
         controls={dict.heroSlides.controls}
       />
 
-      <TrustStrip items={dict.trust} />
-
       <ClientLogos clients={dict.clients} />
 
       <ServicesBento
@@ -58,9 +56,11 @@ export default async function HomePage({
         countLabel={dict.common.servicesCount}
       />
 
-      <TechStrip copy={dict.techStrip} />
-
-      <Industries industries={dict.industries} />
+      <ProductsPreview
+        locale={locale}
+        copy={dict.productsSection}
+        badges={dict.badges}
+      />
 
       {webSubscription && (
         <SubscriptionBand
@@ -71,31 +71,24 @@ export default async function HomePage({
         />
       )}
 
-      <ProductsPreview
-        locale={locale}
-        copy={dict.productsSection}
-        badges={dict.badges}
-      />
-
-      <WhyEngynex whyUs={dict.whyUs} />
-
-      <StatsBand
-        eyebrow={dict.statsBand.eyebrow}
-        title={dict.statsBand.title}
-        subtitle={dict.statsBand.subtitle}
-        stats={dict.statsBand.items}
-        tone="muted"
-      />
-
       <PortfolioPreview
         locale={locale}
         featured={dict.featured}
         resultLabel={dict.portfolioPage.resultLabel}
       />
 
+      <StatsBand
+        eyebrow={dict.statsBand.eyebrow}
+        title={dict.statsBand.title}
+        subtitle={dict.statsBand.subtitle}
+        stats={dict.statsBand.items}
+      />
+
+      <Industries industries={dict.industries} />
+
       <ProcessShowcase process={dict.process} />
 
-      <Testimonials testimonials={dict.testimonials} tone="light" />
+      <Testimonials testimonials={dict.testimonials} tone="muted" />
 
       <CtaBand
         locale={locale}

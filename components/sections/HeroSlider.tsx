@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { ParallaxLayer } from "@/components/ui/Parallax";
 import { buttonClasses } from "@/components/ui/Button";
 import type { HeroSlide } from "@/lib/heroSlides";
 import { useReducedMotion } from "@/lib/useReducedMotion";
@@ -23,11 +22,12 @@ export interface HeroSliderControls {
 }
 
 /**
- * Hero editorial a sangre completa.
+ * Hero claro, de corte corporativo.
  *
  * Un solo mensaje por slide (kicker, titular, una línea de apoyo y una acción)
- * sobre la fotografía, sin adornos flotantes: la jerarquía la marca la
- * tipografía y el espacio en blanco, no la decoración.
+ * a la izquierda y la imagen en una tarjeta redondeada a la derecha. Sin velos
+ * ni fotografía a sangre: la jerarquía la marcan la tipografía y el espacio en
+ * blanco, no la decoración.
  */
 export function HeroSlider({
   slides,
@@ -94,69 +94,61 @@ export function HeroSlider({
       onKeyDown={onKeyDown}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
-      className="relative isolate flex min-h-[38rem] flex-col overflow-hidden bg-navy-950 text-white lg:min-h-[86vh]"
+      className="relative isolate overflow-hidden bg-surface"
     >
-      {/* Fotografía a sangre con fundido cruzado y zoom lento */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        {/* Una sola capa de parallax para las cinco fotos: se desplazan algo
-            más lento que la página mientras el hero sale de pantalla. */}
-        <ParallaxLayer distance={80}>
-        {slides.map((slide, i) => (
-          <div
-            key={slide.key}
-            className={cn(
-              "absolute inset-0 transition-opacity duration-[1200ms] ease-out",
-              i === current ? "opacity-100" : "opacity-0",
-            )}
-          >
-            <Image
-              src={slide.image}
-              alt=""
-              fill
-              priority={i === 0}
-              sizes="100vw"
-              className={cn(
-                "object-cover",
-                reduceMotion
-                  ? "scale-105"
-                  : cn(
-                      "transition-transform duration-[10000ms] ease-out",
-                      i === current ? "scale-110" : "scale-100",
-                    ),
-              )}
-            />
+      <Container className="relative pt-36 pb-12 sm:pt-40 lg:pt-44 lg:pb-16">
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-16">
+          {/* Mensaje de cada slide, apilados en la misma celda */}
+          <div className="grid min-w-0 grid-cols-1">
+            {slides.map((slide, i) => (
+              <Slide
+                key={slide.key}
+                slide={slide}
+                active={i === current}
+                index={i}
+                total={total}
+              />
+            ))}
           </div>
-        ))}
-        </ParallaxLayer>
 
-        {/* Los velos no se mueven: si lo hicieran, se verían los bordes. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/85 to-navy-950/20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/20 to-navy-950/55" />
-      </div>
-
-      {/* Contenido */}
-      <Container className="relative flex flex-1 items-center">
-        <div className="grid w-full min-w-0 grid-cols-1 pt-36 pb-16 sm:pt-44 lg:pt-40 lg:pb-24">
-          {slides.map((slide, i) => (
-            <Slide
-              key={slide.key}
-              slide={slide}
-              active={i === current}
-              index={i}
-              total={total}
-            />
-          ))}
+          {/* Imagen del slide en una tarjeta redondeada, con fundido cruzado */}
+          <div
+            aria-hidden
+            className="relative aspect-[16/11] overflow-hidden rounded-[2rem] bg-card-soft lg:aspect-[5/4]"
+          >
+            {slides.map((slide, i) => (
+              <div
+                key={slide.key}
+                className={cn(
+                  "absolute inset-0 transition-opacity duration-[1000ms] ease-out",
+                  i === current ? "opacity-100" : "opacity-0",
+                )}
+              >
+                <Image
+                  src={slide.image}
+                  alt=""
+                  fill
+                  priority={i === 0}
+                  sizes="(max-width: 1024px) 100vw, 45vw"
+                  className={cn(
+                    "object-cover",
+                    !reduceMotion &&
+                      "transition-transform duration-[8000ms] ease-out",
+                    i === current && !reduceMotion ? "scale-105" : "scale-100",
+                  )}
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </Container>
 
-      {/* Barra inferior: indicadores numerados + controles */}
-      {total > 1 && (
-        <Container className="relative pb-8 sm:pb-10">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        {/* Barra inferior: pestañas con progreso + controles */}
+        {total > 1 && (
+          <div className="mt-14 flex flex-col gap-6 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between lg:mt-16">
             <div
               role="tablist"
               aria-label={controls.slideLabel}
-              className="no-scrollbar -mx-1 flex min-w-0 gap-6 overflow-x-auto px-1 sm:gap-8"
+              className="no-scrollbar -mx-1 flex min-w-0 gap-2 overflow-x-auto px-1"
             >
               {slides.map((slide, i) => {
                 const isActive = i === current;
@@ -168,34 +160,20 @@ export function HeroSlider({
                     aria-selected={isActive}
                     aria-label={`${controls.slideLabel} ${i + 1}: ${slide.navLabel}`}
                     onClick={() => goTo(i)}
-                    className="group flex shrink-0 flex-col gap-2.5 pt-1 text-left"
+                    className={cn(
+                      "relative h-9 shrink-0 overflow-hidden rounded-full px-4 text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-accent-soft text-accent"
+                        : "text-body hover:bg-card-soft hover:text-heading",
+                    )}
                   >
-                    <span className="flex items-baseline gap-2">
+                    {slide.navLabel}
+                    {/* Progreso del slide activo, como un subrayado fino */}
+                    {isActive && (
                       <span
-                        className={cn(
-                          "text-[0.62rem] font-semibold tabular-nums transition-colors",
-                          isActive ? "text-brand-green" : "text-white/35",
-                        )}
+                        aria-hidden
+                        className="absolute inset-x-4 bottom-1 block h-0.5 overflow-hidden rounded-full bg-accent/15"
                       >
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <span
-                        className={cn(
-                          "text-[0.8rem] font-semibold tracking-tight transition-colors",
-                          isActive
-                            ? "text-white"
-                            : "text-white/50 group-hover:text-white/80",
-                        )}
-                      >
-                        {slide.navLabel}
-                      </span>
-                    </span>
-                    {/* Riel finísimo: el progreso solo se dibuja en el activo */}
-                    <span
-                      aria-hidden
-                      className="block h-px w-24 overflow-hidden bg-white/20 sm:w-28"
-                    >
-                      {isActive && (
                         <span
                           key={current}
                           data-paused={paused}
@@ -204,10 +182,10 @@ export function HeroSlider({
                               "--slide-duration": `${SLIDE_DURATION}ms`,
                             } as React.CSSProperties
                           }
-                          className="slide-progress block h-full w-full bg-brand-green"
+                          className="slide-progress block h-full w-full bg-accent"
                         />
-                      )}
-                    </span>
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -232,8 +210,8 @@ export function HeroSlider({
               </ControlButton>
             </div>
           </div>
-        </Container>
-      )}
+        )}
+      </Container>
     </section>
   );
 }
@@ -253,7 +231,7 @@ function ControlButton({
       onClick={onClick}
       aria-label={label}
       title={label}
-      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors hover:border-white/60 hover:text-white"
+      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line-strong text-body transition-colors hover:bg-card-soft hover:text-heading"
     >
       {children}
     </button>
@@ -294,39 +272,28 @@ function Slide({
     >
       {/* Kicker */}
       <div style={delay(0)} className={cn(anim, "flex items-center gap-3")}>
-        <span
-          aria-hidden
-          className={cn(
-            "h-1.5 w-1.5 rounded-full",
-            slide.accent === "green" ? "bg-brand-green" : "bg-brand-blue-light",
-          )}
-        />
-        <span className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-white/70">
+        <span className="text-sm font-medium text-accent">
           {slide.eyebrow}
         </span>
         {slide.badge && (
-          <>
-            <span aria-hidden className="h-3 w-px bg-white/25" />
-            <span className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-brand-green">
-              {slide.badge}
-            </span>
-          </>
+          <span className="rounded-full bg-brand-green/15 px-2.5 py-0.5 text-xs font-medium text-brand-green-dark dark:text-brand-green">
+            {slide.badge}
+          </span>
         )}
       </div>
 
-      {/* Titular. Usa la tipografía de cuerpo (no la display) para lograr el
-          aire de titular editorial; el resto del sitio conserva OpenDyslexic. */}
+      {/* Titular */}
       <h1
         style={delay(1)}
         className={cn(
           anim,
-          "mt-7 max-w-4xl text-[clamp(1.85rem,3.9vw,3.15rem)] font-extrabold tracking-[-0.02em] text-white",
+          "mt-5 max-w-2xl text-balance text-[clamp(2.4rem,5vw,4rem)] font-medium leading-[1.08] tracking-[-0.03em] text-heading",
         )}
       >
         {slide.titleLead}{" "}
-        {/* La parte destacada va en verde de marca (antes en gris): es lo que
-            diferencia un slide de otro de un vistazo. */}
-        <span className="text-brand-green">{slide.titleHighlight}</span>
+        <span className="text-brand-blue dark:text-brand-blue-light">
+          {slide.titleHighlight}
+        </span>
       </h1>
 
       {/* Línea de apoyo */}
@@ -334,7 +301,7 @@ function Slide({
         style={delay(2)}
         className={cn(
           anim,
-          "mt-7 max-w-xl text-lg leading-relaxed text-white/65 sm:text-xl",
+          "mt-6 max-w-xl text-lg leading-relaxed text-body sm:text-xl sm:leading-relaxed",
         )}
       >
         {slide.subtitle}
@@ -344,17 +311,13 @@ function Slide({
       {slide.price && (
         <p
           style={delay(3)}
-          className={cn(anim, "mt-8 flex flex-wrap items-baseline gap-x-3")}
+          className={cn(anim, "mt-7 flex flex-wrap items-baseline gap-x-3")}
         >
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-            {slide.price.label}
-          </span>
-          <span className="font-display text-3xl font-extrabold text-white sm:text-4xl">
+          <span className="text-sm text-muted">{slide.price.label}</span>
+          <span className="text-3xl font-medium tracking-tight text-heading sm:text-4xl">
             {slide.price.value}
           </span>
-          <span className="text-sm font-semibold text-brand-green">
-            {slide.price.note}
-          </span>
+          <span className="text-sm text-muted">{slide.price.note}</span>
         </p>
       )}
 
@@ -363,7 +326,7 @@ function Slide({
         style={delay(4)}
         className={cn(
           anim,
-          "mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6",
+          "mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center",
         )}
       >
         <Link
@@ -371,15 +334,14 @@ function Slide({
           className={buttonClasses("primary", "lg", "w-full sm:w-auto")}
         >
           {slide.primary.label}
-          <ArrowRight className="h-5 w-5" />
         </Link>
         {slide.secondary && (
           <Link
             href={slide.secondary.href}
-            className="group inline-flex items-center gap-2 text-base font-semibold text-white/85 underline-offset-8 transition-colors hover:text-white hover:underline"
+            className={buttonClasses("outline", "lg", "w-full sm:w-auto")}
           >
             {slide.secondary.label}
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="h-4 w-4" />
           </Link>
         )}
       </div>
@@ -390,16 +352,16 @@ function Slide({
           style={delay(5)}
           className={cn(
             anim,
-            "mt-12 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-white/12 pt-6 sm:gap-x-10",
+            "mt-12 grid max-w-xl grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4",
           )}
         >
           {slide.stats.map((stat) => (
-            <div key={stat.label} className="flex items-baseline gap-2">
+            <div key={stat.label}>
               <dt className="sr-only">{stat.label}</dt>
-              <dd className="font-display text-lg font-extrabold text-white">
+              <dd className="text-2xl font-medium tracking-tight text-heading">
                 {stat.value}
               </dd>
-              <span className="text-xs font-medium text-white/55">
+              <span className="mt-1 block text-xs leading-snug text-muted">
                 {stat.label}
               </span>
             </div>

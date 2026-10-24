@@ -50,13 +50,7 @@ export function ProcessShowcase({
   }, [current, paused, reduceMotion, next, total]);
 
   return (
-    <section className="relative overflow-hidden bg-surface-soft py-24 sm:py-32">
-      {/* Fondo: malla de puntos + halos de los tonos de las etapas */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="bg-dots-fine absolute inset-0 opacity-80 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
-        <div className="absolute -left-40 top-0 h-[30rem] w-[30rem] rounded-full bg-hue-green/12 blur-[150px]" />
-        <div className="absolute -right-40 bottom-0 h-[30rem] w-[30rem] rounded-full bg-hue-violet/12 blur-[150px]" />
-      </div>
+    <section className="relative overflow-hidden bg-surface py-20 sm:py-28 lg:py-32">
 
       <Container className="relative">
         <SectionHeading
@@ -64,7 +58,7 @@ export function ProcessShowcase({
           title={process.title}
           subtitle={process.subtitle}
           align="left"
-            size="lg"
+          size="lg"
         />
 
         <div
@@ -90,10 +84,10 @@ export function ProcessShowcase({
                   >
                     <span
                       className={cn(
-                        "grid h-11 w-11 shrink-0 place-items-center rounded-xl transition-all duration-500",
+                        "grid h-11 w-11 shrink-0 place-items-center rounded-full transition-all duration-500",
                         active
                           ? cn(c.tile, "scale-105")
-                          : "bg-card text-muted ring-1 ring-line group-hover:text-heading",
+                          : "bg-card-soft text-muted group-hover:text-heading",
                       )}
                     >
                       <Icon className="h-5 w-5" strokeWidth={1.9} aria-hidden />
@@ -111,7 +105,7 @@ export function ProcessShowcase({
                         </span>
                         <span
                           className={cn(
-                            "text-lg font-extrabold tracking-[-0.015em] transition-colors",
+                            "text-lg font-medium tracking-[-0.015em] transition-colors",
                             active
                               ? "text-heading"
                               : "text-heading/55 group-hover:text-heading",
@@ -169,13 +163,8 @@ export function ProcessShowcase({
           </ol>
 
           {/* -------- Panel de la etapa -------- */}
-          <div className="relative min-h-96 lg:min-h-[30rem]">
-            <div
-              aria-hidden
-              className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-hue-green/15 via-transparent to-hue-violet/15 blur-2xl"
-            />
-            <div className="relative grid h-full overflow-hidden rounded-3xl border border-white/10 bg-navy-950 p-7 shadow-2xl sm:p-9">
-              <div className="bg-grid absolute inset-0 opacity-30" aria-hidden />
+          <div className="relative min-h-80 lg:min-h-[24rem]">
+            <div className="relative grid h-full overflow-hidden rounded-[1.75rem] bg-navy-950 p-7 sm:p-9">
               {steps.map((step, i) => (
                 <StagePanel
                   key={step.title}

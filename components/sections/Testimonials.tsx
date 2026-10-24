@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Quote, Star } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Eyebrow } from "@/components/ui/SectionHeading";
-import { Backdrop } from "@/components/ui/Backdrop";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { cn } from "@/lib/utils";
@@ -65,11 +64,6 @@ export function Testimonials({
 
   return (
     <Section tone={tone} className="relative">
-      <Backdrop
-        variant="warm"
-        image="/images/about-team.jpg"
-        imageDistance={60}
-      />
 
       <div
         onMouseEnter={() => setPaused(true)}
@@ -101,19 +95,19 @@ export function Testimonials({
                 {/* Retrato del cliente, con la comilla como sello */}
                 <div className="relative">
                   <Avatar item={item} size="lg" />
-                  <span className="absolute -bottom-1 -right-1 grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue text-navy-950 ring-4 ring-surface">
+                  <span className="absolute -bottom-1 -right-1 grid h-9 w-9 place-items-center rounded-full bg-brand-blue text-white ring-4 ring-surface">
                     <Quote className="h-4 w-4" strokeWidth={2.5} aria-hidden />
                   </span>
                 </div>
 
                 <blockquote className="mt-9">
-                  <p className="text-balance text-[clamp(1.45rem,3vw,2.4rem)] font-extrabold leading-[1.2] tracking-[-0.025em] text-heading">
+                  <p className="text-balance text-[clamp(1.5rem,3vw,2.25rem)] font-normal leading-[1.3] tracking-[-0.02em] text-heading">
                     &ldquo;{item.quote}&rdquo;
                   </p>
                 </blockquote>
 
                 <figcaption className="mt-8 flex flex-col items-center gap-1.5">
-                  <span className="flex gap-0.5 text-brand-green">
+                  <span className="flex gap-0.5 text-[#fbbc04]">
                     {Array.from({ length: 5 }).map((_, s) => (
                       <Star
                         key={s}
@@ -122,12 +116,12 @@ export function Testimonials({
                       />
                     ))}
                   </span>
-                  <p className="mt-2 text-base font-extrabold text-heading">
+                  <p className="mt-2 text-base font-medium text-heading">
                     {item.name}
                   </p>
                   <p className="text-sm text-muted">{item.role}</p>
                   {item.metric && (
-                    <p className="mt-4 inline-flex items-center rounded-full bg-accent-soft px-4 py-1.5 text-sm font-extrabold text-accent">
+                    <p className="mt-4 inline-flex items-center rounded-full bg-accent-soft px-4 py-1.5 text-sm font-medium text-accent">
                       {item.metric}
                     </p>
                   )}
@@ -157,7 +151,7 @@ export function Testimonials({
                 className={cn(
                   "relative rounded-full transition-all duration-300",
                   active
-                    ? "scale-110 ring-2 ring-brand-green ring-offset-4 ring-offset-surface"
+                    ? "scale-110 ring-2 ring-brand-blue ring-offset-4 ring-offset-surface"
                     : "opacity-45 grayscale hover:scale-105 hover:opacity-90 hover:grayscale-0",
                 )}
               >
@@ -176,7 +170,7 @@ export function Testimonials({
                           "--slide-duration": `${ROTATE_MS}ms`,
                         } as React.CSSProperties
                       }
-                      className="slide-progress block h-full w-full bg-brand-green"
+                      className="slide-progress block h-full w-full bg-brand-blue"
                     />
                   </span>
                 )}
@@ -186,7 +180,7 @@ export function Testimonials({
         </div>
 
         <p className="mt-14 text-sm text-muted">
-          <span className="font-extrabold text-heading">
+          <span className="font-medium text-heading">
             {testimonials.ratingValue}
           </span>{" "}
           · {testimonials.ratingNote}
@@ -230,7 +224,7 @@ function Avatar({ item, size = "md" }: { item: Item; size?: "md" | "lg" }) {
     <span
       aria-hidden
       className={cn(
-        "grid place-items-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue font-extrabold text-navy-950",
+        "grid place-items-center rounded-full bg-accent-soft font-medium text-accent",
         size === "lg" ? "h-28 w-28 text-3xl" : "h-12 w-12 text-sm",
       )}
     >

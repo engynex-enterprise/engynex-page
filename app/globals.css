@@ -5,8 +5,10 @@
 
 /* ==========================================================================
    Engynex — Design System (Tailwind v4)
-   Paleta adaptada al logo: verde (#70c13a) + navy casi negro. Azul secundario.
-   Tipografía: OpenDyslexic (lectura fácil).
+   Paleta adaptada al logo: verde (#70c13a) + navy casi negro. Azul secundario,
+   que hace de color de acción. Neutros y tipografía (Google Sans) con el
+   lenguaje sobrio de los productos de Google: mucho blanco, grises fríos y
+   titulares en peso medio.
    ========================================================================== */
 
 @theme {
@@ -16,7 +18,7 @@
   --color-brand-green-dark: #4b8f26;
 
   /* Brand — azul secundario (acento) */
-  --color-brand-blue: #1e78e0;
+  --color-brand-blue: #1a6fdb;
   --color-brand-blue-light: #52a0f2;
   --color-brand-blue-dark: #1559ad;
 
@@ -34,11 +36,11 @@
   --color-ink-300: #a6abb7;
   --color-ink-400: #787d8a;
 
-  /* Tipografía — cuerpo Nunito, títulos OpenDyslexic */
-  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, -apple-system,
+  /* Tipografía — Google Sans en todo el sitio */
+  --font-sans: var(--font-google-sans), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-display: var(--font-opendyslexic), var(--font-nunito), ui-sans-serif,
-    system-ui, sans-serif;
+  --font-display: var(--font-google-sans), ui-sans-serif, system-ui,
+    sans-serif;
 
   /* Radios y sombras */
   --radius-4xl: 2rem;
@@ -219,22 +221,22 @@
 
   /* Superficies */
   --surface: #ffffff;
-  --surface-soft: #f4f7fb;
+  --surface-soft: #f8f9fa;
   --card: #ffffff;
-  --card-soft: #f8fafc;
+  --card-soft: #f1f3f4;
 
   /* Bordes */
-  --line: color-mix(in oklab, #101119 11%, transparent);
-  --line-strong: color-mix(in oklab, #101119 18%, transparent);
+  --line: #e3e5e8;
+  --line-strong: #dadce0;
 
   /* Texto */
-  --heading: #101119;
-  --body: #4a5568;
-  --muted: #6b7280;
+  --heading: #202124;
+  --body: #5f6368;
+  --muted: #70757a;
 
-  /* Acento legible sobre fondo claro */
-  --accent: #4b8f26;
-  --accent-soft: color-mix(in oklab, #70c13a 14%, transparent);
+  /* Acento (enlaces, kickers) legible sobre fondo claro */
+  --accent: #1559ad;
+  --accent-soft: #e8f0fe;
 
   --hue-green: #4b8f26;
   --hue-blue: #1e78e0;
@@ -246,10 +248,10 @@
   --hue-indigo: #4338ca;
 
   /* Sombras: en claro se ven; en oscuro se sustituyen por halo/borde */
-  --shadow-card-value: 0 1px 2px rgba(16, 17, 25, 0.04),
-    0 8px 24px -14px rgba(16, 17, 25, 0.14);
-  --shadow-card-hover-value: 0 2px 4px rgba(16, 17, 25, 0.05),
-    0 24px 50px -18px rgba(16, 17, 25, 0.22);
+  --shadow-card-value: 0 1px 2px rgba(60, 64, 67, 0.08),
+    0 1px 3px 1px rgba(60, 64, 67, 0.06);
+  --shadow-card-hover-value: 0 1px 3px rgba(60, 64, 67, 0.12),
+    0 4px 8px 3px rgba(60, 64, 67, 0.08);
 }
 
 .dark {
@@ -265,12 +267,12 @@
   --line: color-mix(in oklab, white 11%, transparent);
   --line-strong: color-mix(in oklab, white 20%, transparent);
 
-  --heading: #ffffff;
-  --body: #a6abb7;
-  --muted: #8b90a0;
+  --heading: #e8eaed;
+  --body: #bdc1c6;
+  --muted: #9aa0a6;
 
-  --accent: #8ed15c;
-  --accent-soft: color-mix(in oklab, #70c13a 20%, transparent);
+  --accent: #8ab4f8;
+  --accent-soft: color-mix(in oklab, #8ab4f8 16%, transparent);
 
   --hue-green: #8ed15c;
   --hue-blue: #52a0f2;
@@ -284,9 +286,8 @@
   /* En oscuro una sombra negra no se percibe: usamos borde luminoso + halo */
   --shadow-card-value: 0 0 0 1px rgba(255, 255, 255, 0.06),
     0 18px 40px -22px rgba(0, 0, 0, 0.9);
-  --shadow-card-hover-value: 0 0 0 1px rgba(112, 193, 58, 0.28),
-    0 26px 60px -24px rgba(0, 0, 0, 0.95),
-    0 0 40px -12px rgba(112, 193, 58, 0.18);
+  --shadow-card-hover-value: 0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 18px 40px -22px rgba(0, 0, 0, 0.9);
 }
 
 * {
@@ -308,26 +309,20 @@ body {
   transition: background-color 0.25s ease;
 }
 
-/* Títulos con OpenDyslexic (mezcla con Nunito del cuerpo).
-   OpenDyslexic tiene una altura-x grande y se ve enorme: normalizamos su
-   tamaño visual con font-size-adjust para equilibrarlo con Nunito.
-
-   El `:not(.font-sans)` es la vía de escape: esta regla va fuera de capa y por
-   tanto le gana a cualquier utilidad de Tailwind, así que un título que deba ir
-   en la tipografía de cuerpo (el titular del hero) se marca con `font-sans`. */
-h1:not(.font-sans),
-h2:not(.font-sans),
-h3:not(.font-sans),
+/* Titulares: Google Sans con tracking cerrado. El peso lo pone cada
+   componente; en tamaños grandes se usa medio, como en los sitios de Google. */
+h1,
+h2,
+h3,
 .font-display {
   font-family: var(--font-display);
-  font-size-adjust: 0.47;
-  letter-spacing: -0.015em;
-  line-height: 1.1;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--color-brand-green) 55%, transparent);
-  color: var(--color-navy-950);
+  background: #d2e3fc;
+  color: #202124;
 }
 
 /* Scrollbar sutil */
@@ -349,13 +344,13 @@ h3:not(.font-sans),
   background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-brand-green);
+  background: var(--color-navy-500);
   background-clip: content-box;
 }
 
 /* Anillo de foco visible y coherente en ambos temas */
 :focus-visible {
-  outline: 2px solid var(--color-brand-green);
+  outline: 2px solid var(--color-brand-blue);
   outline-offset: 2px;
 }
 

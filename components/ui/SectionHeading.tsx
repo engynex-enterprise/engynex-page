@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Kicker de sección: punto de acento + texto en versalitas espaciadas.
- * Es el mismo tratamiento que usa el hero, para que el ritmo sea el mismo en
- * toda la página.
+ * Kicker de sección: texto corto en el color de acento, sin versalitas ni
+ * adornos. Es el mismo tratamiento que usa el hero, para que el ritmo sea el
+ * mismo en toda la página.
  */
 export function Eyebrow({
   children,
@@ -17,15 +17,11 @@ export function Eyebrow({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.22em]",
-        tone === "dark" ? "text-white/60" : "text-muted",
+        "inline-flex items-center text-sm font-medium tracking-normal",
+        tone === "dark" ? "text-brand-blue-light" : "text-accent",
         className,
       )}
     >
-      <span
-        aria-hidden
-        className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-green"
-      />
       {children}
     </span>
   );
@@ -38,9 +34,8 @@ export function SectionHeading({
   tone = "light",
   align = "center",
   /**
-   * `sans` usa la tipografía de cuerpo con tracking cerrado (titular
-   * editorial); `display` mantiene OpenDyslexic. El escape `font-sans` es
-   * necesario porque la regla base de `h2` va fuera de capa (ver globals.css).
+   * Se conserva por compatibilidad: desde que todo el sitio usa Google Sans
+   * las dos variantes comparten tipografía y solo cambia la escala.
    */
   font = "display",
   size = "md",
@@ -64,15 +59,11 @@ export function SectionHeading({
       <h2
         className={cn(
           "text-balance",
-          eyebrow && "mt-5",
-          font === "sans"
-            ? cn(
-                "font-sans font-extrabold tracking-[-0.028em]",
-                size === "lg"
-                  ? "text-[clamp(2.2rem,4.4vw,3.75rem)] leading-[1.03]"
-                  : "text-[clamp(1.9rem,3.4vw,2.9rem)] leading-[1.06]",
-              )
-            : "text-3xl font-extrabold tracking-tight sm:text-4xl md:text-[2.75rem] md:leading-[1.1]",
+          eyebrow && "mt-4",
+          "font-medium tracking-[-0.025em]",
+          size === "lg" || font === "sans"
+            ? "text-[clamp(2rem,3.8vw,3.25rem)] leading-[1.1]"
+            : "text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.15]",
           tone === "dark" ? "text-white" : "text-heading",
         )}
       >
@@ -81,7 +72,7 @@ export function SectionHeading({
       {subtitle && (
         <p
           className={cn(
-            "mt-5 text-lg leading-relaxed",
+            "mt-5 text-lg leading-relaxed sm:text-xl sm:leading-relaxed",
             align === "center" && "mx-auto",
             "max-w-2xl",
             tone === "dark" ? "text-ink-300" : "text-body",

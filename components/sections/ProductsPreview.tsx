@@ -3,7 +3,6 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
-import { Backdrop } from "@/components/ui/Backdrop";
 import { ProductIcon } from "@/components/ProductIcon";
 import { products } from "@/content/products";
 import { localizedHref } from "@/lib/site";
@@ -13,8 +12,8 @@ import { hue, hueAt } from "@/lib/accents";
 import { cn } from "@/lib/utils";
 
 /**
- * Productos como índice, no como muro de tarjetas: filas separadas por una
- * línea fina, que se leen de un vistazo y dejan respirar la sección.
+ * Productos como índice de tarjetas blancas sobre fondo gris claro: una fila
+ * por producto, que se lee de un vistazo y deja respirar la sección.
  */
 export function ProductsPreview({
   locale,
@@ -30,10 +29,7 @@ export function ProductsPreview({
   const productsHref = localizedHref(locale, "productos");
 
   return (
-    <Section tone="light" className="relative">
-      <Backdrop
-        variant="cool"
-      />
+    <Section tone="muted" className="relative">
       <SectionHeading
         eyebrow={copy.eyebrow}
         title={copy.title}
@@ -43,7 +39,7 @@ export function ProductsPreview({
         action={
           <Link
             href={productsHref}
-            className="group inline-flex items-center gap-2 text-base font-semibold text-heading underline-offset-8 transition-colors hover:text-accent hover:underline"
+            className="group inline-flex items-center gap-2 text-base font-medium text-accent underline-offset-8 hover:underline"
           >
             {copy.cta}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -51,7 +47,7 @@ export function ProductsPreview({
         }
       />
 
-      <ul className="mt-14 grid gap-x-12 border-t border-line sm:grid-cols-2">
+      <ul className="mt-14 grid gap-4 sm:grid-cols-2">
         {products.slice(0, limit).map((product, i) => {
           const productCopy = product[locale];
           const tone = hue[hueAt(i)];
@@ -60,17 +56,16 @@ export function ProductsPreview({
               key={product.slug}
               as="li"
               delay={(i % 2) * 70}
-              className="border-b border-line"
+              className="h-full"
             >
               <Link
                 href={localizedHref(locale, `productos/${product.slug}`)}
-                className="group flex items-center gap-5 py-6"
+                className="group flex h-full items-center gap-5 rounded-[1.5rem] bg-card p-5 transition-shadow duration-300 hover:shadow-card-hover sm:p-6"
               >
                 <span
                   className={cn(
-                    "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors duration-300",
+                    "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full",
                     tone.tile,
-                    tone.tileHover,
                   )}
                 >
                   <ProductIcon name={product.icon} className="h-5.5 w-5.5" />
@@ -78,16 +73,11 @@ export function ProductsPreview({
 
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                    <span className="text-base font-extrabold text-heading">
+                    <span className="text-base font-medium text-heading">
                       {productCopy.title}
                     </span>
                     {product.badge && (
-                      <span
-                        className={cn(
-                          "text-[0.62rem] font-semibold uppercase tracking-[0.16em]",
-                          tone.text,
-                        )}
-                      >
+                      <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[0.7rem] font-medium text-accent">
                         {badges[product.badge]}
                       </span>
                     )}
