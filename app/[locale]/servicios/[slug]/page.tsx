@@ -394,7 +394,7 @@ export default async function ServiceDetailPage({
       : null;
 
   const faqSection: Builder = (tone) => (
-    <Section key="faq" tone={tone}>
+    <Section key="faq" tone={tone} id="faq" className="scroll-mt-32">
       <h2 className="text-[clamp(2rem,3.6vw,3rem)] font-bold leading-[1.15] text-heading">
         {dict.ui.faqTitle}
       </h2>

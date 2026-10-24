@@ -2,8 +2,9 @@
 
 import { useId, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDown, Globe, X } from "lucide-react";
+import { Globe, X } from "lucide-react";
 import { buttonClasses } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Select";
 import { locales, type Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { cn } from "@/lib/utils";
@@ -58,19 +59,20 @@ export function RegionLanguage({
   copy,
   className,
   onDone,
+  variant = "icon",
 }: {
   locale: Locale;
   copy: Copy;
   className?: string;
   /** Se llama al confirmar (p. ej. para cerrar el menú móvil). */
   onDone?: () => void;
+  /** `icon`: globo + código (barra). `text`: "Colombia (Español)" (footer). */
+  variant?: "icon" | "text";
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const pathname = usePathname() || `/${locale}`;
   const titleId = useId();
-  const countryId = useId();
-  const languageId = useId();
 
   // El país guardado solo existe en el navegador; en el servidor (y en el
   // primer pintado) vale el de por defecto.
@@ -102,19 +104,33 @@ export function RegionLanguage({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={open}
-        aria-haspopup="dialog"
-        aria-label={`${copy.trigger} - ${country}`}
-        className={cn(
-          "inline-flex h-10 items-center gap-1.5 rounded-full px-2.5 text-[0.95rem] text-heading transition-colors hover:bg-card-soft dark:hover:bg-white/5",
-          className,
-        )}
-      >
-        <Globe className="h-6 w-6" strokeWidth={1.6} aria-hidden />
-        <span>{country}</span>
-      </button>
+      {variant === "text" ? (
+        <button
+          type="button"
+          onClick={open}
+          aria-haspopup="dialog"
+          className={cn(
+            "text-sm font-semibold text-heading underline underline-offset-4 hover:text-accent",
+            className,
+          )}
+        >
+          {copy.countries[country]} ({copy.languages[locale]})
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={open}
+          aria-haspopup="dialog"
+          aria-label={`${copy.trigger} - ${country}`}
+          className={cn(
+            "inline-flex h-10 items-center gap-1.5 rounded-full px-2.5 text-[0.95rem] text-heading transition-colors hover:bg-card-soft dark:hover:bg-white/5",
+            className,
+          )}
+        >
+          <Globe className="h-6 w-6" strokeWidth={1.6} aria-hidden />
+          <span>{country}</span>
+        </button>
+      )}
 
       <dialog
         ref={dialogRef}
@@ -144,8 +160,7 @@ export function RegionLanguage({
           </div>
 
           <div className="mt-10 grid gap-5">
-            <SelectField
-              id={countryId}
+            <Select
               label={copy.country}
               value={draftCountry}
               onChange={(value) => setDraftCountry(value as Country)}
@@ -154,8 +169,7 @@ export function RegionLanguage({
                 label: copy.countries[code],
               }))}
             />
-            <SelectField
-              id={languageId}
+            <Select
               label={copy.language}
               value={draftLocale}
               onChange={(value) => setDraftLocale(value as Locale)}
@@ -190,52 +204,5 @@ export function RegionLanguage({
         </div>
       </dialog>
     </>
-  );
-}
-
-/**
- * Selector con la etiqueta dentro de la caja, encima del valor, y la flecha a
- * la derecha (el campo de meta.com). Es un `<select>` nativo, así que funciona
- * con teclado y lector de pantalla sin código extra.
- */
-function SelectField({
-  id,
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: { value: string; label: string }[];
-}) {
-  return (
-    <div className="relative rounded-2xl border border-line-strong transition-colors focus-within:border-heading">
-      <label
-        htmlFor={id}
-        className="pointer-events-none absolute left-5 top-3 text-sm text-muted sm:left-8"
-      >
-        {label}
-      </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-[4.75rem] w-full cursor-pointer appearance-none rounded-2xl bg-transparent pb-3 pl-5 pr-14 pt-8 text-xl text-heading outline-none sm:pl-8"
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDown
-        aria-hidden
-        className="pointer-events-none absolute right-5 top-1/2 h-6 w-6 -translate-y-1/2 text-heading sm:right-8"
-        strokeWidth={1.6}
-      />
-    </div>
   );
 }

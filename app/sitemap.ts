@@ -23,6 +23,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       });
     }
 
+    // Centro de ayuda
+    entries.push({
+      url: `${siteConfig.url}/${locale}/ayuda`,
+      changeFrequency: "monthly",
+      priority: 0.6,
+      alternates: {
+        languages: {
+          es: `${siteConfig.url}/es/ayuda`,
+          en: `${siteConfig.url}/en/ayuda`,
+        },
+      },
+    });
+
     // Páginas dedicadas de cada servicio
     for (const service of services) {
       entries.push({

@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, CheckCircle2, Loader2, ChevronDown } from "lucide-react";
+import { Send, CheckCircle2, Loader2 } from "lucide-react";
 import { services } from "@/content/services";
 import { products } from "@/content/products";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { buttonClasses } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { Select } from "@/components/ui/Select";
 
 type FormDict = Dictionary["contactPage"]["form"];
 type Status = "idle" | "sending" | "success" | "error";
@@ -139,35 +140,25 @@ export function ContactForm({
       </div>
 
       <div className="mt-5">
-        <Field label={form.service}>
-          <div className="relative">
-            <select
-              name="service"
-              className={cn(inputClass(false), "h-12 appearance-none pr-11")}
-            >
-              <option value="">{form.servicePlaceholder}</option>
-              <optgroup label={form.serviceGroupProducts}>
-                {products.map((product) => (
-                  <option key={product.slug} value={product[locale].title}>
-                    {product[locale].title}
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label={form.serviceGroupServices}>
-                {services.map((service) => (
-                  <option key={service.slug} value={service[locale].title}>
-                    {service[locale].title}
-                  </option>
-                ))}
-              </optgroup>
-              <option value="other">{form.serviceOther}</option>
-            </select>
-            <ChevronDown
-              className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted"
-              aria-hidden
-            />
-          </div>
-        </Field>
+        <Select
+          name="service"
+          size="md"
+          label={form.service}
+          placeholder={form.servicePlaceholder}
+          options={[
+            ...products.map((product) => ({
+              value: product[locale].title,
+              label: product[locale].title,
+              group: form.serviceGroupProducts,
+            })),
+            ...services.map((service) => ({
+              value: service[locale].title,
+              label: service[locale].title,
+              group: form.serviceGroupServices,
+            })),
+            { value: "other", label: form.serviceOther },
+          ]}
+        />
       </div>
 
       <div className="mt-5">

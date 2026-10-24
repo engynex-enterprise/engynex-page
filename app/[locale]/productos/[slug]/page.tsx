@@ -370,7 +370,7 @@ export default async function ProductDetailPage({
       </Section>
 
       {/* ============= FAQ ============= */}
-      <Section tone="muted">
+      <Section tone="muted" id="faq" className="scroll-mt-32">
         <SectionHeading
           title={t.detail.faqsTitle}
           size="lg"

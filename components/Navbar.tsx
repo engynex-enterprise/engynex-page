@@ -145,7 +145,7 @@ export function Navbar({
     {/* Subcabecera: horario, contacto y redes. Va en el flujo normal de la
         página, encima de la barra principal, y se va con el scroll. */}
     <div
-      className="relative z-50 bg-deep-700 text-white/80"
+      className="relative z-50 bg-deep-950 text-white/80"
       style={{ height: TOPBAR_HEIGHT }}
     >
       <Container className="flex h-full items-center justify-between gap-3 text-xs font-medium">
@@ -272,7 +272,7 @@ export function Navbar({
             <div className="flex items-center gap-1 sm:gap-2">
               {/* Utilidades, como "Ayuda" y el globo de idioma en meta.com */}
               <Link
-                href={localizedHref(locale, "contacto")}
+                href={localizedHref(locale, "ayuda")}
                 className="hidden h-10 items-center rounded-full px-3 text-[0.95rem] text-heading transition-colors hover:bg-card-soft xl:inline-flex dark:hover:bg-white/5"
               >
                 {region.help}

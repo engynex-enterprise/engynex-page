@@ -1,15 +1,12 @@
 import Link from "next/link";
-import { Mail, Phone } from "lucide-react";
 import { Logo } from "./Logo";
 import { Container } from "./ui/Container";
-import {
-  InstagramIcon,
-  FacebookIcon,
-  TiktokIcon,
-} from "./SocialIcons";
-import { navRoutes, localizedHref, siteConfig } from "@/lib/site";
-import { services } from "@/content/services";
-import { products } from "@/content/products";
+import { RegionLanguage } from "./RegionLanguage";
+import { InstagramIcon, FacebookIcon, TiktokIcon } from "./SocialIcons";
+import { localizedHref, siteConfig } from "@/lib/site";
+import { getService } from "@/content/services";
+import { products, productCategories } from "@/content/products";
+import { serviceGroups, aboutGroups } from "@/content/navigation";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 
@@ -19,6 +16,25 @@ const socialLinks = [
   { href: siteConfig.social.tiktok, label: "TikTok", Icon: TiktokIcon },
 ];
 
+interface FooterLink {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+interface FooterGroup {
+  title: string;
+  links: FooterLink[];
+}
+
+/**
+ * Footer al estilo de meta.com: fondo claro, logo y redes a la izquierda y,
+ * a la derecha, columnas de enlaces con subtítulos en negrita. Abajo, el
+ * selector de país e idioma ("Colombia (Español)") y la línea legal.
+ *
+ * Cubre todo lo que ofrece Engynex: los dieciséis servicios por función, los
+ * productos por categoría, los planes, la empresa y la ayuda.
+ */
 export function Footer({
   locale,
   dict,
@@ -26,198 +42,172 @@ export function Footer({
   locale: Locale;
   dict: Dictionary;
 }) {
+  const f = dict.footer;
+  const href = (path: string) => localizedHref(locale, path);
   const year = 2026;
 
+  const serviceColumns: FooterGroup[] = serviceGroups.map((group) => ({
+    title: group[locale].title,
+    links: group.slugs.flatMap((slug) => {
+      const service = getService(slug);
+      return service
+        ? [{ label: service[locale].title, href: href(`servicios/${slug}`) }]
+        : [];
+    }),
+  }));
+
+  const productGroups: FooterGroup[] = productCategories.map((category) => ({
+    title: category[locale].title,
+    links: products
+      .filter((product) => product.category === category.key)
+      .map((product) => ({
+        label: product[locale].title,
+        href: href(`productos/${product.slug}`),
+      })),
+  }));
+
+  const plans: FooterGroup = {
+    title: f.plansTitle,
+    links: [
+      { label: f.webPlans, href: href("servicios/desarrollo-web#planes") },
+      { label: f.supportPlans, href: href("servicios/soporte-ti#planes") },
+      { label: f.rentalPlans, href: href("servicios/alquiler-equipos#planes") },
+    ],
+  };
+
+  const company: FooterGroup = {
+    title: f.companyTitle,
+    links: aboutGroups.flatMap((group) =>
+      group.items.map((item) => ({
+        label: item[locale].title,
+        href: href(item.path),
+      })),
+    ),
+  };
+
+  const help: FooterGroup = {
+    title: f.helpTitle,
+    links: [
+      { label: f.helpCenter, href: href("ayuda") },
+      { label: f.techSupport, href: href("servicios/soporte-ti") },
+      { label: f.quote, href: href("contacto") },
+      {
+        label: f.whatsapp,
+        href: `https://wa.me/${siteConfig.whatsapp}`,
+        external: true,
+      },
+    ],
+  };
+
+  const contact: FooterGroup = {
+    title: f.contactTitle,
+    links: [
+      { label: siteConfig.email, href: `mailto:${siteConfig.email}` },
+      {
+        label: siteConfig.phoneDisplay,
+        href: `tel:${siteConfig.phone.replace(/\s/g, "")}`,
+      },
+    ],
+  };
+
+  // Cuatro columnas; las de más de un grupo se apilan, como en meta.com.
+  const columns: FooterGroup[][] = [
+    [serviceColumns[0], serviceColumns[1]],
+    [serviceColumns[2], plans],
+    productGroups,
+    [company, help, contact],
+  ];
+
   return (
-    <footer className="relative overflow-hidden bg-navy-950 text-ink-300">
-      {/* Figuras vectoriales decorativas (cubren todo el footer) */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="bg-grid absolute inset-0 opacity-[0.18]" />
-        <div className="absolute -left-24 top-1/3 h-80 w-80 rounded-full bg-brand-green/10 blur-[120px]" />
-        <div className="absolute -right-16 bottom-0 h-80 w-80 rounded-full bg-brand-blue/12 blur-[120px]" />
-
-        {/* Swoosh verde estilo logo */}
-        <svg
-          className="absolute -top-10 right-0 h-64 w-[45rem] text-brand-green/10"
-          viewBox="0 0 700 260"
-          fill="none"
-        >
-          <path
-            d="M0 230 C 220 40, 480 40, 700 4"
-            stroke="currentColor"
-            strokeWidth="26"
-            strokeLinecap="round"
-          />
-        </svg>
-
-        {/* Esfera / anillos (motivo del ícono) */}
-        <svg
-          className="animate-spin-slow absolute -bottom-28 -left-24 h-96 w-96 text-white/[0.05]"
-          viewBox="0 0 200 200"
-          fill="none"
-        >
-          <circle cx="100" cy="100" r="94" stroke="currentColor" strokeWidth="1.5" />
-          <ellipse cx="100" cy="100" rx="94" ry="42" stroke="currentColor" strokeWidth="1.5" />
-          <ellipse cx="100" cy="100" rx="42" ry="94" stroke="currentColor" strokeWidth="1.5" />
-          <line x1="6" y1="100" x2="194" y2="100" stroke="currentColor" strokeWidth="1.5" />
-        </svg>
-
-        {/* Puntos */}
-        <svg
-          className="absolute right-[8%] top-[38%] h-24 w-24 text-brand-green/20"
-          viewBox="0 0 80 80"
-        >
-          <g fill="currentColor">
-            {[8, 24, 40, 56, 72].map((y) =>
-              [8, 24, 40, 56, 72].map((x) => (
-                <circle key={`${x}-${y}`} cx={x} cy={y} r="2.2" />
-              )),
-            )}
-          </g>
-        </svg>
-
-        {/* Cruces / plus */}
-        <svg
-          className="animate-float absolute left-[45%] top-[16%] h-8 w-8 text-brand-blue-light/25"
-          viewBox="0 0 100 100"
-        >
-          <path
-            d="M50 14v72M14 50h72"
-            stroke="currentColor"
-            strokeWidth="10"
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
-
-      <Container className="relative py-16">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_0.85fr_1.05fr]">
+    <footer className="border-t border-line bg-surface text-body">
+      <Container className="py-14 sm:py-16">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,16rem)_minmax(0,1fr)] lg:gap-16">
           {/* Marca */}
-          <div className="max-w-sm sm:col-span-2 lg:col-span-1">
-            <Logo variant="white" />
-            <p className="mt-5 text-sm leading-relaxed text-ink-300">
-              {dict.footer.tagline}
+          <div>
+            <Logo variant="adaptive" height={28} />
+            <p className="mt-5 max-w-xs text-sm leading-relaxed text-muted">
+              {f.company}
             </p>
-            <div className="mt-6 flex gap-3">
-              {socialLinks.map(({ href, label, Icon }) => (
+            <div className="mt-6 flex gap-2">
+              {socialLinks.map(({ href: target, label, Icon }) => (
                 <a
                   key={label}
-                  href={href}
+                  href={target}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-ink-200 ring-1 ring-white/10 transition-all hover:bg-brand-green hover:text-navy-950 hover:ring-brand-green"
+                  className="grid h-10 w-10 place-items-center rounded-full text-heading transition-colors hover:bg-surface-soft"
                 >
                   <Icon className="h-5 w-5" />
                 </a>
               ))}
             </div>
+            <p className="mt-6 text-xs leading-relaxed text-muted">
+              {siteConfig.hours[locale]}
+            </p>
           </div>
 
-          {/* Servicios */}
-          <div>
-            <h3 className="text-sm font-extrabold uppercase tracking-wider text-white">
-              {dict.footer.servicesTitle}
-            </h3>
-            <ul className="mt-5 space-y-1 text-sm">
-              {services.slice(0, 6).map((service) => (
-                <li key={service.slug}>
-                  <Link
-                    href={localizedHref(locale, `servicios/${service.slug}`)}
-                    className="inline-block py-1.5 transition-colors hover:text-brand-green-light"
-                  >
-                    {service[locale].title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Productos */}
-          <div>
-            <h3 className="text-sm font-extrabold uppercase tracking-wider text-white">
-              {dict.footer.productsTitle}
-            </h3>
-            <ul className="mt-5 space-y-1 text-sm">
-              {products.slice(0, 6).map((product) => (
-                <li key={product.slug}>
-                  <Link
-                    href={localizedHref(locale, `productos/${product.slug}`)}
-                    className="inline-block py-1.5 transition-colors hover:text-brand-green-light"
-                  >
-                    {product[locale].title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Empresa */}
-          <div>
-            <h3 className="text-sm font-extrabold uppercase tracking-wider text-white">
-              {dict.footer.companyTitle}
-            </h3>
-            <ul className="mt-5 space-y-1 text-sm">
-              {navRoutes.map((route) => (
-                <li key={route.key}>
-                  <Link
-                    href={localizedHref(locale, route.path)}
-                    className="inline-block py-1.5 transition-colors hover:text-brand-green-light"
-                  >
-                    {dict.nav[route.key]}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contacto */}
-          <div>
-            <h3 className="text-sm font-extrabold uppercase tracking-wider text-white">
-              {dict.footer.contactTitle}
-            </h3>
-            <ul className="mt-5 space-y-1 text-sm">
-              <li>
-                <a
-                  href={`mailto:${siteConfig.email}`}
-                  className="inline-flex items-center gap-2 py-1.5 transition-colors hover:text-brand-green-light"
-                >
-                  <Mail className="h-4 w-4 shrink-0 text-brand-green" />
-                  <span className="break-all">{siteConfig.email}</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`https://wa.me/${siteConfig.whatsapp}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 py-1.5 transition-colors hover:text-brand-green-light"
-                >
-                  <Phone className="h-4 w-4 shrink-0 text-brand-green" />
-                  {siteConfig.phone}
-                </a>
-              </li>
-              <li className="pt-2 text-ink-400">
-                {dict.contactPage.info.address}
-              </li>
-            </ul>
-          </div>
+          {/* Enlaces */}
+          <nav
+            aria-label={f.helpTitle}
+            className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4"
+          >
+            {columns.map((stack, i) => (
+              <div key={i} className="flex flex-col gap-10">
+                {stack.map((group) => (
+                  <div key={group.title}>
+                    <h3 className="text-sm text-heading">{group.title}</h3>
+                    <ul className="mt-3 space-y-2.5">
+                      {group.links.map((link) => (
+                        <li key={link.href}>
+                          {link.external || !link.href.startsWith("/") ? (
+                            <a
+                              href={link.href}
+                              {...(link.external
+                                ? { target: "_blank", rel: "noopener noreferrer" }
+                                : {})}
+                              className="break-words text-sm text-muted transition-colors hover:text-heading hover:underline"
+                            >
+                              {link.label}
+                            </a>
+                          ) : (
+                            <Link
+                              href={link.href}
+                              className="text-sm text-muted transition-colors hover:text-heading hover:underline"
+                            >
+                              {link.label}
+                            </Link>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </nav>
         </div>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-ink-400 sm:flex-row">
-          <p>
-            © {year} {siteConfig.name}. {dict.footer.rights}
-          </p>
-          <p className="flex items-center gap-4">
-            <Link
-              href={localizedHref(locale)}
-              className="transition-colors hover:text-ink-200"
-            >
-              {siteConfig.domain}
-            </Link>
-            <span aria-hidden>·</span>
-            <span>{dict.footer.madeWith}</span>
-          </p>
+        {/* Línea inferior: país e idioma + legal */}
+        <div className="mt-14 grid gap-6 border-t border-line pt-8 lg:grid-cols-[minmax(0,16rem)_minmax(0,1fr)] lg:gap-16">
+          <div>
+            <RegionLanguage locale={locale} copy={dict.region} variant="text" />
+          </div>
+          <div className="space-y-2 text-xs leading-relaxed text-muted">
+            <p>
+              <span className="font-semibold text-heading">
+                {siteConfig.name}
+              </span>{" "}
+              · {dict.contactPage.info.address}
+            </p>
+            <p>
+              © {year} {siteConfig.name}. {f.rights} ·{" "}
+              <Link href={href("")} className="hover:text-heading hover:underline">
+                {siteConfig.domain}
+              </Link>{" "}
+              · {f.madeWith}
+            </p>
+          </div>
         </div>
       </Container>
     </footer>
