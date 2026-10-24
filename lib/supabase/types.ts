@@ -406,12 +406,37 @@ export type Ticket = {
   description: string;
   status: TicketStatus;
   assigned_to: string | null;
-  source: "web" | "portal";
+  source: "web" | "portal" | "chat";
   last_activity_at: string;
   resolved_at: string | null;
   created_at: string;
   updated_at: string;
+  tags: string[];
+  first_response_at: string | null;
+  first_response_due: string | null;
+  resolve_due: string | null;
+  csat_rating: number | null;
+  csat_comment: string | null;
+  csat_at: string | null;
+  csat_token: string;
+  merged_into: string | null;
+  lead_id: string | null;
+  sla_notified_at: string | null;
 };
+
+export type TicketAttachment = { path: string; name: string; mime: string | null; size: number };
+
+export type TicketMacro = {
+  id: string;
+  title: string;
+  body: string;
+  set_status: TicketStatus | null;
+  created_by: string | null;
+  created_at: string;
+};
+
+export type SupportSla = Record<TicketPriority, { first_h: number; resolve_h: number }>;
+export type SupportConfig = { sla: SupportSla; auto_close_days: number; csat: boolean };
 
 export type TicketMessage = {
   id: number;
@@ -420,7 +445,96 @@ export type TicketMessage = {
   author_kind: "requester" | "staff" | "system";
   body: string;
   internal: boolean;
+  attachment: TicketAttachment | null;
   created_at: string;
+};
+
+export type AccountStage = "onboarding" | "active" | "at_risk" | "paused" | "churned";
+
+export type AccountDetails = {
+  profile_id: string;
+  owner_id: string | null;
+  stage: AccountStage;
+  plan: string | null;
+  services: string[];
+  monthly_value: number;
+  contract_start: string | null;
+  renewal_date: string | null;
+  tax_id: string | null;
+  website: string | null;
+  address: string | null;
+  city: string | null;
+  industry: string | null;
+  tags: string[];
+  notes: string | null;
+  lead_id: string | null;
+  updated_at: string;
+  updated_by: string | null;
+};
+
+export type AccountContact = {
+  id: string;
+  profile_id: string;
+  name: string;
+  role: string | null;
+  email: string | null;
+  phone: string | null;
+  is_primary: boolean;
+  created_at: string;
+};
+
+export type AccountNoteKind = "note" | "call" | "meeting" | "email" | "visit";
+
+export type AccountNote = {
+  id: number;
+  profile_id: string;
+  author_id: string | null;
+  kind: AccountNoteKind;
+  body: string;
+  pinned: boolean;
+  created_at: string;
+};
+
+/** Fila de accounts_list(). */
+export type AccountRow = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  company: string | null;
+  kind: "client" | "provider";
+  active: boolean;
+  last_seen_at: string | null;
+  created_at: string;
+  owner_id: string | null;
+  stage: AccountStage;
+  plan: string | null;
+  services: string[];
+  monthly_value: number;
+  renewal_date: string | null;
+  tags: string[];
+  city: string | null;
+  industry: string | null;
+  lead_id: string | null;
+  open_tickets: number;
+  breached: number;
+  csat: number | null;
+  docs: number;
+  last_ticket_at: string | null;
+  won_value: number;
+  health: number;
+};
+
+/** Evento de account_timeline(). */
+export type AccountEvent = {
+  type: "note" | "ticket" | "document" | "meeting" | "email" | "deal";
+  at: string;
+  sub: string | null;
+  title: string | null;
+  ref: string | null;
+  actor: string | null;
+  id: string;
+  pinned: boolean;
 };
 
 export type DocumentKind = "proposal" | "contract" | "invoice" | "deliverable" | "report" | "purchase_order" | "other";
@@ -764,13 +878,43 @@ export type Database = {
         Row: Ticket;
         // Se crean con submit_ticket; el equipo actualiza estado, prioridad y responsable.
         Insert: Partial<Ticket>;
-        Update: Partial<Pick<Ticket, "status" | "priority" | "assigned_to" | "category">>;
+        Update: Partial<Pick<Ticket, "status" | "priority" | "assigned_to" | "category" | "tags" | "subject">>;
         Relationships: [];
       };
       ticket_messages: {
         Row: TicketMessage;
         Insert: Partial<TicketMessage>;
         Update: Partial<TicketMessage>;
+        Relationships: [];
+      };
+      account_details: {
+        Row: AccountDetails;
+        Insert: Pick<AccountDetails, "profile_id"> & Partial<AccountDetails>;
+        Update: Partial<Omit<AccountDetails, "profile_id">>;
+        Relationships: [];
+      };
+      account_contacts: {
+        Row: AccountContact;
+        Insert: Pick<AccountContact, "profile_id" | "name"> & Partial<AccountContact>;
+        Update: Partial<Omit<AccountContact, "id" | "profile_id">>;
+        Relationships: [];
+      };
+      account_notes: {
+        Row: AccountNote;
+        Insert: Pick<AccountNote, "profile_id" | "body"> & Partial<Omit<AccountNote, "id">>;
+        Update: Partial<Pick<AccountNote, "body" | "pinned" | "kind">>;
+        Relationships: [];
+      };
+      ticket_macros: {
+        Row: TicketMacro;
+        Insert: Pick<TicketMacro, "title" | "body"> & Partial<TicketMacro>;
+        Update: Partial<Pick<TicketMacro, "title" | "body" | "set_status">>;
+        Relationships: [];
+      };
+      support_settings: {
+        Row: { id: boolean; config: Json; updated_at: string; updated_by: string | null };
+        Insert: never;
+        Update: { config?: Json; updated_at?: string; updated_by?: string | null };
         Relationships: [];
       };
       documents: {
@@ -906,9 +1050,16 @@ export type Database = {
       };
       submit_ticket: { Args: { p: Json }; Returns: Json };
       ticket_reply: {
-        Args: { p_ticket: string; p_body: string; p_internal?: boolean };
+        Args: { p_ticket: string; p_body: string; p_internal?: boolean; p_attachment?: Json | null };
         Returns: number;
       };
+      ticket_merge: { Args: { p_source: string; p_target: string }; Returns: undefined };
+      ticket_csat_info: { Args: { p_token: string }; Returns: Json };
+      ticket_csat: { Args: { p_token: string; p_rating: number; p_comment?: string | null }; Returns: boolean };
+      support_kpis: { Args: { p_days?: number }; Returns: Json };
+      staff_create_ticket: { Args: { p: Json }; Returns: Json };
+      accounts_list: { Args: Record<string, never>; Returns: Json };
+      account_timeline: { Args: { p_account: string; p_limit?: number }; Returns: Json };
       my_appointments: {
         Args: Record<string, never>;
         Returns: { id: string; starts_at: string; ends_at: string; channel: MeetingChannel; status: string }[];

@@ -1,0 +1,86 @@
+import type { Locale } from "@/i18n/config";
+
+/** Bandeja de solicitudes del equipo. */
+const es = {
+  kpis: {
+    open: "Abiertas",
+    unassigned: "Sin asignar",
+    breached: "SLA vencido",
+    dueSoon: "Vencen pronto",
+    firstResponse: "1.ª respuesta (mediana)",
+    csat: "Satisfacción",
+  },
+  kpiHints: { last30: "Últimos 30 días", ratings: "{n} calificaciones", noRatings: "Sin calificaciones" },
+  tabs: { active: "Activas", mine: "Mías", unassigned: "Sin asignar", breached: "Vencidas SLA", waiting: "Esperando cliente", done: "Resueltas", all: "Todas" },
+  search: "Buscar por número, asunto, nombre o correo",
+  filter: "Filtrar",
+  filters: { priority: "Prioridad", category: "Tema", agent: "Responsable", tag: "Etiqueta", source: "Origen", any: "Cualquiera", anyone: "Cualquiera", none: "Sin asignar", clear: "Quitar filtros" },
+  views: { list: "Lista", board: "Tablero" },
+  cols: { number: "N.º", subject: "Asunto", priority: "Prioridad", status: "Estado", sla: "SLA", owner: "Responsable", activity: "Actividad" },
+  selectAll: "Seleccionar todas",
+  selectRow: "Seleccionar #{n}",
+  selected: "{n} seleccionadas",
+  bulk: {
+    assign: "Asignar a…",
+    status: "Cambiar estado…",
+    priority: "Cambiar prioridad…",
+    tag: "Etiquetar",
+    tagPlaceholder: "etiqueta",
+    merge: "Unir duplicadas",
+    mergeHint: "Selecciona exactamente 2 para unirlas",
+    mergeConfirm: "¿Unir #{source} en #{target}? La conversación de #{source} pasa a #{target} y #{source} queda cerrada.",
+    clear: "Quitar selección",
+    me: "A mí",
+  },
+  empty: "No hay solicitudes aquí.",
+  emptyFiltered: "Ninguna solicitud coincide con los filtros.",
+  unassigned: "Sin asignar",
+  merged: "Unida",
+  board: { empty: "Sin solicitudes", moved: "#{n} pasó a {status}", more: "Ver {n} más" },
+  error: "No se pudo guardar el cambio.",
+  shortcuts: "Atajo: / para buscar",
+};
+
+export type SupportQueueCopy = typeof es;
+
+const en: SupportQueueCopy = {
+  kpis: {
+    open: "Open",
+    unassigned: "Unassigned",
+    breached: "SLA breached",
+    dueSoon: "Due soon",
+    firstResponse: "First response (median)",
+    csat: "Satisfaction",
+  },
+  kpiHints: { last30: "Last 30 days", ratings: "{n} ratings", noRatings: "No ratings" },
+  tabs: { active: "Active", mine: "Mine", unassigned: "Unassigned", breached: "SLA breached", waiting: "Waiting on client", done: "Resolved", all: "All" },
+  search: "Search by number, subject, name or email",
+  filter: "Filter",
+  filters: { priority: "Priority", category: "Topic", agent: "Owner", tag: "Tag", source: "Source", any: "Any", anyone: "Anyone", none: "Unassigned", clear: "Clear filters" },
+  views: { list: "List", board: "Board" },
+  cols: { number: "No.", subject: "Subject", priority: "Priority", status: "Status", sla: "SLA", owner: "Owner", activity: "Activity" },
+  selectAll: "Select all",
+  selectRow: "Select #{n}",
+  selected: "{n} selected",
+  bulk: {
+    assign: "Assign to…",
+    status: "Change status…",
+    priority: "Change priority…",
+    tag: "Tag",
+    tagPlaceholder: "tag",
+    merge: "Merge duplicates",
+    mergeHint: "Select exactly 2 to merge",
+    mergeConfirm: "Merge #{source} into #{target}? #{source}'s conversation moves to #{target} and #{source} is closed.",
+    clear: "Clear selection",
+    me: "Me",
+  },
+  empty: "No requests here.",
+  emptyFiltered: "No requests match the filters.",
+  unassigned: "Unassigned",
+  merged: "Merged",
+  board: { empty: "No requests", moved: "#{n} moved to {status}", more: "Show {n} more" },
+  error: "Couldn't save the change.",
+  shortcuts: "Shortcut: / to search",
+};
+
+export const supportQueueCopy: Record<Locale, SupportQueueCopy> = { es, en };
