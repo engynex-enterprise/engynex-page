@@ -16,6 +16,7 @@ import {
 import { Logo } from "./Logo";
 import { InstagramIcon, FacebookIcon, TiktokIcon } from "./SocialIcons";
 import { RegionLanguage } from "./RegionLanguage";
+import { AccessibilityWidget } from "./AccessibilityWidget";
 import { ThemeToggle } from "./ThemeToggle";
 import { Container } from "./ui/Container";
 import { buttonClasses } from "./ui/Button";
@@ -44,12 +45,14 @@ export function Navbar({
   themeLabel,
   menu,
   region,
+  a11y,
 }: {
   locale: Locale;
   nav: Dictionary["nav"];
   themeLabel: string;
   menu: MegaMenu;
   region: Dictionary["region"];
+  a11y: Dictionary["a11y"];
 }) {
   const pathname = usePathname() || `/${locale}`;
   const [scrolled, setScrolled] = useState(false);
@@ -282,6 +285,7 @@ export function Navbar({
                 copy={region}
                 className="hidden sm:inline-flex"
               />
+              <AccessibilityWidget copy={a11y} />
               <ThemeToggle label={themeLabel} tone="light" />
               {/* El wrapper evita mezclar `hidden` con el `inline-flex` del
                   botón: en móvil el CTA desbordaba la barra. */}

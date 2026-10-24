@@ -20,7 +20,7 @@ export function FloatingActions({ topLabel }: { topLabel: string }) {
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       aria-label={topLabel}
       className={cn(
-        "fixed bottom-24 right-7 z-40 inline-flex h-11 w-11 items-center justify-center rounded-full bg-deep-900 text-white shadow-lg ring-1 ring-white/10 transition-all duration-300 hover:bg-deep-700 dark:bg-deep-700 dark:hover:bg-deep-600",
+        "fixed bottom-6 right-6 z-40 inline-flex h-11 w-11 items-center justify-center rounded-full bg-deep-900 text-white shadow-lg ring-1 ring-white/10 transition-all duration-300 hover:bg-deep-700 dark:bg-deep-700 dark:hover:bg-deep-600",
         showTop
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-3 opacity-0",

@@ -9,6 +9,22 @@ export const siteConfig = {
   phoneDisplay: "315 437 7743",
   // Número para el enlace de WhatsApp (solo dígitos, con código de país).
   whatsapp: "573154377743",
+  /**
+   * Horario de atención en formato estructurado (hora de Colombia), para
+   * mostrar "en línea" / "fuera de horario". Debe coincidir con `hours`.
+   * Clave = día de la semana (0 domingo … 6 sábado), valor = [abre, cierra].
+   */
+  businessHours: {
+    timeZone: "America/Bogota",
+    days: {
+      1: [7, 17],
+      2: [7, 17],
+      3: [7, 17],
+      4: [7, 17],
+      5: [7, 17],
+      6: [8, 16],
+    } as Record<number, [number, number]>,
+  },
   hours: {
     es: "Lun–Vie 7:00 a.m. – 5:00 p.m. · Sáb 8:00 a.m. – 4:00 p.m.",
     en: "Mon–Fri 7:00 a.m. – 5:00 p.m. · Sat 8:00 a.m. – 4:00 p.m.",

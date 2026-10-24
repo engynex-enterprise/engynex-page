@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { useA11y } from "@/lib/a11y";
 
 const QUERY = "(prefers-reduced-motion: reduce)";
 
@@ -20,11 +21,14 @@ function getServerSnapshot() {
 }
 
 /**
- * `true` cuando el sistema pide reducir el movimiento.
+ * `true` cuando el sistema pide reducir el movimiento o el visitante eligió
+ * "Pausar animaciones" en el panel de accesibilidad.
  *
  * Se lee con `useSyncExternalStore` (y no con useEffect + setState) para no
  * provocar un render en cascada tras el primer paint.
  */
 export function useReducedMotion(): boolean {
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const system = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const { motion } = useA11y();
+  return system || motion;
 }

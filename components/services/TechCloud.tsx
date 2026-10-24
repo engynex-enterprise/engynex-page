@@ -4,13 +4,13 @@ import { useRef } from "react";
 import {
   motion,
   useMotionValue,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
   type MotionValue,
 } from "motion/react";
 import { TechMark } from "@/components/TechMark";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import { cn } from "@/lib/utils";
 
 export interface CloudItem {
@@ -49,7 +49,7 @@ export function TechCloud({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion() ?? false;
+  const reduce = useReducedMotion();
 
   // Progreso del scroll mientras la sección cruza la pantalla (0 → 1).
   const { scrollYProgress } = useScroll({

@@ -683,3 +683,71 @@ h3,
     animation-iteration-count: 1 !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Accesibilidad — ajustes del visitante (pestaña "Accesibilidad").
+   Las clases las pone lib/a11y.ts en <html>. El tamaño y la fuente se
+   aplican al contenido (main, footer y paneles), no a la barra de
+   navegación: así el menú no se desborda.
+   -------------------------------------------------------------------------- */
+
+/* Alto contraste: texto secundario igual de oscuro que el principal y bordes
+   bien visibles. */
+.a11y-contrast {
+  --body: #1f2a46;
+  --muted: #2f3a52;
+  --line: #8a93a6;
+  --line-strong: #4a5674;
+}
+.dark.a11y-contrast {
+  --body: #f1f4f7;
+  --muted: #dfe3ea;
+  --line: rgba(255, 255, 255, 0.45);
+  --line-strong: rgba(255, 255, 255, 0.7);
+}
+
+/* Tamaño del texto: `zoom` reacomoda el contenido (el ancho disponible se
+   reduce en la misma proporción), así que no aparece scroll horizontal. */
+.a11y-text-1 :is(main, footer, [role="dialog"]) {
+  zoom: 1.125;
+}
+.a11y-text-2 :is(main, footer, [role="dialog"]) {
+  zoom: 1.25;
+}
+
+/* Fuente para dislexia (OpenDyslexic). Tiene la altura-x grande: se
+   normaliza con font-size-adjust para que no se desborde el diseño. */
+.a11y-dyslexia :is(main, footer, [role="dialog"]),
+.a11y-dyslexia :is(main, footer, [role="dialog"])
+  :is(h1, h2, h3, .font-display, button, input, textarea) {
+  font-family: var(--font-opendyslexic), var(--font-figtree), sans-serif;
+  font-size-adjust: 0.47;
+}
+
+/* Más espacio entre líneas, letras y palabras. */
+.a11y-spacing p,
+.a11y-spacing li,
+.a11y-spacing dd,
+.a11y-spacing label {
+  line-height: 1.9 !important;
+  letter-spacing: 0.02em;
+  word-spacing: 0.1em;
+}
+
+/* Enlaces siempre subrayados. */
+.a11y-links main a,
+.a11y-links footer a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Pausar animaciones y transiciones (igual que "reducir movimiento"). */
+.a11y-motion,
+.a11y-motion *,
+.a11y-motion *::before,
+.a11y-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
