@@ -20,7 +20,10 @@ export async function POST(request: Request) {
   const message = String(data.message ?? "").trim();
 
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!name || !emailOk || !message) {
+  // Sin autorización de tratamiento de datos (Ley 1581 de 2012) no se procesa.
+  const consent = data.consent === true || data.consent === "on";
+
+  if (!name || !emailOk || !message || !consent) {
     return NextResponse.json(
       { error: "Missing or invalid fields" },
       { status: 422 },

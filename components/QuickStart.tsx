@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { buttonClasses } from "@/components/ui/Button";
 import { localizedHref } from "@/lib/site";
@@ -13,9 +14,12 @@ import type { Dictionary } from "@/i18n/dictionaries";
 export function QuickStart({
   locale,
   copy,
+  privacyLabel,
 }: {
   locale: Locale;
   copy: Dictionary["quickStart"];
+  /** Nombre de la política de datos, enlazada al final de la nota. */
+  privacyLabel: string;
 }) {
   return (
     <section className="border-t border-line bg-surface py-12 sm:py-16">
@@ -44,7 +48,14 @@ export function QuickStart({
             </button>
           </form>
           <p className="mt-4 max-w-2xl text-xs leading-relaxed text-muted">
-            {copy.note}
+            {copy.note}{" "}
+            <Link
+              href={localizedHref(locale, "legal/privacidad")}
+              className="underline underline-offset-2 hover:text-heading"
+            >
+              {privacyLabel}
+            </Link>
+            .
           </p>
         </div>
       </Container>

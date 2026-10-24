@@ -215,7 +215,9 @@ export default async function ContactPage({
             </p>
           </div>
           <div className="mx-auto mt-10 max-w-3xl rounded-3xl bg-surface-soft p-6 sm:mt-12 sm:p-10">
-            <ContactForm locale={locale} form={t.form} variant="plain" />
+            <ContactForm locale={locale} form={t.form} variant="plain"
+              consent={{ ...dict.consent, href: `/${locale}/legal/privacidad` }}
+            />
           </div>
         </Container>
       </section>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Send, CheckCircle2, Loader2 } from "lucide-react";
 import { services } from "@/content/services";
 import { products } from "@/content/products";
@@ -17,10 +18,13 @@ export function ContactForm({
   locale,
   form,
   variant = "card",
+  consent,
 }: {
   locale: Locale;
   form: FormDict;
   variant?: "card" | "plain";
+  /** Autorización de tratamiento de datos (Ley 1581 de 2012). */
+  consent: Dictionary["consent"] & { href: string };
 }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -46,6 +50,7 @@ export function ContactForm({
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       next.email = form.invalidEmail;
     if (!message) next.message = form.required;
+    if (!data.get("consent")) next.consent = consent.required;
     return next;
   };
 
@@ -63,7 +68,10 @@ export function ContactForm({
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(data.entries())),
+        body: JSON.stringify({
+          ...Object.fromEntries(data.entries()),
+          consent: true,
+        }),
       });
       if (!res.ok) throw new Error("Request failed");
       setStatus("success");
@@ -171,6 +179,32 @@ export function ContactForm({
             className={cn(inputClass(!!errors.message), "resize-y py-3")}
           />
         </Field>
+      </div>
+
+      <div className="mt-5">
+        <label className="flex items-start gap-3 text-sm leading-relaxed text-body">
+          <input
+            type="checkbox"
+            name="consent"
+            aria-invalid={!!errors.consent || undefined}
+            className="mt-0.5 h-5 w-5 shrink-0 rounded accent-deep-700 dark:accent-brand-green"
+          />
+          <span>
+            {consent.text}{" "}
+            <Link
+              href={consent.href}
+              className="font-semibold text-heading underline underline-offset-2"
+            >
+              {consent.link}
+            </Link>
+            .
+          </span>
+        </label>
+        {errors.consent && (
+          <p role="alert" className="mt-1.5 text-sm text-red-600 dark:text-red-400">
+            {errors.consent}
+          </p>
+        )}
       </div>
 
       {status === "error" && (
