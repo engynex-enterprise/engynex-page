@@ -321,7 +321,7 @@ export function PortalShell({
   return (
     <div className="portal-theme min-h-dvh bg-surface text-body">
       {/* Barra lateral (escritorio) */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[17.5rem] border-r border-line bg-[var(--sidebar)] lg:block">{sidebar}</aside>
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[17.5rem] border-r border-line bg-[var(--sidebar)] lg:block print:!hidden">{sidebar}</aside>
 
       {/* Barra lateral (celular) */}
       {mobileOpen && (
@@ -341,9 +341,9 @@ export function PortalShell({
         </div>
       )}
 
-      <div className="lg:pl-[17.5rem]">
+      <div className="lg:pl-[17.5rem] print:!pl-0">
         {/* Encabezado de página */}
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-line bg-surface/95 px-4 backdrop-blur sm:px-6">
+        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-line bg-surface/95 px-4 backdrop-blur sm:px-6 print:static">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}

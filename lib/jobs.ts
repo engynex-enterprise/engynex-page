@@ -11,6 +11,7 @@ import { normalizeFollowupConfig } from "@/content/followupDefaults";
 export type JobsSummary = {
   whatsapp?: { sent: number; failed: number } | string;
   weeklyReport?: string | null;
+  monthlyReport?: string | null;
   abandoned?: number | string;
   ai?: { analyzed: number; failed: number } | string;
   emails?: { sent: number; failed: number; cancelled: number } | string;
@@ -22,7 +23,7 @@ type Claimed = {
   to_email: string | null;
   lead: Parameters<typeof followup>[1] & { opted_out: boolean } | null;
   draft: { name: string | null; email: string; token: string; locale: string | null; completed: boolean } | null;
-  report: { week_start: string; data: Record<string, unknown> } | null;
+  report: { week_start: string; kind?: "week" | "month"; data: Record<string, unknown> } | null;
   payload: (Parameters<typeof customEmail>[0] & { internal?: boolean }) | null;
 };
 
@@ -53,6 +54,9 @@ export async function runJobs(budgetMs = 50_000): Promise<JobsSummary> {
   if (isOn(c, "weekly_report")) {
     const { data, error } = await db.rpc("jobs_weekly_report");
     summary.weeklyReport = error ? error.message : (data ?? null);
+    // Y el mensual, el día 1 de cada mes.
+    const { data: month, error: monthError } = await db.rpc("jobs_monthly_report");
+    summary.monthlyReport = monthError ? monthError.message : (month ?? null);
   }
 
   // 3. Formularios abandonados con permiso

@@ -317,7 +317,7 @@ export type LeadDraft = {
   reminded_at: string | null;
 };
 
-export type WeeklyReport = { id: string; week_start: string; data: Json; created_at: string };
+export type WeeklyReport = { id: string; week_start: string; kind: "week" | "month"; data: Json; created_at: string };
 
 export type AppNotification = {
   id: number;
@@ -950,6 +950,12 @@ export type Database = {
       };
       agenda_kpis: { Args: { p_days?: number }; Returns: Json };
       track_event: { Args: { p: Json }; Returns: undefined };
+      report_live: { Args: { p_from: string; p_to: string }; Returns: Json };
+      report_team: { Args: { p_from: string; p_to: string }; Returns: Json };
+      report_trends: { Args: { p_months?: number }; Returns: Json };
+      report_pipeline: { Args: Record<string, never>; Returns: Json };
+      report_generate_month: { Args: { p_month_start: string; p_email?: boolean }; Returns: string };
+      report_send: { Args: { p_report: string }; Returns: undefined };
       analytics_overview: { Args: { p_from: string; p_to: string }; Returns: Json };
       analytics_acquisition: { Args: { p_from: string; p_to: string }; Returns: Json };
       analytics_behavior: { Args: { p_from: string; p_to: string }; Returns: Json };
@@ -957,6 +963,7 @@ export type Database = {
       analytics_live: { Args: Record<string, never>; Returns: Json };
       report_generate: { Args: { p_week_start: string; p_email?: boolean }; Returns: string };
       jobs_weekly_report: { Args: Record<string, never>; Returns: string | null };
+      jobs_monthly_report: { Args: Record<string, never>; Returns: string | null };
       ai_pending_leads: {
         Args: { p_limit?: number };
         Returns: {

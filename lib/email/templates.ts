@@ -187,7 +187,7 @@ export function newLeadAlert(lead: TemplateLead): Rendered {
 }
 
 /** Informe semanal interno. */
-export function weeklyReport(report: { week_start: string; data: Record<string, unknown> }): Rendered {
+export function weeklyReport(report: { week_start: string; kind?: "week" | "month"; data: Record<string, unknown> }): Rendered {
   const d = report.data as Record<string, number | null | Record<string, number> | { source: string; leads: number }[]>;
   const n = (v: unknown) => (typeof v === "number" ? v.toLocaleString("es-CO") : "—");
   const byTier = (d.by_tier ?? {}) as Record<string, number>;
@@ -211,12 +211,13 @@ export function weeklyReport(report: { week_start: string; data: Record<string, 
     .map(([k, v]) => `<tr><td style="padding:8px 0;border-bottom:1px solid #e6eaf2;color:#6b7489">${esc(k)}</td><td style="padding:8px 0;border-bottom:1px solid #e6eaf2;text-align:right;font-weight:700;color:${NAVY}">${esc(v)}</td></tr>`)
     .join("")}</table>`;
   const sources = ((d.sources ?? []) as { source: string; leads: number }[]).map((s) => `${esc(s.source)}: ${s.leads}`);
-  const week = new Intl.DateTimeFormat("es-CO", { day: "numeric", month: "long" }).format(new Date(`${report.week_start}T12:00:00`));
-  const subject = `Informe semanal Engynex · semana del ${week}`;
+  const monthly = report.kind === "month";
+  const week = new Intl.DateTimeFormat("es-CO", monthly ? { month: "long", year: "numeric" } : { day: "numeric", month: "long" }).format(new Date(`${report.week_start}T12:00:00`));
+  const subject = monthly ? `Informe mensual Engynex · ${week}` : `Informe semanal Engynex · semana del ${week}`;
   const body = table + (sources.length ? `<p style="margin:18px 0 0"><strong>Fuentes de leads:</strong> ${sources.join(" · ")}</p>` : "");
   return {
     subject,
-    html: layout({ preheader: subject, title: `Semana del ${week}`, body, cta: { label: "Ver en el portal", url: `${siteConfig.url}/es/portal/reportes` }, footer: "Informe automático de Engynex · Cada lunes a las 8 a.m." }),
+    html: layout({ preheader: subject, title: monthly ? `Mes de ${week}` : `Semana del ${week}`, body, cta: { label: "Ver en el portal", url: `${siteConfig.url}/es/portal/reportes` }, footer: monthly ? "Informe automático de Engynex · El día 1 de cada mes a las 8 a.m." : "Informe automático de Engynex · Cada lunes a las 8 a.m." }),
     text: `${subject}\n\n${rows.map(([k, v]) => `${k}: ${v}`).join("\n")}`,
   };
 }
