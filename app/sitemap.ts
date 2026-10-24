@@ -4,6 +4,19 @@ import { navRoutes, siteConfig } from "@/lib/site";
 import { services } from "@/content/services";
 import { products } from "@/content/products";
 
+/** Rutas que no están en la barra principal pero sí deben indexarse. */
+const extraPaths = [
+  "ayuda",
+  "preguntas-frecuentes",
+  "cotizar",
+  "nosotros/mision-vision",
+  "nosotros/valores",
+  "nosotros/historia",
+  "nosotros/proceso",
+  "nosotros/equipo",
+  "nosotros/cifras",
+];
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [];
 
@@ -23,18 +36,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       });
     }
 
-    // Centro de ayuda
-    entries.push({
-      url: `${siteConfig.url}/${locale}/ayuda`,
-      changeFrequency: "monthly",
-      priority: 0.6,
-      alternates: {
-        languages: {
-          es: `${siteConfig.url}/es/ayuda`,
-          en: `${siteConfig.url}/en/ayuda`,
+    // Centro de ayuda, páginas de empresa y cotización
+    for (const path of extraPaths) {
+      entries.push({
+        url: `${siteConfig.url}/${locale}/${path}`,
+        changeFrequency: "monthly",
+        priority: path === "cotizar" ? 0.8 : 0.6,
+        alternates: {
+          languages: {
+            es: `${siteConfig.url}/es/${path}`,
+            en: `${siteConfig.url}/en/${path}`,
+          },
         },
-      },
-    });
+      });
+    }
 
     // Páginas dedicadas de cada servicio
     for (const service of services) {

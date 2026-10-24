@@ -82,21 +82,21 @@ export const aboutGroups: AboutMenuGroup[] = [
         en: { title: "Who we are", desc: "Your digital development factory" },
       },
       {
-        path: "nosotros#mision-vision",
+        path: "nosotros/mision-vision",
         icon: "Target",
         accent: "blue",
         es: { title: "Misión y visión", desc: "Hacia dónde vamos y por qué" },
         en: { title: "Mission and vision", desc: "Where we're going and why" },
       },
       {
-        path: "nosotros#valores",
+        path: "nosotros/valores",
         icon: "Gem",
         accent: "green",
         es: { title: "Nuestros valores", desc: "Los principios de cada proyecto" },
         en: { title: "Our values", desc: "The principles behind every project" },
       },
       {
-        path: "nosotros#historia",
+        path: "nosotros/historia",
         icon: "History",
         accent: "blue",
         es: { title: "Nuestra historia", desc: "De 2016 a hoy, paso a paso" },
@@ -110,21 +110,21 @@ export const aboutGroups: AboutMenuGroup[] = [
     en: { title: "How we work" },
     items: [
       {
-        path: "nosotros#proceso",
+        path: "nosotros/proceso",
         icon: "Workflow",
         accent: "green",
         es: { title: "Nuestro proceso", desc: "De la idea al lanzamiento" },
         en: { title: "Our process", desc: "From idea to launch" },
       },
       {
-        path: "nosotros#equipo",
+        path: "nosotros/equipo",
         icon: "Users",
         accent: "blue",
         es: { title: "El equipo", desc: "Ingeniería, diseño y estrategia" },
         en: { title: "The team", desc: "Engineering, design and strategy" },
       },
       {
-        path: "nosotros#cifras",
+        path: "nosotros/cifras",
         icon: "BarChart3",
         accent: "green",
         es: { title: "Engynex en cifras", desc: "Proyectos, clientes y resultados" },
@@ -145,7 +145,7 @@ export const aboutGroups: AboutMenuGroup[] = [
         en: { title: "Portfolio", desc: "Real cases and their results" },
       },
       {
-        path: "contacto#faq",
+        path: "preguntas-frecuentes",
         icon: "MessageCircleQuestion",
         accent: "green",
         es: { title: "Preguntas frecuentes", desc: "Dudas antes de empezar" },

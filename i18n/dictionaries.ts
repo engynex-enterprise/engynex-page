@@ -110,6 +110,47 @@ const es = {
       { value: "10", label: "Años de experiencia" },
     ],
   },
+  cookies: {
+    title: "Tu privacidad en Engynex",
+    text: "Usamos cookies y tecnologías similares para que el sitio funcione, recordar tus preferencias y, si lo permites, entender cómo se usa para mejorarlo. Puedes aceptarlas, rechazar las opcionales o elegir cuáles permitir.",
+    policy: "Política de cookies",
+    acceptAll: "Aceptar todas",
+    rejectOptional: "Rechazar opcionales",
+    customize: "Personalizar",
+    settingsTitle: "Configuración de cookies",
+    settingsText: "Elige qué cookies opcionales permites. Las necesarias siempre están activas porque sin ellas el sitio no funciona.",
+    save: "Guardar preferencias",
+    close: "Cerrar",
+    alwaysOn: "Siempre activas",
+    footerLink: "Configuración de cookies",
+    categories: {
+      necessary: {
+        title: "Necesarias",
+        desc: "Permiten navegar, recordar el idioma, el país y el tema que elegiste, y enviar formularios de forma segura.",
+      },
+      preferences: {
+        title: "Preferencias",
+        desc: "Recuerdan ajustes opcionales para personalizar tu experiencia en próximas visitas.",
+      },
+      analytics: {
+        title: "Analítica",
+        desc: "Nos ayudan a entender, de forma agregada, qué páginas se visitan para mejorar el sitio.",
+      },
+      marketing: {
+        title: "Marketing",
+        desc: "Permiten medir campañas y mostrarte anuncios relevantes en otros sitios.",
+      },
+    },
+  },
+  consent: {
+    text: "Autorizo a Engynex a tratar mis datos personales para atender esta solicitud, de acuerdo con la",
+    link: "Política de tratamiento de datos personales",
+    required: "Debes aceptar el tratamiento de datos para continuar.",
+  },
+  company: {
+    subnavLabel: "La empresa",
+    exploreTitle: "Sigue conociendo Engynex",
+  },
   help: {
     metaTitle: "Centro de ayuda",
     metaDescription:
@@ -926,6 +967,8 @@ const es = {
     madeWith: "Hecho con ingeniería y pasión.",
     legalPrivacy: "Privacidad",
     legalTerms: "Términos",
+    legalCookies: "Cookies",
+    legalCenter: "Centro legal",
     plansTitle: "Planes",
     webPlans: "Página web por suscripción",
     supportPlans: "Planes de soporte TI",
@@ -1051,6 +1094,47 @@ const en = {
       { value: "16", label: "Integrated services" },
       { value: "10", label: "Years of experience" },
     ],
+  },
+  cookies: {
+    title: "Your privacy at Engynex",
+    text: "We use cookies and similar technologies to make the site work, remember your preferences and, if you allow it, understand how it's used so we can improve it. You can accept them, reject the optional ones or choose which to allow.",
+    policy: "Cookie Policy",
+    acceptAll: "Accept all",
+    rejectOptional: "Reject optional",
+    customize: "Customize",
+    settingsTitle: "Cookie settings",
+    settingsText: "Choose which optional cookies you allow. Necessary cookies are always on because the site can't work without them.",
+    save: "Save preferences",
+    close: "Close",
+    alwaysOn: "Always on",
+    footerLink: "Cookie settings",
+    categories: {
+      necessary: {
+        title: "Necessary",
+        desc: "Let you browse, remember the language, country and theme you chose, and submit forms securely.",
+      },
+      preferences: {
+        title: "Preferences",
+        desc: "Remember optional settings to personalize your experience on future visits.",
+      },
+      analytics: {
+        title: "Analytics",
+        desc: "Help us understand, in aggregate, which pages are visited so we can improve the site.",
+      },
+      marketing: {
+        title: "Marketing",
+        desc: "Let us measure campaigns and show you relevant ads on other sites.",
+      },
+    },
+  },
+  consent: {
+    text: "I authorize Engynex to process my personal data to handle this request, in accordance with the",
+    link: "Personal Data Processing Policy",
+    required: "You must accept the data processing terms to continue.",
+  },
+  company: {
+    subnavLabel: "The company",
+    exploreTitle: "Keep exploring Engynex",
   },
   help: {
     metaTitle: "Help Center",
@@ -1867,6 +1951,8 @@ const en = {
     madeWith: "Made with engineering and passion.",
     legalPrivacy: "Privacy",
     legalTerms: "Terms",
+    legalCookies: "Cookies",
+    legalCenter: "Legal Center",
     plansTitle: "Plans",
     webPlans: "Website subscription",
     supportPlans: "IT support plans",

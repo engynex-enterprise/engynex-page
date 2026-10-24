@@ -18,10 +18,10 @@ import { Container } from "@/components/ui/Container";
 import { MediaTile } from "@/components/ui/MediaTile";
 import { CardRail } from "@/components/ui/CardRail";
 import { Accordion } from "@/components/Accordion";
-import { HelpSearch, type HelpEntry } from "@/components/HelpSearch";
+import { HelpSearch } from "@/components/HelpSearch";
+import { buildHelpIndex } from "@/lib/helpIndex";
 import { services } from "@/content/services";
 import { products } from "@/content/products";
-import { extraServiceFaqs } from "@/content/faqs";
 import { getDictionary } from "@/i18n/dictionaries";
 import { locales, isLocale, type Locale } from "@/i18n/config";
 import { localizedHref, siteConfig } from "@/lib/site";
@@ -81,49 +81,15 @@ export default async function HelpPage({
   const contactHref = href("contacto");
   const whatsappHref = `https://wa.me/${siteConfig.whatsapp}`;
 
-  // -------- Índice del buscador --------
-  const entries: HelpEntry[] = [
-    ...services.flatMap((service) =>
-      [
-        ...service[locale].faqs,
-        ...(extraServiceFaqs[service.slug]?.[locale] ?? []),
-      ].map((faq) => ({
-        ...faq,
-        href: href(`servicios/${service.slug}#faq`),
-        source: `${t.groupService} · ${service[locale].title}`,
-      })),
-    ),
-    ...products.flatMap((product) =>
-      product[locale].faqs.map((faq) => ({
-        ...faq,
-        href: href(`productos/${product.slug}#faq`),
-        source: `${t.groupProduct} · ${product[locale].title}`,
-      })),
-    ),
-    ...dict.servicesPage.commonFaqs.map((faq) => ({
-      ...faq,
-      href: href("ayuda#pagos"),
-      source: `${t.groupGeneral} · ${t.paymentsTitle}`,
-    })),
-    ...dict.contactPage.faqs.map((faq) => ({
-      ...faq,
-      href: href("ayuda#antes-de-empezar"),
-      source: `${t.groupGeneral} · ${t.projectsTitle}`,
-    })),
-    ...dict.productsPage.faqs.map((faq) => ({
-      ...faq,
-      href: href("ayuda#productos"),
-      source: `${t.groupGeneral} · ${t.productsFaqTitle}`,
-    })),
-  ];
+  const entries = buildHelpIndex(locale);
 
   const quick: { label: string; href: string; icon: LucideIcon }[] = [
     { label: t.quick.payments, href: "#pagos", icon: CreditCard },
     { label: t.quick.projects, href: "#antes-de-empezar", icon: Rocket },
-    { label: t.quick.support, href: href("servicios/soporte-ti"), icon: Headset },
+    { label: t.quick.support, href: href("soporte"), icon: Headset },
     {
       label: t.quick.hosting,
-      href: href("servicios/hosting-mantenimiento"),
+      href: href("soporte#cat-hosting"),
       icon: Server,
     },
     { label: t.quick.products, href: "#productos", icon: Package },
@@ -134,11 +100,11 @@ export default async function HelpPage({
     { label: t.more.services, href: href("servicios") },
     { label: t.more.products, href: href("productos") },
     { label: t.more.portfolio, href: href("portafolio") },
-    { label: t.more.process, href: href("nosotros#proceso") },
+    { label: t.more.process, href: href("nosotros/proceso") },
     { label: t.more.about, href: href("nosotros") },
-    { label: t.more.webPlans, href: href("servicios/desarrollo-web#planes") },
-    { label: t.more.rental, href: href("servicios/alquiler-equipos") },
-    { label: t.more.quote, href: contactHref },
+    { label: t.more.webPlans, href: href("planes#desarrollo-web") },
+    { label: t.more.rental, href: href("soporte#cat-equipos") },
+    { label: t.more.quote, href: href("cotizar") },
     { label: t.more.whatsapp, href: whatsappHref, external: true },
   ];
 
@@ -188,7 +154,7 @@ export default async function HelpPage({
               description={t.tiles.supportDesc}
               primary={{
                 label: t.tiles.supportPrimary,
-                href: href("servicios/soporte-ti#faq"),
+                href: href("soporte"),
               }}
               secondary={{ label: t.tiles.supportSecondary, href: whatsappHref }}
             />
@@ -199,7 +165,7 @@ export default async function HelpPage({
                 description={t.tiles.hostingDesc}
                 primary={{
                   label: t.tiles.hostingPrimary,
-                  href: href("servicios/hosting-mantenimiento#faq"),
+                  href: href("soporte#cat-hosting"),
                 }}
               />
               <MediaTile
@@ -208,7 +174,7 @@ export default async function HelpPage({
                 description={t.tiles.securityDesc}
                 primary={{
                   label: t.tiles.securityPrimary,
-                  href: href("servicios/ciberseguridad#faq"),
+                  href: href("soporte#cat-seguridad"),
                 }}
               />
             </div>
@@ -219,7 +185,7 @@ export default async function HelpPage({
                 description={t.tiles.plansDesc}
                 primary={{
                   label: t.tiles.plansPrimary,
-                  href: href("servicios/desarrollo-web#planes"),
+                  href: href("planes"),
                 }}
               />
               <MediaTile
@@ -228,7 +194,7 @@ export default async function HelpPage({
                 description={t.tiles.processDesc}
                 primary={{
                   label: t.tiles.processPrimary,
-                  href: href("nosotros#proceso"),
+                  href: href("nosotros/proceso"),
                 }}
               />
             </div>

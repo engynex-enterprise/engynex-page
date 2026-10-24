@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { QuickStart } from "@/components/QuickStart";
+import { CookieConsent } from "@/components/CookieConsent";
 import { FloatingActions } from "@/components/FloatingActions";
 import { WhatsAppWidget } from "@/components/WhatsAppWidget";
 import { locales, isLocale, type Locale } from "@/i18n/config";
@@ -107,8 +108,16 @@ export default async function LocaleLayout({
           region={dict.region}
         />
         <main className="flex-1">{children}</main>
-        <QuickStart locale={locale} copy={dict.quickStart} />
+        <QuickStart
+          locale={locale}
+          copy={dict.quickStart}
+          privacyLabel={dict.consent.link}
+        />
         <Footer locale={locale} dict={dict} />
+        <CookieConsent
+          copy={dict.cookies}
+          policyHref={`/${locale}/legal/cookies`}
+        />
         <FloatingActions topLabel={dict.common.backToTop} />
         <WhatsAppWidget chat={dict.chat} />
       </body>

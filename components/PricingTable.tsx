@@ -22,6 +22,7 @@ export function PricingTable({
   badges,
   ctaHref,
   surface = "white",
+  showNote = true,
 }: {
   plans: Plan[];
   locale: Locale;
@@ -32,6 +33,8 @@ export function PricingTable({
   accent?: "green" | "blue";
   /** `white` para secciones grises, `soft` para secciones blancas. */
   surface?: "white" | "soft";
+  /** Nota de precios (COP, sin IVA). Se oculta cuando la página la muestra una vez. */
+  showNote?: boolean;
 }) {
   return (
     <div>
@@ -106,7 +109,9 @@ export function PricingTable({
                 <Link
                   href={ctaHref}
                   className={buttonClasses(
-                    highlighted ? "primary" : "secondary",
+                    // Fuera del plan destacado, contorno: un botón gris se
+                    // perdía sobre la tarjeta gris.
+                    highlighted ? "primary" : "outline",
                     "md",
                     "mt-8 w-full",
                   )}
@@ -137,10 +142,12 @@ export function PricingTable({
         })}
       </div>
 
-      <p className="mx-auto mt-8 flex max-w-3xl items-start justify-center gap-2 text-center text-xs leading-relaxed text-muted">
-        <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-        <span>{t.note}</span>
-      </p>
+      {showNote && (
+        <p className="mx-auto mt-8 flex max-w-3xl items-start justify-center gap-2 text-center text-xs leading-relaxed text-muted">
+          <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+          <span>{t.note}</span>
+        </p>
+      )}
     </div>
   );
 }

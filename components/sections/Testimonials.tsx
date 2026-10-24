@@ -119,7 +119,13 @@ export function Testimonials({
                   </p>
                   <p className="text-sm text-muted">{item.role}</p>
                   {item.metric && (
-                    <p className="mt-4 inline-flex items-center rounded-full bg-surface-soft px-4 py-1.5 text-sm font-bold text-heading">
+                    <p
+                      className={cn(
+                        "mt-4 inline-flex items-center rounded-full px-4 py-1.5 text-sm font-bold text-heading",
+                        // Sobre fondo gris la píldora va en blanco para verse.
+                        tone === "muted" ? "bg-card" : "bg-surface-soft",
+                      )}
+                    >
                       {item.metric}
                     </p>
                   )}

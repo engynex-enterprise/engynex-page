@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "./Logo";
 import { Container } from "./ui/Container";
 import { RegionLanguage } from "./RegionLanguage";
+import { CookieSettingsLink } from "./CookieSettingsLink";
 import { InstagramIcon, FacebookIcon, TiktokIcon } from "./SocialIcons";
 import { localizedHref, siteConfig } from "@/lib/site";
 import { getService } from "@/content/services";
@@ -69,9 +70,9 @@ export function Footer({
   const plans: FooterGroup = {
     title: f.plansTitle,
     links: [
-      { label: f.webPlans, href: href("servicios/desarrollo-web#planes") },
-      { label: f.supportPlans, href: href("servicios/soporte-ti#planes") },
-      { label: f.rentalPlans, href: href("servicios/alquiler-equipos#planes") },
+      { label: f.webPlans, href: href("planes#desarrollo-web") },
+      { label: f.supportPlans, href: href("planes#soporte-ti") },
+      { label: f.rentalPlans, href: href("planes#alquiler-equipos") },
     ],
   };
 
@@ -89,8 +90,8 @@ export function Footer({
     title: f.helpTitle,
     links: [
       { label: f.helpCenter, href: href("ayuda") },
-      { label: f.techSupport, href: href("servicios/soporte-ti") },
-      { label: f.quote, href: href("contacto") },
+      { label: f.techSupport, href: href("soporte") },
+      { label: f.quote, href: href("cotizar") },
       {
         label: f.whatsapp,
         href: `https://wa.me/${siteConfig.whatsapp}`,
@@ -199,6 +200,21 @@ export function Footer({
                 {siteConfig.name}
               </span>{" "}
               · {dict.contactPage.info.address}
+            </p>
+            <p className="flex flex-wrap gap-x-4 gap-y-1 font-semibold text-heading">
+              <Link href={href("legal")} className="hover:underline">
+                {f.legalCenter}
+              </Link>
+              <Link href={href("legal/terminos")} className="hover:underline">
+                {f.legalTerms}
+              </Link>
+              <Link href={href("legal/privacidad")} className="hover:underline">
+                {f.legalPrivacy}
+              </Link>
+              <Link href={href("legal/cookies")} className="hover:underline">
+                {f.legalCookies}
+              </Link>
+              <CookieSettingsLink label={dict.cookies.footerLink} />
             </p>
             <p>
               © {year} {siteConfig.name}. {f.rights} ·{" "}
