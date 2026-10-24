@@ -7,11 +7,14 @@ import {
   Menu,
   X,
   ArrowRight,
+  Clock,
+  Mail,
   ChevronDown,
   Phone,
   Sparkles,
 } from "lucide-react";
 import { Logo } from "./Logo";
+import { InstagramIcon, FacebookIcon, TiktokIcon } from "./SocialIcons";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 import { Container } from "./ui/Container";
@@ -24,6 +27,9 @@ import type { Dictionary } from "@/i18n/dictionaries";
 import { cn } from "@/lib/utils";
 
 type PanelKey = MenuPanel["key"];
+
+/** Alto de la subcabecera (px). */
+const TOPBAR_HEIGHT = 40;
 
 /** Rutas de la barra que abren un panel del mega menú. */
 const panelForRoute: Partial<Record<string, PanelKey>> = {
@@ -45,13 +51,22 @@ export function Navbar({
 }) {
   const pathname = usePathname() || `/${locale}`;
   const [scrolled, setScrolled] = useState(false);
+  /**
+   * Distancia de la barra principal al borde superior. Empieza bajo la
+   * subcabecera (que va en el flujo normal) y sube con el scroll hasta quedar
+   * pegada arriba, así las páginas solo reservan los 64 px de la barra.
+   */
+  const [headerTop, setHeaderTop] = useState(TOPBAR_HEIGHT);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openPanel, setOpenPanel] = useState<PanelKey | null>(null);
   const [mobileSection, setMobileSection] = useState<PanelKey | null>(null);
   const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 12);
+      setHeaderTop(Math.max(0, TOPBAR_HEIGHT - window.scrollY));
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -117,8 +132,67 @@ export function Navbar({
   };
 
 
+  const socials = [
+    { href: siteConfig.social.instagram, label: "Instagram", Icon: InstagramIcon },
+    { href: siteConfig.social.facebook, label: "Facebook", Icon: FacebookIcon },
+    { href: siteConfig.social.tiktok, label: "TikTok", Icon: TiktokIcon },
+  ];
+
   return (
-    <header ref={headerRef} className="fixed inset-x-0 top-0 z-50">
+    <>
+    {/* Subcabecera: horario, contacto y redes. Va en el flujo normal de la
+        página, encima de la barra principal, y se va con el scroll. */}
+    <div
+      className="relative z-50 bg-deep-700 text-white/80"
+      style={{ height: TOPBAR_HEIGHT }}
+    >
+      <Container className="flex h-full items-center justify-between gap-3 text-xs font-medium">
+        <span className="hidden items-center gap-1.5 truncate whitespace-nowrap sm:inline-flex">
+          <Clock className="h-3.5 w-3.5 shrink-0 text-brand-green" />
+          <span className="hidden lg:inline">{siteConfig.hours[locale]}</span>
+          <span className="inline lg:hidden">
+            {locale === "es"
+              ? "Lun–Vie 7–17 · Sáb 8–16"
+              : "Mon–Fri 7–17 · Sat 8–16"}
+          </span>
+        </span>
+        <div className="flex flex-1 items-center justify-end gap-1">
+          <a
+            href={`mailto:${siteConfig.email}`}
+            className="mr-2 hidden items-center gap-1.5 whitespace-nowrap transition-colors hover:text-white lg:inline-flex"
+          >
+            <Mail className="h-3.5 w-3.5 text-brand-green" />
+            {siteConfig.email}
+          </a>
+          <a
+            href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
+            className="mr-1 inline-flex h-8 items-center gap-1.5 whitespace-nowrap px-1 transition-colors hover:text-white"
+          >
+            <Phone className="h-3.5 w-3.5 text-brand-green" />
+            <span>{siteConfig.phoneDisplay}</span>
+          </a>
+          <span aria-hidden className="mx-1 hidden h-4 w-px bg-white/20 sm:block" />
+          {socials.map(({ href, label, Icon }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={label}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <Icon className="h-4 w-4" />
+            </a>
+          ))}
+        </div>
+      </Container>
+    </div>
+
+    <header
+      ref={headerRef}
+      className="fixed inset-x-0 z-50"
+      style={{ top: headerTop }}
+    >
       {/* Fila principal + paneles del mega menú: barra blanca de 64 px, como
           en meta.com. El contacto y las redes viven en el footer. */}
       <div
@@ -378,6 +452,7 @@ export function Navbar({
         </div>
       </div>
     </header>
+    </>
   );
 }
 

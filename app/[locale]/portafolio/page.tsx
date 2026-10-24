@@ -41,7 +41,10 @@ export default async function PortfolioPage({
   if (!isLocale(locale)) notFound();
   const dict = getDictionary(locale);
   const t = dict.portfolioPage;
-  const featured = projects[0];
+  const heroImage = "/images/portfolio-1.jpg";
+  // Proyecto destacado: el primero cuya foto no repite la del hero.
+  const featured =
+    projects.find((project) => project.image !== heroImage) ?? projects[0];
 
   return (
     <>
@@ -49,7 +52,7 @@ export default async function PortfolioPage({
         eyebrow={t.hero.eyebrow}
         title={t.hero.title}
         subtitle={t.hero.subtitle}
-        image="/images/portfolio-1.jpg"
+        image={heroImage}
       />
 
       {/* Proyecto destacado: bloque dividido de meta.com */}

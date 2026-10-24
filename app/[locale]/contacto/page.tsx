@@ -16,7 +16,9 @@ import { TrustStrip } from "@/components/sections/TrustStrip";
 import { ContactForm } from "@/components/ContactForm";
 import { Reveal } from "@/components/ui/Reveal";
 import { Accordion } from "@/components/Accordion";
-import { ButtonExternal } from "@/components/ui/Button";
+import { ButtonExternal, buttonClasses } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
+import { SplitFeature } from "@/components/ui/SplitFeature";
 import {
   InstagramIcon,
   FacebookIcon,
@@ -122,67 +124,64 @@ export default async function ContactPage({
         image="/images/about-meeting.jpg"
       />
 
-      {/* Información + formulario */}
-      <Section tone="light">
-        <div className="grid gap-4 lg:grid-cols-[5fr_7fr]">
-          {/* Columna de información */}
-          <div className="grid content-start gap-4">
-            <div className="rounded-3xl bg-surface-soft p-8 sm:p-10">
-              <h2 className="text-[clamp(1.75rem,2.8vw,2.25rem)] font-medium leading-tight text-heading">
-                {dict.common.talkToUs}
-              </h2>
-              <p className="mt-3 text-base leading-relaxed text-body">
-                {t.hero.subtitle}
-              </p>
+      {/* Presentación: bloque dividido con los datos de contacto */}
+      <section className="bg-surface py-16 sm:py-24">
+        <Container>
+          <SplitFeature
+            image="/images/about-team.jpg"
+            eyebrow={t.hero.eyebrow}
+            title={dict.common.talkToUs}
+            description={t.hero.subtitle}
+          >
+            <ul className="mt-8 grid gap-x-6 gap-y-5 border-t border-line pt-8 sm:grid-cols-2">
+              {methods.map(({ Icon, label, value, href }) => (
+                <li key={label} className="flex gap-3">
+                  <Icon
+                    className="mt-0.5 h-5 w-5 shrink-0 text-accent"
+                    strokeWidth={1.75}
+                    aria-hidden
+                  />
+                  <div className="min-w-0">
+                    <p className="text-sm text-muted">{label}</p>
+                    {href ? (
+                      <a
+                        href={href}
+                        className="mt-0.5 block break-words font-bold text-heading underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
+                      >
+                        {value}
+                      </a>
+                    ) : (
+                      <p className="mt-0.5 break-words font-bold text-heading">
+                        {value}
+                      </p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <ButtonExternal
                 href={`https://wa.me/${siteConfig.whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 variant="primary"
-                className="mt-6"
+                size="lg"
               >
                 <MessageCircle className="h-5 w-5" aria-hidden />
                 WhatsApp
               </ButtonExternal>
+              <a
+                href="#formulario"
+                className={buttonClasses("secondary", "lg")}
+              >
+                {t.form.submit}
+              </a>
             </div>
 
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-              {methods.map(({ Icon, label, value, href }) => {
-                const inner = (
-                  <>
-                    <Icon
-                      className="h-6 w-6 text-accent"
-                      strokeWidth={1.75}
-                      aria-hidden
-                    />
-                    <p className="mt-6 text-sm text-muted">{label}</p>
-                    <p className="mt-1 break-words text-base font-medium text-heading">
-                      {value}
-                    </p>
-                  </>
-                );
-                return (
-                  <li key={label}>
-                    {href ? (
-                      <a
-                        href={href}
-                        className="block h-full rounded-3xl bg-surface-soft p-6 transition-colors hover:bg-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
-                      >
-                        {inner}
-                      </a>
-                    ) : (
-                      <div className="h-full rounded-3xl bg-surface-soft p-6">
-                        {inner}
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-
-            <div className="rounded-3xl bg-surface-soft p-6">
+            <div className="mt-8 flex items-center gap-3">
               <p className="text-sm text-muted">{dict.footer.followUs}</p>
-              <div className="mt-3 flex gap-2">
+              <div className="flex gap-2">
                 {socialLinks.map(({ href, label, Icon }) => (
                   <a
                     key={label}
@@ -190,29 +189,36 @@ export default async function ContactPage({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-card text-heading transition-colors hover:bg-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-surface-soft text-heading transition-colors hover:bg-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
                   >
                     <Icon className="h-5 w-5" />
                   </a>
                 ))}
               </div>
             </div>
-          </div>
+          </SplitFeature>
+        </Container>
+      </section>
 
-          {/* Formulario */}
-          <div className="rounded-3xl bg-surface-soft p-6 sm:p-10">
-            <h2 className="text-[clamp(1.75rem,2.8vw,2.25rem)] font-medium leading-tight text-heading">
+      {/* Formulario: titular centrado y la tarjeta gris debajo */}
+      <section
+        id="formulario"
+        className="scroll-mt-24 bg-surface pb-16 sm:pb-24"
+      >
+        <Container>
+          <div className="text-center">
+            <h2 className="mx-auto max-w-3xl text-balance text-[clamp(2rem,3.6vw,3rem)] leading-[1.1] text-heading">
               {t.form.message}
             </h2>
-            <p className="mt-2 text-base text-muted">
+            <p className="mx-auto mt-3 max-w-xl text-base text-muted sm:text-lg">
               {dict.servicesPage.detail.ctaSubtitle}
             </p>
-            <div className="mt-8">
-              <ContactForm locale={locale} form={t.form} variant="plain" />
-            </div>
           </div>
-        </div>
-      </Section>
+          <div className="mx-auto mt-10 max-w-3xl rounded-3xl bg-surface-soft p-6 sm:mt-12 sm:p-10">
+            <ContactForm locale={locale} form={t.form} variant="plain" />
+          </div>
+        </Container>
+      </section>
 
       {/* Canales de contacto */}
       <Section tone="muted">
@@ -236,7 +242,7 @@ export default async function ContactPage({
                   strokeWidth={1.75}
                   aria-hidden
                 />
-                <h3 className="mt-8 text-[1.75rem] font-light leading-tight text-heading">
+                <h3 className="mt-8 text-[1.75rem] font-bold leading-tight text-heading">
                   {c.title}
                 </h3>
                 <p className="mt-4 flex-1 text-sm leading-relaxed text-body">

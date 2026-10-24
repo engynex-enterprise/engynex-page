@@ -75,6 +75,9 @@ export function Testimonials({
         className="mx-auto max-w-4xl text-center"
       >
         <Eyebrow className="justify-center">{testimonials.eyebrow}</Eyebrow>
+        <h2 className="mt-3 text-balance text-[clamp(2rem,3.6vw,3rem)] leading-[1.1] text-heading">
+          {testimonials.title}
+        </h2>
 
         {/* Citas apiladas en la misma celda: la altura la marca la más larga */}
         <div className="mt-12 grid min-w-0 grid-cols-1">

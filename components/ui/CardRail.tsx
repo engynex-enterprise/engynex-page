@@ -62,7 +62,7 @@ export function CardRail({
         ref={trackRef}
         onScroll={update}
         aria-label={label}
-        className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 sm:px-8 xl:px-[max(2rem,calc((100vw-90rem)/2+2rem))]"
+        className="no-scrollbar flex snap-x snap-mandatory scroll-pl-4 gap-4 overflow-x-auto scroll-smooth px-4 sm:scroll-pl-8 sm:px-8 xl:scroll-pl-[max(2rem,calc((100vw-90rem)/2+2rem))] xl:px-[max(2rem,calc((100vw-90rem)/2+2rem))]"
       >
         {cards.map((card) => {
           const body = (

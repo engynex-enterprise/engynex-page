@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Image from "next/image";
+import Link from "next/link";
 import {
   Target,
   Eye,
@@ -8,15 +8,14 @@ import {
   ShieldCheck,
   Lightbulb,
   HeartHandshake,
-  Code2,
-  Palette,
-  LineChart,
-  Video,
 } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Reveal } from "@/components/ui/Reveal";
-import { MediaTile } from "@/components/ui/MediaTile";
+import { Container } from "@/components/ui/Container";
+import { SplitFeature } from "@/components/ui/SplitFeature";
+import { SpecRow } from "@/components/ui/SpecRow";
+import { CardRail } from "@/components/ui/CardRail";
+import { buttonClasses } from "@/components/ui/Button";
 import { PageHero } from "@/components/sections/PageHero";
 import { CtaBand } from "@/components/sections/CtaBand";
 import { ProcessSection } from "@/components/sections/ProcessSection";
@@ -46,7 +45,13 @@ export async function generateMetadata({
 }
 
 const valueIcons = [Gem, ShieldCheck, Lightbulb, HeartHandshake];
-const teamIcons = [Code2, Palette, LineChart, Video];
+/** Foto de cada área del equipo (mismo orden que `aboutPage.team`). */
+const teamImages = [
+  "/images/svc-desarrollo-web.jpg",
+  "/images/svc-ux-ui-branding.jpg",
+  "/images/svc-marketing-digital.jpg",
+  "/images/svc-produccion-audiovisual.jpg",
+];
 
 export default async function AboutPage({
   params,
@@ -67,79 +72,64 @@ export default async function AboutPage({
         image="/images/about-team.jpg"
       />
 
-      {/* Misión y Visión con fotografía */}
-      <Section tone="light" id="mision-vision" className="scroll-mt-24">
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Reveal className="relative min-h-[22rem] overflow-hidden rounded-3xl bg-surface-soft sm:min-h-[28rem]">
-            <Image
-              src="/images/about-office.jpg"
-              alt={t.hero.title}
-              fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover"
+      {/* Misión y visión: bloques divididos de meta.com */}
+      <section
+        id="mision-vision"
+        className="scroll-mt-24 bg-surface py-16 sm:py-24"
+      >
+        <Container className="space-y-16 sm:space-y-24">
+          <SplitFeature
+            image="/images/about-office.jpg"
+            imageAlt={t.hero.title}
+            eyebrow={t.hero.eyebrow}
+            title={t.mission.title}
+            description={t.mission.description}
+          >
+            <Target
+              className="mt-8 h-8 w-8 text-accent"
+              strokeWidth={1.75}
+              aria-hidden
             />
-          </Reveal>
+          </SplitFeature>
+          <SplitFeature
+            reverse
+            image="/images/about-meeting.jpg"
+            eyebrow={t.hero.eyebrow}
+            title={t.vision.title}
+            description={t.vision.description}
+            primary={{
+              label: dict.ctaBand.primary,
+              href: localizedHref(locale, "contacto"),
+            }}
+            secondary={{
+              label: dict.common.viewServices,
+              href: localizedHref(locale, "servicios"),
+            }}
+          >
+            <Eye
+              className="mt-8 h-8 w-8 text-accent"
+              strokeWidth={1.75}
+              aria-hidden
+            />
+          </SplitFeature>
+        </Container>
+      </section>
 
-          <div className="grid gap-4">
-            {[
-              { Icon: Target, ...t.mission },
-              { Icon: Eye, ...t.vision },
-            ].map(({ Icon, title, description }, i) => (
-              <Reveal
-                key={title}
-                delay={i * 100}
-                className="flex flex-col justify-center rounded-3xl bg-surface-soft p-8 sm:p-10"
-              >
-                <Icon
-                  className="h-7 w-7 text-accent"
-                  strokeWidth={1.75}
-                  aria-hidden
-                />
-                <h2 className="mt-8 text-[1.75rem] font-light leading-tight text-heading">
-                  {title}
-                </h2>
-                <p className="mt-4 text-base leading-relaxed text-body sm:text-lg">
-                  {description}
-                </p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* Valores: tarjetas blancas sobre gris */}
+      {/* Valores: fila de especificaciones de meta.com */}
       <Section tone="muted" id="valores" className="scroll-mt-24">
         <SectionHeading
-          eyebrow={t.hero.eyebrow}
           title={t.valuesTitle}
           subtitle={t.valuesSubtitle}
           size="lg"
         />
-        <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {t.values.map((value, i) => {
-            const Icon = valueIcons[i % valueIcons.length];
-            return (
-              <Reveal
-                as="li"
-                key={value.title}
-                delay={(i % 4) * 80}
-                className="h-full rounded-3xl bg-card p-8 sm:p-10"
-              >
-                <Icon
-                  className="h-7 w-7 text-accent"
-                  strokeWidth={1.75}
-                  aria-hidden
-                />
-                <h3 className="mt-8 text-[1.75rem] font-light leading-tight text-heading">
-                  {value.title}
-                </h3>
-                <p className="mt-4 text-sm leading-relaxed text-body">
-                  {value.description}
-                </p>
-              </Reveal>
-            );
-          })}
-        </ul>
+        <SpecRow
+          className="mt-14 sm:mt-16"
+          items={t.values.map((value, i) => ({
+            icon: valueIcons[i % valueIcons.length],
+            value: value.title,
+            label: value.description,
+          }))}
+        />
       </Section>
 
       {/* Nuestra historia */}
@@ -164,44 +154,44 @@ export default async function AboutPage({
         tone="muted"
       />
 
+      {/* Equipo: titular centrado y carril de tarjetas fotográficas */}
+      <section
+        id="equipo"
+        className="scroll-mt-24 overflow-hidden bg-surface py-16 sm:py-24"
+      >
+        <Container className="text-center">
+          <h2 className="mx-auto max-w-3xl text-balance text-[clamp(2rem,3.6vw,3rem)] leading-[1.1] text-heading">
+            {t.teamTitle}
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-base text-muted sm:text-lg">
+            {t.teamSubtitle}
+          </p>
+          <Link
+            href={localizedHref(locale, "servicios")}
+            className={buttonClasses("outline", "md", "mt-6")}
+          >
+            {dict.common.viewServices}
+          </Link>
+        </Container>
+        <div className="mt-10 sm:mt-12">
+          <CardRail
+            label={t.teamTitle}
+            prevLabel={dict.ui.prev}
+            nextLabel={dict.ui.next}
+            cards={t.team.map((member, i) => ({
+              key: member.name,
+              title: member.name,
+              caption: member.role,
+              image: teamImages[i % teamImages.length],
+            }))}
+          />
+        </div>
+      </section>
+
       {/* Cómo trabajamos */}
       <div id="proceso" className="scroll-mt-24">
-        <ProcessSection process={dict.process} tone="light" />
+        <ProcessSection process={dict.process} tone="muted" />
       </div>
-
-      {/* Equipo: fotografía a todo el ancho y las áreas debajo */}
-      <Section tone="muted" id="equipo" className="scroll-mt-24">
-        <MediaTile
-          size="wide"
-          image="/images/about-meeting.jpg"
-          kicker={t.hero.eyebrow}
-          title={t.teamTitle}
-          description={t.teamSubtitle}
-        />
-        <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {t.team.map((member, i) => {
-            const Icon = teamIcons[i % teamIcons.length];
-            return (
-              <Reveal
-                as="li"
-                key={member.name}
-                delay={(i % 4) * 80}
-                className="h-full rounded-3xl bg-card p-8 sm:p-10"
-              >
-                <Icon
-                  className="h-7 w-7 text-accent"
-                  strokeWidth={1.75}
-                  aria-hidden
-                />
-                <h3 className="mt-8 text-[1.75rem] font-light leading-tight text-heading">
-                  {member.name}
-                </h3>
-                <p className="mt-3 text-sm text-muted">{member.role}</p>
-              </Reveal>
-            );
-          })}
-        </ul>
-      </Section>
 
       <CtaBand
         locale={locale}
