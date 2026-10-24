@@ -80,15 +80,15 @@ export function PortfolioGrid({
                     project.gradient,
                   )}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy-950/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-deep-950/60 to-transparent" />
                 <div className="absolute left-5 top-5">
-                  <span className="rounded-full bg-navy-950/70 px-3 py-1 text-xs font-bold text-ink-100 backdrop-blur">
+                  <span className="rounded-full bg-deep-950/70 px-3 py-1 text-xs font-bold text-ink-100 backdrop-blur">
                     {categoryLabels[project.category][locale]}
                   </span>
                 </div>
                 {/* El círculo es blanco en los dos temas: el icono debe ser
                     oscuro siempre (antes en oscuro quedaba blanco sobre blanco). */}
-                <span className="absolute right-4 top-4 inline-flex h-9 w-9 translate-y-1 items-center justify-center rounded-full bg-white/90 text-navy-900 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                <span className="absolute right-4 top-4 inline-flex h-9 w-9 translate-y-1 items-center justify-center rounded-full bg-white/90 text-deep-900 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                   <ArrowUpRight className="h-5 w-5" />
                 </span>
               </div>
@@ -147,7 +147,7 @@ function FilterButton({
       className={cn(
         "rounded-full px-5 py-2 text-sm font-bold transition-all",
         active
-          ? "bg-gradient-to-r from-brand-green to-brand-blue text-navy-950 shadow-md shadow-brand-blue/25"
+          ? "bg-gradient-to-r from-brand-green to-brand-blue text-deep-950 shadow-md shadow-brand-blue/25"
           : "bg-card text-body ring-1 ring-line hover:text-heading hover:ring-brand-green/50",
       )}
     >

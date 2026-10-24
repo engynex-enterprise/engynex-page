@@ -167,7 +167,7 @@ export function ProcessShowcase({
 
           {/* -------- Panel de la etapa -------- */}
           <div className="relative min-h-80 lg:min-h-[24rem]">
-            <div className="relative grid h-full overflow-hidden rounded-[1.75rem] bg-navy-950 p-7 sm:p-9">
+            <div className="relative grid h-full overflow-hidden rounded-[1.75rem] bg-deep-950 p-7 sm:p-9">
               {steps.map((step, i) => (
                 <StagePanel
                   key={step.title}
@@ -375,7 +375,7 @@ function CodeMock({ active }: { active: boolean }) {
     { indent: 0, parts: [["w-8 bg-white/20", ""]] },
   ];
   return (
-    <div className="rounded-2xl bg-navy-900/80 p-4 ring-1 ring-white/[0.07]">
+    <div className="rounded-2xl bg-deep-900/80 p-4 ring-1 ring-white/[0.07]">
       <div className="flex gap-1.5 pb-4">
         <span className="h-2.5 w-2.5 rounded-full bg-hue-rose/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-hue-amber/70" />

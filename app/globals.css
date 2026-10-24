@@ -5,23 +5,38 @@
 
 /* ==========================================================================
    Engynex — Design System (Tailwind v4)
-   Paleta adaptada al logo: verde (#70c13a) + navy casi negro. Azul secundario.
+   Paleta oficial: primario verde #98CA3F, secundario azul #0791E6 y
+   adicionales pizarra #273B47, acero #7E96A5 y niebla #F3F8FB.
+   El verde y el azul no alcanzan contraste AA como texto sobre blanco: se usan
+   como fondos, botones e iconos, y para texto van sus variantes `-dark`.
    Tipografía: OpenDyslexic (lectura fácil).
    ========================================================================== */
 
 @theme {
-  /* Brand — verde del logo Engynex */
-  --color-brand-green: #70c13a;
-  --color-brand-green-light: #97d766;
-  --color-brand-green-dark: #4b8f26;
+  /* Brand — primario verde */
+  --color-brand-green: #98ca3f;
+  --color-brand-green-light: #b5da74;
+  --color-brand-green-dark: #557a1c;
 
-  /* Brand — azul secundario (acento) */
-  --color-brand-blue: #1e78e0;
-  --color-brand-blue-light: #52a0f2;
-  --color-brand-blue-dark: #1559ad;
+  /* Brand — secundario azul */
+  --color-brand-blue: #0791e6;
+  --color-brand-blue-light: #3fadf0;
+  --color-brand-blue-dark: #0670b8;
+
+  /* Adicionales — pizarra (#273B47), acero (#7E96A5) y niebla (#F3F8FB) en
+     una escala, para secciones oscuras, texto y superficies. */
+  --color-deep-950: #0f1a21;
+  --color-deep-900: #14222b;
+  --color-deep-800: #1c2e39;
+  --color-deep-700: #273b47;
+  --color-deep-600: #3a5160;
+  --color-deep-500: #5b7282;
+  --color-deep-400: #7e96a5;
+  --color-deep-200: #c9d6de;
+  --color-deep-100: #f3f8fb;
 
   /* Navy — casi negro (tono del logo) */
-  --color-navy-950: #0a0b10;
+  --color-navy-950: #0f1a21;
   --color-navy-900: #101119;
   --color-navy-800: #171922;
   --color-navy-700: #20222d;
@@ -42,8 +57,8 @@
 
   /* Radios y sombras */
   --radius-4xl: 2rem;
-  --shadow-glow: 0 0 0 1px rgba(112, 193, 58, 0.18),
-    0 20px 60px -15px rgba(112, 193, 58, 0.35);
+  --shadow-glow: 0 0 0 1px rgba(152, 202, 63, 0.2),
+    0 20px 60px -15px rgba(152, 202, 63, 0.4);
 
   /* Animaciones */
   --animate-float: float 6s ease-in-out infinite;
@@ -182,6 +197,23 @@
   }
 }
 
+/* Hero: zoom lento de la fotografía del slide activo (Swiper marca el activo
+   con .swiper-slide-active). */
+.hero-kb {
+  transform: scale(1.02);
+  transition: transform 9s ease-out;
+}
+.swiper-slide-active .hero-kb {
+  transform: scale(1.14) translate3d(-1.5%, -1%, 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-kb,
+  .swiper-slide-active .hero-kb {
+    transform: none;
+    transition: none;
+  }
+}
+
 /* Barra de progreso del slide activo */
 @keyframes progressGrow {
   from {
@@ -214,30 +246,30 @@
    -------------------------------------------------------------------------- */
 :root {
   --background: #ffffff;
-  --foreground: #101119;
+  --foreground: #273b47;
   color-scheme: light;
 
   /* Superficies */
   --surface: #ffffff;
-  --surface-soft: #f4f7fb;
+  --surface-soft: #f3f8fb;
   --card: #ffffff;
-  --card-soft: #f8fafc;
+  --card-soft: #eaf2f7;
 
   /* Bordes */
-  --line: color-mix(in oklab, #101119 11%, transparent);
-  --line-strong: color-mix(in oklab, #101119 18%, transparent);
+  --line: color-mix(in oklab, #273b47 12%, transparent);
+  --line-strong: color-mix(in oklab, #273b47 20%, transparent);
 
   /* Texto */
-  --heading: #101119;
-  --body: #4a5568;
-  --muted: #6b7280;
+  --heading: #273b47;
+  --body: #4a5e6b;
+  --muted: #5b7282;
 
   /* Acento legible sobre fondo claro */
-  --accent: #4b8f26;
-  --accent-soft: color-mix(in oklab, #70c13a 14%, transparent);
+  --accent: #557a1c;
+  --accent-soft: color-mix(in oklab, #98ca3f 18%, transparent);
 
-  --hue-green: #4b8f26;
-  --hue-blue: #1e78e0;
+  --hue-green: #557a1c;
+  --hue-blue: #0670b8;
   --hue-violet: #6d28d9;
   --hue-teal: #0f766e;
   --hue-amber: #b45309;
@@ -245,35 +277,35 @@
   --hue-cyan: #0e7490;
   --hue-indigo: #4338ca;
 
-  /* Sombras: en claro se ven; en oscuro se sustituyen por halo/borde */
-  --shadow-card-value: 0 1px 2px rgba(16, 17, 25, 0.04),
-    0 8px 24px -14px rgba(16, 17, 25, 0.14);
-  --shadow-card-hover-value: 0 2px 4px rgba(16, 17, 25, 0.05),
-    0 24px 50px -18px rgba(16, 17, 25, 0.22);
+  /* Sombras teñidas de pizarra */
+  --shadow-card-value: 0 1px 2px rgba(39, 59, 71, 0.05),
+    0 8px 24px -14px rgba(39, 59, 71, 0.18);
+  --shadow-card-hover-value: 0 2px 4px rgba(39, 59, 71, 0.06),
+    0 24px 50px -18px rgba(39, 59, 71, 0.28);
 }
 
 .dark {
-  --background: #0a0b10;
-  --foreground: #f6f7f9;
+  --background: #0f1a21;
+  --foreground: #f3f8fb;
   color-scheme: dark;
 
-  --surface: #0a0b10;
-  --surface-soft: #101119;
-  --card: #171922;
-  --card-soft: #20222d;
+  --surface: #0f1a21;
+  --surface-soft: #14222b;
+  --card: #1c2e39;
+  --card-soft: #273b47;
 
-  --line: color-mix(in oklab, white 11%, transparent);
-  --line-strong: color-mix(in oklab, white 20%, transparent);
+  --line: color-mix(in oklab, white 10%, transparent);
+  --line-strong: color-mix(in oklab, white 18%, transparent);
 
-  --heading: #ffffff;
-  --body: #a6abb7;
-  --muted: #8b90a0;
+  --heading: #f3f8fb;
+  --body: #b9c8d1;
+  --muted: #7e96a5;
 
-  --accent: #8ed15c;
-  --accent-soft: color-mix(in oklab, #70c13a 20%, transparent);
+  --accent: #98ca3f;
+  --accent-soft: color-mix(in oklab, #98ca3f 18%, transparent);
 
-  --hue-green: #8ed15c;
-  --hue-blue: #52a0f2;
+  --hue-green: #98ca3f;
+  --hue-blue: #3fadf0;
   --hue-violet: #a78bfa;
   --hue-teal: #2dd4bf;
   --hue-amber: #fbbf24;
@@ -281,12 +313,11 @@
   --hue-cyan: #22d3ee;
   --hue-indigo: #818cf8;
 
-  /* En oscuro una sombra negra no se percibe: usamos borde luminoso + halo */
   --shadow-card-value: 0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 18px 40px -22px rgba(0, 0, 0, 0.9);
-  --shadow-card-hover-value: 0 0 0 1px rgba(112, 193, 58, 0.28),
-    0 26px 60px -24px rgba(0, 0, 0, 0.95),
-    0 0 40px -12px rgba(112, 193, 58, 0.18);
+    0 18px 40px -22px rgba(0, 0, 0, 0.8);
+  --shadow-card-hover-value: 0 0 0 1px rgba(152, 202, 63, 0.3),
+    0 26px 60px -24px rgba(0, 0, 0, 0.85),
+    0 0 40px -12px rgba(152, 202, 63, 0.2);
 }
 
 * {
@@ -327,7 +358,7 @@ h3:not(.font-sans),
 
 ::selection {
   background: color-mix(in oklab, var(--color-brand-green) 55%, transparent);
-  color: var(--color-navy-950);
+  color: var(--color-deep-700);
 }
 
 /* Scrollbar sutil */
@@ -339,7 +370,7 @@ h3:not(.font-sans),
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--color-navy-500) 45%, transparent);
+  background: color-mix(in oklab, var(--color-deep-500) 45%, transparent);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
@@ -420,12 +451,12 @@ h3:not(.font-sans),
 @utility bg-grid-ink {
   background-image: linear-gradient(
       to right,
-      color-mix(in oklab, var(--color-navy-900) 6%, transparent) 1px,
+      color-mix(in oklab, var(--color-deep-900) 6%, transparent) 1px,
       transparent 1px
     ),
     linear-gradient(
       to bottom,
-      color-mix(in oklab, var(--color-navy-900) 6%, transparent) 1px,
+      color-mix(in oklab, var(--color-deep-900) 6%, transparent) 1px,
       transparent 1px
     );
   background-size: 56px 56px;
@@ -454,7 +485,7 @@ h3:not(.font-sans),
 
 /* Glass oscuro (sobre navy) */
 @utility glass-dark {
-  background: color-mix(in oklab, var(--color-navy-800) 55%, transparent);
+  background: color-mix(in oklab, var(--color-deep-800) 55%, transparent);
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
   border: 1px solid color-mix(in oklab, white 12%, transparent);
@@ -470,7 +501,7 @@ h3:not(.font-sans),
 
 /* Malla de gradientes suaves — reemplaza el blanco plano */
 @utility bg-mesh {
-  background-color: #f2f7fd;
+  background-color: #f3f8fb;
   background-image: radial-gradient(
       at 8% 12%,
       color-mix(in oklab, var(--color-brand-green) 24%, transparent) 0px,
@@ -489,7 +520,7 @@ h3:not(.font-sans),
 }
 
 @utility bg-mesh-soft {
-  background-color: #f6fafe;
+  background-color: #f6fafc;
   background-image: radial-gradient(
       at 15% 20%,
       color-mix(in oklab, var(--color-brand-green) 12%, transparent) 0px,
@@ -505,7 +536,7 @@ h3:not(.font-sans),
 /* Malla de puntos más fina, para capas decorativas sobre secciones claras */
 @utility bg-dots-fine {
   background-image: radial-gradient(
-    color-mix(in oklab, var(--color-navy-900) 10%, transparent) 1px,
+    color-mix(in oklab, var(--color-deep-900) 10%, transparent) 1px,
     transparent 1px
   );
   background-size: 16px 16px;
@@ -520,7 +551,7 @@ h3:not(.font-sans),
 /* Patrón de puntos sutil */
 @utility bg-dots {
   background-image: radial-gradient(
-    color-mix(in oklab, var(--color-navy-900) 12%, transparent) 1px,
+    color-mix(in oklab, var(--color-deep-900) 12%, transparent) 1px,
     transparent 1px
   );
   background-size: 22px 22px;
@@ -536,7 +567,7 @@ h3:not(.font-sans),
    Overrides para modo oscuro (glass y mallas)
    -------------------------------------------------------------------------- */
 .dark .glass {
-  background: color-mix(in oklab, var(--color-navy-800) 62%, transparent);
+  background: color-mix(in oklab, var(--color-deep-800) 62%, transparent);
   border-color: color-mix(in oklab, white 10%, transparent);
   box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.55);
 }
@@ -545,7 +576,7 @@ h3:not(.font-sans),
    degradado de navy + los halos de marca, para que la sección no quede
    como un rectángulo negro plano junto a las demás. */
 .dark .bg-mesh {
-  background-color: #0a0b10;
+  background-color: #0f1a21;
   background-image: radial-gradient(
       at 10% 0%,
       color-mix(in oklab, var(--color-brand-green) 20%, transparent) 0px,
@@ -558,13 +589,13 @@ h3:not(.font-sans),
     ),
     radial-gradient(
       at 50% 100%,
-      color-mix(in oklab, var(--color-navy-700) 85%, transparent) 0px,
+      color-mix(in oklab, var(--color-deep-700) 85%, transparent) 0px,
       transparent 65%
     );
 }
 
 .dark .bg-mesh-soft {
-  background-color: #0c0d13;
+  background-color: #121f27;
   background-image: radial-gradient(
       at 12% 8%,
       color-mix(in oklab, var(--color-brand-green) 13%, transparent) 0px,
@@ -577,7 +608,7 @@ h3:not(.font-sans),
     ),
     linear-gradient(
       to bottom,
-      color-mix(in oklab, var(--color-navy-900) 70%, transparent),
+      color-mix(in oklab, var(--color-deep-900) 70%, transparent),
       transparent 45%
     );
 }

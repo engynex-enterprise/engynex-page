@@ -66,7 +66,7 @@ export function ProcessSection({
               >
                 {/* Nodo de la ruta + flecha a la siguiente etapa */}
                 <div className="flex items-center gap-3">
-                  <span className="relative z-10 grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-green to-brand-blue text-navy-950 shadow-lg shadow-brand-blue/25">
+                  <span className="relative z-10 grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-green to-brand-blue text-deep-950 shadow-lg shadow-brand-blue/25">
                     <Icon className="h-7 w-7" strokeWidth={2} aria-hidden />
                     <span className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full bg-card text-[0.65rem] font-extrabold text-accent ring-1 ring-line-strong">
                       {String(i + 1).padStart(2, "0")}

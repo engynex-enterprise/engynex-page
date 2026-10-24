@@ -78,7 +78,7 @@ export default async function AboutPage({
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-deep-950/40 to-transparent" />
             </div>
             <div className="glass absolute -bottom-6 left-6 right-6 rounded-2xl p-5 sm:left-auto sm:right-6 sm:w-64">
               <p className="font-display text-3xl font-extrabold text-heading">
@@ -193,7 +193,7 @@ export default async function AboutPage({
                 delay={(i % 4) * 80}
                 className="group h-full overflow-hidden rounded-3xl border border-line bg-card text-center shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-brand-green/40 hover:shadow-card-hover"
               >
-                <div className="relative flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-navy-800 to-navy-950">
+                <div className="relative flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-deep-800 to-deep-950">
                   <div className="bg-grid absolute inset-0 opacity-30" />
                   <span className="relative inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 text-brand-green-light ring-1 ring-white/15 backdrop-blur transition-transform duration-300 group-hover:scale-110">
                     <Icon className="h-10 w-10" strokeWidth={1.5} />

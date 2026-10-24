@@ -53,7 +53,7 @@ export function WhatsAppWidget({ chat }: { chat: Dictionary["chat"] }) {
         aria-label={chat.title}
         aria-hidden={!open}
         className={cn(
-          "mb-3 w-[calc(100vw-2.5rem)] max-w-sm origin-bottom-right overflow-hidden rounded-3xl border border-navy-900/10 bg-white shadow-2xl transition-all duration-300 dark:border-white/10 dark:bg-navy-900",
+          "mb-3 w-[calc(100vw-2.5rem)] max-w-sm origin-bottom-right overflow-hidden rounded-3xl border border-deep-900/10 bg-white shadow-2xl transition-all duration-300 dark:border-white/10 dark:bg-deep-900",
           open
             ? "pointer-events-auto scale-100 opacity-100"
             : "pointer-events-none translate-y-3 scale-95 opacity-0",
@@ -88,7 +88,7 @@ export function WhatsAppWidget({ chat }: { chat: Dictionary["chat"] }) {
         {/* Mensajes */}
         <div
           ref={bodyRef}
-          className="max-h-72 space-y-2.5 overflow-y-auto bg-[#e9e4dc] px-4 py-4 dark:bg-navy-950"
+          className="max-h-72 space-y-2.5 overflow-y-auto bg-[#e9e4dc] px-4 py-4 dark:bg-deep-950"
           style={{
             backgroundImage:
               "radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px)",
@@ -107,8 +107,8 @@ export function WhatsAppWidget({ chat }: { chat: Dictionary["chat"] }) {
                 className={cn(
                   "max-w-[80%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
                   m.from === "user"
-                    ? "rounded-br-sm bg-[#dcf8c6] text-navy-900 dark:bg-brand-green/25 dark:text-white"
-                    : "rounded-bl-sm bg-white text-navy-800 dark:bg-navy-800 dark:text-ink-200",
+                    ? "rounded-br-sm bg-[#dcf8c6] text-deep-900 dark:bg-brand-green/25 dark:text-white"
+                    : "rounded-bl-sm bg-white text-deep-800 dark:bg-deep-800 dark:text-ink-200",
                 )}
               >
                 {m.text}
@@ -124,7 +124,7 @@ export function WhatsAppWidget({ chat }: { chat: Dictionary["chat"] }) {
                   key={q}
                   type="button"
                   onClick={() => pushUser(q)}
-                  className="rounded-full border border-brand-green/40 bg-white px-3 py-1.5 text-xs font-bold text-brand-green-dark transition-colors hover:bg-brand-green hover:text-navy-950 dark:bg-navy-800 dark:text-brand-green"
+                  className="rounded-full border border-brand-green/40 bg-white px-3 py-1.5 text-xs font-bold text-brand-green-dark transition-colors hover:bg-brand-green hover:text-deep-950 dark:bg-deep-800 dark:text-brand-green"
                 >
                   {q}
                 </button>
@@ -134,13 +134,13 @@ export function WhatsAppWidget({ chat }: { chat: Dictionary["chat"] }) {
         </div>
 
         {/* Input */}
-        <div className="flex items-center gap-2 border-t border-navy-900/10 bg-white p-3 dark:border-white/10 dark:bg-navy-900">
+        <div className="flex items-center gap-2 border-t border-deep-900/10 bg-white p-3 dark:border-white/10 dark:bg-deep-900">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendToWhatsApp()}
             placeholder={chat.placeholder}
-            className="min-w-0 flex-1 rounded-full border border-navy-900/10 bg-slate-50 px-4 py-2.5 text-sm text-navy-900 outline-none focus:border-brand-green dark:border-white/10 dark:bg-navy-800 dark:text-white"
+            className="min-w-0 flex-1 rounded-full border border-deep-900/10 bg-slate-50 px-4 py-2.5 text-sm text-deep-900 outline-none focus:border-brand-green dark:border-white/10 dark:bg-deep-800 dark:text-white"
           />
           <button
             type="button"

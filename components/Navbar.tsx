@@ -186,9 +186,9 @@ export function Navbar({
       <div
         className={cn(
           "relative transition-all duration-300",
-          "border-b bg-white/90 backdrop-blur-lg supports-[backdrop-filter]:bg-white/80 dark:bg-navy-950/90 dark:supports-[backdrop-filter]:bg-navy-950/80",
+          "border-b bg-white/90 backdrop-blur-lg supports-[backdrop-filter]:bg-white/80 dark:bg-deep-950/90 dark:supports-[backdrop-filter]:bg-deep-950/80",
           scrolled || openPanel !== null
-            ? "border-line shadow-sm shadow-navy-900/5"
+            ? "border-line shadow-sm shadow-deep-900/5"
             : "border-line",
         )}
       >
@@ -282,7 +282,7 @@ export function Navbar({
                 aria-label={mobileOpen ? nav.closeMenu : nav.openMenu}
                 aria-expanded={mobileOpen}
                 aria-controls="mobile-menu"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-navy-900 transition-colors hover:bg-navy-900/5 lg:hidden dark:text-white dark:hover:bg-white/10"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-deep-900 transition-colors hover:bg-deep-900/5 lg:hidden dark:text-white dark:hover:bg-white/10"
               >
                 {mobileOpen ? (
                   <X className="h-6 w-6" />
@@ -309,7 +309,7 @@ export function Navbar({
       <div
         id="mobile-menu"
         className={cn(
-          "overflow-hidden border-navy-900/10 bg-white transition-[max-height,opacity] duration-300 ease-in-out lg:hidden dark:border-white/10 dark:bg-navy-950",
+          "overflow-hidden border-deep-900/10 bg-white transition-[max-height,opacity] duration-300 ease-in-out lg:hidden dark:border-white/10 dark:bg-deep-950",
           mobileOpen
             ? "max-h-[calc(100dvh-4.5rem)] border-t opacity-100"
             : "max-h-0 border-t-0 opacity-0",
@@ -335,7 +335,7 @@ export function Navbar({
                         "rounded-2xl px-4 py-3 text-base font-bold transition-colors",
                         active
                           ? "bg-brand-green/10 text-brand-green-dark dark:text-brand-green"
-                          : "text-navy-800 hover:bg-navy-900/5 dark:text-ink-200 dark:hover:bg-white/5",
+                          : "text-deep-800 hover:bg-deep-900/5 dark:text-ink-200 dark:hover:bg-white/5",
                       )}
                     >
                       {nav[route.key]}
@@ -358,7 +358,7 @@ export function Navbar({
                         "flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-base font-bold transition-colors",
                         active || expanded
                           ? "bg-brand-green/10 text-brand-green-dark dark:text-brand-green"
-                          : "text-navy-800 hover:bg-navy-900/5 dark:text-ink-200 dark:hover:bg-white/5",
+                          : "text-deep-800 hover:bg-deep-900/5 dark:text-ink-200 dark:hover:bg-white/5",
                       )}
                     >
                       {nav[route.key]}
@@ -415,7 +415,7 @@ export function Navbar({
               })}
             </nav>
 
-            <div className="mt-4 flex flex-col gap-3 border-t border-navy-900/10 pt-4 dark:border-white/10">
+            <div className="mt-4 flex flex-col gap-3 border-t border-deep-900/10 pt-4 dark:border-white/10">
               <Link
                 href={localizedHref(locale, "contacto")}
                 onClick={closeMobile}
@@ -432,7 +432,7 @@ export function Navbar({
                 />
                 <a
                   href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}
-                  className="inline-flex h-11 items-center gap-2 rounded-full px-3 text-sm font-bold text-navy-800 transition-colors hover:text-brand-green-dark dark:text-ink-200 dark:hover:text-brand-green"
+                  className="inline-flex h-11 items-center gap-2 rounded-full px-3 text-sm font-bold text-deep-800 transition-colors hover:text-brand-green-dark dark:text-ink-200 dark:hover:text-brand-green"
                 >
                   <Phone className="h-4 w-4 text-brand-green" />
                   {siteConfig.phoneDisplay}
@@ -467,7 +467,7 @@ function MegaPanel({
       )}
     >
       <Container>
-        <div className="mt-2 max-h-[calc(100vh-8rem)] overflow-y-auto overscroll-contain rounded-3xl border border-navy-900/10 bg-white shadow-2xl shadow-navy-900/25 dark:border-white/10 dark:bg-navy-900">
+        <div className="mt-2 max-h-[calc(100vh-8rem)] overflow-y-auto overscroll-contain rounded-3xl border border-deep-900/10 bg-white shadow-2xl shadow-deep-900/25 dark:border-white/10 dark:bg-deep-900">
           <div className="grid gap-x-6 gap-y-7 p-6 lg:grid-cols-3 xl:grid-cols-[repeat(3,minmax(0,1fr))_18rem] xl:p-7">
             {panel.columns.map((column) => (
               <div key={column.key}>
@@ -485,7 +485,7 @@ function MegaPanel({
             ))}
 
             {/* Tarjeta destacada */}
-            <div className="relative overflow-hidden rounded-2xl bg-navy-950 p-6 lg:col-span-3 xl:col-span-1">
+            <div className="relative overflow-hidden rounded-2xl bg-deep-950 p-6 lg:col-span-3 xl:col-span-1">
               <div aria-hidden className="pointer-events-none absolute inset-0">
                 <div className="bg-grid absolute inset-0 opacity-30" />
                 <div className="absolute -right-8 -top-10 h-40 w-40 rounded-full bg-brand-green/25 blur-[70px]" />
@@ -514,7 +514,7 @@ function MegaPanel({
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-4 border-t border-navy-900/10 bg-slate-50/80 px-7 py-4 dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="flex items-center justify-between gap-4 border-t border-deep-900/10 bg-slate-50/80 px-7 py-4 dark:border-white/10 dark:bg-white/[0.03]">
             <p className="text-sm text-slate-500 dark:text-ink-400">
               {panel.tagline}
             </p>
@@ -555,7 +555,7 @@ function MenuLink({
         className={cn(
           "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-200",
           isGreen
-            ? "bg-brand-green/12 text-brand-green-dark group-hover:bg-brand-green group-hover:text-navy-950 dark:bg-brand-green/15 dark:text-brand-green"
+            ? "bg-brand-green/12 text-brand-green-dark group-hover:bg-brand-green group-hover:text-deep-950 dark:bg-brand-green/15 dark:text-brand-green"
             : "bg-brand-blue/12 text-brand-blue group-hover:bg-brand-blue group-hover:text-white dark:bg-brand-blue/20 dark:text-brand-blue-light",
         )}
       >
@@ -563,7 +563,7 @@ function MenuLink({
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="text-sm font-extrabold leading-tight text-navy-900 dark:text-white">
+          <span className="text-sm font-extrabold leading-tight text-deep-900 dark:text-white">
             {item.title}
           </span>
           {item.badge && (

@@ -10,7 +10,7 @@ type Tone = "light" | "muted" | "dark" | "mesh" | "mesh-strong";
 const toneClasses: Record<Tone, string> = {
   light: "bg-surface text-body",
   muted: "bg-surface-soft text-body",
-  dark: "bg-navy-950 text-ink-100",
+  dark: "bg-deep-950 text-ink-100",
   mesh: "bg-mesh-soft text-body",
   "mesh-strong": "bg-mesh text-body",
 };

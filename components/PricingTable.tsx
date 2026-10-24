@@ -42,7 +42,7 @@ export function PricingTable({
                 className={cn(
                   "relative flex h-full flex-col rounded-3xl border p-7 transition-all duration-300",
                   highlighted
-                    ? "border-transparent bg-navy-950 text-ink-200 shadow-2xl shadow-brand-green/15 ring-2 ring-brand-green/50 lg:-translate-y-2"
+                    ? "border-transparent bg-deep-950 text-ink-200 shadow-2xl shadow-brand-green/15 ring-2 ring-brand-green/50 lg:-translate-y-2"
                     : "border-line bg-card shadow-card hover:-translate-y-1 hover:border-brand-green/40 hover:shadow-card-hover",
                 )}
               >
@@ -69,7 +69,7 @@ export function PricingTable({
                         className={cn(
                           "shrink-0 rounded-full px-2.5 py-1 text-[0.65rem] font-extrabold uppercase tracking-wide",
                           highlighted
-                            ? "bg-brand-green text-navy-950"
+                            ? "bg-brand-green text-deep-950"
                             : "bg-brand-green/15 text-accent",
                         )}
                       >

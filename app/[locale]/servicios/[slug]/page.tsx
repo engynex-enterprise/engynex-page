@@ -246,7 +246,7 @@ export default async function ServiceDetailPage({
                 className={cn(
                   "inline-flex h-11 w-11 items-center justify-center rounded-2xl transition-colors",
                   isGreen
-                    ? "bg-brand-green/15 text-accent group-hover:bg-brand-green group-hover:text-navy-950"
+                    ? "bg-brand-green/15 text-accent group-hover:bg-brand-green group-hover:text-deep-950"
                     : "bg-brand-blue/15 text-brand-blue group-hover:bg-brand-blue group-hover:text-white dark:text-brand-blue-light",
                 )}
               >
@@ -332,7 +332,7 @@ export default async function ServiceDetailPage({
             >
               {String(i + 1).padStart(2, "0")}
             </span>
-            <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-green to-brand-blue text-lg font-extrabold text-navy-950">
+            <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-green to-brand-blue text-lg font-extrabold text-deep-950">
               {String(i + 1).padStart(2, "0")}
             </span>
             <h3 className="relative mt-6 text-xl font-extrabold text-white">
@@ -484,7 +484,7 @@ export default async function ServiceDetailPage({
                     sizes="(max-width: 640px) 100vw, 33vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-deep-950/80 to-transparent" />
                   <span
                     className={cn(
                       "absolute left-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-xl text-white ring-1 ring-white/25 backdrop-blur",

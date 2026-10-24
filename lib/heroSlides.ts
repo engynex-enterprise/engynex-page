@@ -17,6 +17,10 @@ export interface HeroSlide {
   titleLead: string;
   titleHighlight: string;
   subtitle: string;
+  /** Tres razones concretas: lo que informa el slide además de vender. */
+  bullets: string[];
+  /** Cifra destacada para la tarjeta flotante. */
+  proof?: { value: string; label: string };
   primary: { label: string; href: string };
   secondary?: { label: string; href: string };
   /** Solo el primer slide: cifras en una línea. */
@@ -49,6 +53,8 @@ export function buildHeroSlides(locale: Locale): HeroSlide[] {
       titleLead: dict.hero.titleLead,
       titleHighlight: dict.hero.titleHighlight,
       subtitle: dict.hero.subtitle,
+      bullets: [...t.intro.bullets],
+      proof: { ...dict.hero.stats[0] },
       primary: { label: dict.hero.ctaPrimary, href: contactHref },
       secondary: {
         label: dict.hero.ctaSecondary,
@@ -65,6 +71,8 @@ export function buildHeroSlides(locale: Locale): HeroSlide[] {
       titleLead: t.services.titleLead,
       titleHighlight: t.services.titleHighlight,
       subtitle: t.services.subtitle,
+      bullets: [...t.services.bullets],
+      proof: { ...t.services.proof },
       primary: {
         label: t.services.cta,
         href: localizedHref(locale, "servicios"),
@@ -81,6 +89,8 @@ export function buildHeroSlides(locale: Locale): HeroSlide[] {
       titleLead: t.products.titleLead,
       titleHighlight: t.products.titleHighlight,
       subtitle: t.products.subtitle,
+      bullets: t.products.bullets.slice(0, 3),
+      proof: { ...t.products.proof },
       primary: {
         label: t.products.cta,
         href: localizedHref(locale, "productos"),
@@ -101,6 +111,7 @@ export function buildHeroSlides(locale: Locale): HeroSlide[] {
       titleLead: t.promo.titleLead,
       titleHighlight: t.promo.titleHighlight,
       subtitle: t.promo.subtitle,
+      bullets: webPlan[locale].features.slice(0, 3),
       primary: {
         label: t.promo.cta,
         href: `${localizedHref(locale, "servicios/desarrollo-web")}#planes`,
@@ -127,6 +138,10 @@ export function buildHeroSlides(locale: Locale): HeroSlide[] {
       titleLead: t.rental.titleLead,
       titleHighlight: t.rental.titleHighlight,
       subtitle: rental[locale].description,
+      bullets: (rentalPlan?.[locale].features ?? rental[locale].features).slice(
+        0,
+        3,
+      ),
       primary: {
         label: t.rental.cta,
         href: localizedHref(locale, "servicios/alquiler-equipos"),

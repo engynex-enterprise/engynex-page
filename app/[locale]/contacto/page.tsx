@@ -134,10 +134,10 @@ export default async function ContactPage({
       {/* Formulario + info (tarjeta elevada que se superpone al hero) */}
       <div className="relative z-10 -mt-14 pb-6">
         <Container>
-          <div className="overflow-hidden rounded-[2rem] border border-navy-900/10 bg-white shadow-2xl shadow-navy-900/10 dark:border-white/10 dark:bg-navy-900">
+          <div className="overflow-hidden rounded-[2rem] border border-deep-900/10 bg-white shadow-2xl shadow-deep-900/10 dark:border-white/10 dark:bg-deep-900">
             <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
               {/* Panel info (oscuro) */}
-              <div className="relative overflow-hidden bg-navy-950 p-8 text-ink-200 sm:p-10">
+              <div className="relative overflow-hidden bg-deep-950 p-8 text-ink-200 sm:p-10">
                 <div aria-hidden className="pointer-events-none absolute inset-0">
                   <div className="bg-grid absolute inset-0 opacity-30" />
                   <div className="absolute -right-10 -top-10 h-56 w-56 rounded-full bg-brand-green/20 blur-[90px]" />
@@ -208,7 +208,7 @@ export default async function ContactPage({
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label={label}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-ink-200 ring-1 ring-white/10 transition-all hover:bg-brand-green hover:text-navy-950"
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-ink-200 ring-1 ring-white/10 transition-all hover:bg-brand-green hover:text-deep-950"
                         >
                           <Icon className="h-5 w-5" />
                         </a>
@@ -225,7 +225,7 @@ export default async function ContactPage({
                     <Send className="h-5 w-5" />
                   </span>
                   <div>
-                    <h2 className="text-xl font-extrabold text-navy-900 dark:text-white">
+                    <h2 className="text-xl font-extrabold text-deep-900 dark:text-white">
                       {t.form.message}
                     </h2>
                     <p className="text-sm text-slate-500 dark:text-ink-400">
@@ -256,7 +256,7 @@ export default async function ContactPage({
                   href={c.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex h-full flex-col items-center rounded-3xl border border-navy-900/10 bg-white p-8 text-center shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:border-white/10 dark:bg-navy-800"
+                  className="group flex h-full flex-col items-center rounded-3xl border border-deep-900/10 bg-white p-8 text-center shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:border-white/10 dark:bg-deep-800"
                 >
                   <span
                     className="inline-flex h-16 w-16 items-center justify-center rounded-2xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:animate-none"
@@ -267,7 +267,7 @@ export default async function ContactPage({
                   >
                     <c.Icon className="h-8 w-8 animate-float" strokeWidth={1.9} />
                   </span>
-                  <h3 className="mt-5 text-lg font-extrabold text-navy-900 dark:text-white">
+                  <h3 className="mt-5 text-lg font-extrabold text-deep-900 dark:text-white">
                     {c.title}
                   </h3>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600 dark:text-ink-300">
@@ -291,9 +291,9 @@ export default async function ContactPage({
             <Reveal
               key={item.title}
               delay={(i % 3) * 90}
-              className="rounded-3xl border border-navy-900/10 bg-white p-7 text-center shadow-sm dark:border-white/10 dark:bg-navy-800"
+              className="rounded-3xl border border-deep-900/10 bg-white p-7 text-center shadow-sm dark:border-white/10 dark:bg-deep-800"
             >
-              <p className="text-lg font-extrabold text-navy-900 dark:text-white">
+              <p className="text-lg font-extrabold text-deep-900 dark:text-white">
                 {item.title}
               </p>
               <p className="mt-2 text-sm text-slate-600 dark:text-ink-300">

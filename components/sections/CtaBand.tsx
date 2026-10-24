@@ -37,7 +37,7 @@ export function CtaBand({
   return (
     <section className="bg-surface py-20 sm:py-28">
       <Container>
-        <div className="relative isolate overflow-hidden rounded-[2rem] bg-navy-950 px-6 py-16 text-center sm:px-12 sm:py-24">
+        <div className="relative isolate overflow-hidden rounded-[2rem] bg-deep-950 px-6 py-16 text-center sm:px-12 sm:py-24">
           {/* Figuras de marca */}
           <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
             <div className="bg-grid absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />

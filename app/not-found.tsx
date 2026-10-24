@@ -4,7 +4,7 @@ import { Logo } from "@/components/Logo";
 export default function NotFound() {
   return (
     <html lang="es" className="h-full">
-      <body className="flex min-h-full flex-col items-center justify-center bg-navy-950 px-6 py-24 text-center font-sans text-ink-100">
+      <body className="flex min-h-full flex-col items-center justify-center bg-deep-950 px-6 py-24 text-center font-sans text-ink-100">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="bg-grid absolute inset-0 opacity-30" />
           <div className="absolute left-1/2 top-1/3 h-96 w-96 -translate-x-1/2 rounded-full bg-brand-blue/20 blur-[130px]" />
@@ -23,7 +23,7 @@ export default function NotFound() {
           </p>
           <Link
             href="/es"
-            className="mt-8 inline-flex h-12 items-center justify-center rounded-full bg-brand-green px-8 font-bold text-navy-950 shadow-lg shadow-brand-green/25 transition-all hover:-translate-y-0.5 hover:bg-brand-green-light"
+            className="mt-8 inline-flex h-12 items-center justify-center rounded-full bg-brand-green px-8 font-bold text-deep-950 shadow-lg shadow-brand-green/25 transition-all hover:-translate-y-0.5 hover:bg-brand-green-light"
           >
             Volver al inicio / Back home
           </Link>

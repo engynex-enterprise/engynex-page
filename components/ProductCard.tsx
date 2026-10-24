@@ -34,14 +34,14 @@ export function ProductCard({
           className={cn(
             "inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl transition-colors duration-300",
             isGreen
-              ? "bg-brand-green/12 text-accent group-hover:bg-brand-green group-hover:text-navy-950"
+              ? "bg-brand-green/12 text-accent group-hover:bg-brand-green group-hover:text-deep-950"
               : "bg-brand-blue/12 text-brand-blue group-hover:bg-brand-blue group-hover:text-white dark:text-brand-blue-light",
           )}
         >
           <ProductIcon name={product.icon} className="h-7 w-7" />
         </span>
         {badgeLabel && (
-          <span className="rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-2.5 py-1 text-[0.65rem] font-extrabold uppercase tracking-wide text-navy-950">
+          <span className="rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-2.5 py-1 text-[0.65rem] font-extrabold uppercase tracking-wide text-deep-950">
             {badgeLabel}
           </span>
         )}

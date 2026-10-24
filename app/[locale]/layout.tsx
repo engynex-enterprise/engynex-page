@@ -106,7 +106,7 @@ export default async function LocaleLayout({
       suppressHydrationWarning
       className={`${opendyslexic.variable} ${nunito.variable} h-full`}
     >
-      <body className="flex min-h-full flex-col bg-white font-sans antialiased dark:bg-navy-950">
+      <body className="flex min-h-full flex-col bg-white font-sans antialiased dark:bg-deep-950">
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <Navbar
           locale={locale}

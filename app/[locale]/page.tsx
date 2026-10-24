@@ -45,6 +45,7 @@ export default async function HomePage({
       <HeroSlider
         slides={buildHeroSlides(locale)}
         controls={dict.heroSlides.controls}
+        assurances={dict.trust.slice(0, 2).map((item) => item.title)}
       />
 
       <ClientLogos clients={dict.clients} />

@@ -97,7 +97,7 @@ export default async function ProductDetailPage({
   return (
     <>
       {/* ================= HERO ================= */}
-      <section className="relative overflow-hidden bg-navy-950 pt-32 pb-24 text-ink-100 sm:pt-40 sm:pb-32">
+      <section className="relative overflow-hidden bg-deep-950 pt-32 pb-24 text-ink-100 sm:pt-40 sm:pb-32">
         <div aria-hidden className="pointer-events-none absolute inset-0">
           <Image
             src={product.image}
@@ -107,7 +107,7 @@ export default async function ProductDetailPage({
             sizes="100vw"
             className="object-cover opacity-20"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/90 to-navy-950/60" />
+          <div className="absolute inset-0 bg-gradient-to-r from-deep-950 via-deep-950/90 to-deep-950/60" />
           <div className="bg-grid absolute inset-0 opacity-35" />
           <div
             className={cn(
@@ -115,7 +115,7 @@ export default async function ProductDetailPage({
               isGreen ? "bg-brand-green/25" : "bg-brand-blue/30",
             )}
           />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-navy-950" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-deep-950" />
         </div>
 
         <Container className="relative">
@@ -155,7 +155,7 @@ export default async function ProductDetailPage({
                   {copy.tagline}
                 </span>
                 {product.badge && (
-                  <span className="inline-flex items-center rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-3 py-1 text-[0.68rem] font-extrabold uppercase tracking-wider text-navy-950">
+                  <span className="inline-flex items-center rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-3 py-1 text-[0.68rem] font-extrabold uppercase tracking-wider text-deep-950">
                     {dict.badges[product.badge]}
                   </span>
                 )}
@@ -206,7 +206,7 @@ export default async function ProductDetailPage({
                     : "bg-gradient-to-br from-brand-blue/25 to-brand-green/20",
                 )}
               />
-              <div className="relative overflow-hidden rounded-[2rem] border border-white/12 bg-navy-900/85 p-6 shadow-2xl backdrop-blur">
+              <div className="relative overflow-hidden rounded-[2rem] border border-white/12 bg-deep-900/85 p-6 shadow-2xl backdrop-blur">
                 <div className="bg-grid absolute inset-0 opacity-20" aria-hidden />
                 <div className="relative">
                   <div className="flex items-center justify-between">
@@ -346,7 +346,7 @@ export default async function ProductDetailPage({
                     className={cn(
                       "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors",
                       isGreen
-                        ? "bg-brand-green/15 text-accent group-hover:bg-brand-green group-hover:text-navy-950"
+                        ? "bg-brand-green/15 text-accent group-hover:bg-brand-green group-hover:text-deep-950"
                         : "bg-brand-blue/15 text-brand-blue group-hover:bg-brand-blue group-hover:text-white dark:text-brand-blue-light",
                     )}
                   >
@@ -383,7 +383,7 @@ export default async function ProductDetailPage({
               >
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-green to-brand-blue text-sm font-extrabold text-navy-950">
+              <span className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-green to-brand-blue text-sm font-extrabold text-deep-950">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <h3 className="relative mt-5 text-base font-extrabold text-white">
@@ -435,7 +435,7 @@ export default async function ProductDetailPage({
                     className={cn(
                       "inline-flex h-12 w-12 items-center justify-center rounded-2xl transition-colors duration-300",
                       relatedGreen
-                        ? "bg-brand-green/12 text-accent group-hover:bg-brand-green group-hover:text-navy-950"
+                        ? "bg-brand-green/12 text-accent group-hover:bg-brand-green group-hover:text-deep-950"
                         : "bg-brand-blue/12 text-brand-blue group-hover:bg-brand-blue group-hover:text-white dark:text-brand-blue-light",
                     )}
                   >

@@ -95,7 +95,7 @@ export function Testimonials({
                 {/* Retrato del cliente, con la comilla como sello */}
                 <div className="relative">
                   <Avatar item={item} size="lg" />
-                  <span className="absolute -bottom-1 -right-1 grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue text-navy-950 ring-4 ring-surface">
+                  <span className="absolute -bottom-1 -right-1 grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue text-deep-950 ring-4 ring-surface">
                     <Quote className="h-4 w-4" strokeWidth={2.5} aria-hidden />
                   </span>
                 </div>
@@ -224,7 +224,7 @@ function Avatar({ item, size = "md" }: { item: Item; size?: "md" | "lg" }) {
     <span
       aria-hidden
       className={cn(
-        "grid place-items-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue font-extrabold text-navy-950",
+        "grid place-items-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue font-extrabold text-deep-950",
         size === "lg" ? "h-28 w-28 text-3xl" : "h-12 w-12 text-sm",
       )}
     >

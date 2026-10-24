@@ -42,7 +42,7 @@ export function ThemeToggle({
         "inline-flex h-9 w-9 items-center justify-center rounded-full ring-1 transition-colors",
         tone === "dark"
           ? "bg-white/5 text-ink-200 ring-white/15 hover:bg-white/10 hover:text-white"
-          : "bg-navy-900/5 text-navy-700 ring-navy-900/10 hover:bg-navy-900/10 hover:text-navy-900 dark:bg-white/5 dark:text-ink-200 dark:ring-white/15 dark:hover:bg-white/10",
+          : "bg-deep-900/5 text-deep-700 ring-deep-900/10 hover:bg-deep-900/10 hover:text-deep-900 dark:bg-white/5 dark:text-ink-200 dark:ring-white/15 dark:hover:bg-white/10",
       )}
     >
       {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}

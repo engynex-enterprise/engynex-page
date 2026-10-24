@@ -48,7 +48,7 @@ export function ServiceHero({
   const isGreen = service.accent === "green";
 
   return (
-    <section className="relative overflow-hidden bg-navy-950 pt-32 pb-24 text-ink-100 sm:pt-40 sm:pb-32">
+    <section className="relative overflow-hidden bg-deep-950 pt-32 pb-24 text-ink-100 sm:pt-40 sm:pb-32">
       <div aria-hidden className="pointer-events-none absolute inset-0">
         {/* En las familias con foto, la imagen del servicio tiñe el fondo. */}
         {(family === "build" || family === "creative") && (
@@ -63,14 +63,14 @@ export function ServiceHero({
             />
           </ParallaxLayer>
         )}
-        <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/92 to-navy-950/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-deep-950 via-deep-950/92 to-deep-950/70" />
         <div
           className={cn(
             "absolute -top-24 left-1/4 h-[28rem] w-[28rem] rounded-full blur-[150px]",
             isGreen ? "bg-brand-green/20" : "bg-brand-blue/25",
           )}
         />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-navy-950" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-deep-950" />
       </div>
 
       <Container className="relative">
@@ -199,9 +199,9 @@ function BrowserFrame({ image, title }: { image: string; title: string }) {
         aria-hidden
         className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-brand-green/20 to-brand-blue/20 blur-3xl"
       />
-      <div className="relative overflow-hidden rounded-2xl border border-white/12 bg-navy-900 shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl border border-white/12 bg-deep-900 shadow-2xl">
         {/* Barra del navegador */}
-        <div className="flex items-center gap-2 border-b border-white/10 bg-navy-800/80 px-4 py-3">
+        <div className="flex items-center gap-2 border-b border-white/10 bg-deep-800/80 px-4 py-3">
           <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
           <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
           <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
@@ -215,7 +215,7 @@ function BrowserFrame({ image, title }: { image: string; title: string }) {
             sizes="(max-width: 1024px) 100vw, 45vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy-950/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-deep-950/40 to-transparent" />
         </div>
       </div>
     </div>
@@ -274,7 +274,7 @@ function StatusPanel({
         aria-hidden
         className="absolute -inset-6 rounded-[3rem] bg-gradient-to-br from-brand-green/20 to-brand-blue/15 blur-3xl"
       />
-      <div className="relative overflow-hidden rounded-3xl border border-white/12 bg-navy-900/85 p-7 shadow-2xl backdrop-blur">
+      <div className="relative overflow-hidden rounded-3xl border border-white/12 bg-deep-900/85 p-7 shadow-2xl backdrop-blur">
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-2 rounded-full bg-brand-green/15 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-wider text-brand-green ring-1 ring-brand-green/25">
             <span className="animate-pulse-slow h-1.5 w-1.5 rounded-full bg-brand-green" />
@@ -331,7 +331,7 @@ function DashboardPanel({ features }: { features: string[] }) {
         aria-hidden
         className="absolute -inset-6 rounded-[3rem] bg-gradient-to-br from-brand-blue/25 to-brand-green/15 blur-3xl"
       />
-      <div className="relative overflow-hidden rounded-3xl border border-white/12 bg-navy-900/85 p-7 shadow-2xl backdrop-blur">
+      <div className="relative overflow-hidden rounded-3xl border border-white/12 bg-deep-900/85 p-7 shadow-2xl backdrop-blur">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-brand-green" />
           <span className="h-1.5 w-24 rounded-full bg-white/15" />
@@ -422,7 +422,7 @@ function RackPanel() {
         className="absolute -inset-6 rounded-[3rem] bg-gradient-to-br from-brand-blue/25 to-brand-green/20 blur-3xl"
       />
       <div className="relative flex items-end gap-4">
-        <div className="w-40 shrink-0 rounded-2xl border border-white/12 bg-navy-900/85 p-3 shadow-2xl backdrop-blur">
+        <div className="w-40 shrink-0 rounded-2xl border border-white/12 bg-deep-900/85 p-3 shadow-2xl backdrop-blur">
           <div className="flex items-center justify-between px-1 pb-2">
             <span className="text-[0.6rem] font-extrabold uppercase tracking-wider text-ink-400">
               RACK
@@ -453,7 +453,7 @@ function RackPanel() {
         </div>
 
         <div className="flex-1">
-          <div className="rounded-t-xl border border-white/12 bg-gradient-to-br from-navy-800 to-navy-900 p-3">
+          <div className="rounded-t-xl border border-white/12 bg-gradient-to-br from-deep-800 to-deep-900 p-3">
             <div className="space-y-1.5">
               <div className="h-1.5 w-2/3 rounded-full bg-gradient-to-r from-brand-green to-brand-blue" />
               <div className="h-1.5 w-1/2 rounded-full bg-white/12" />

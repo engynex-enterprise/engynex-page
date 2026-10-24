@@ -28,7 +28,7 @@ export function LanguageSwitcher({
         "inline-flex items-center rounded-full p-1 text-xs font-bold",
         tone === "dark"
           ? "bg-white/5 ring-1 ring-white/15"
-          : "bg-navy-900/5 ring-1 ring-navy-900/10 dark:bg-white/5 dark:ring-white/15",
+          : "bg-deep-900/5 ring-1 ring-deep-900/10 dark:bg-white/5 dark:ring-white/15",
       )}
       role="group"
       aria-label="Idioma / Language"
@@ -44,10 +44,10 @@ export function LanguageSwitcher({
             className={cn(
               "rounded-full px-2.5 py-1 uppercase transition-colors",
               active
-                ? "bg-brand-green text-navy-950"
+                ? "bg-brand-green text-deep-950"
                 : tone === "dark"
                   ? "text-ink-300 hover:text-white"
-                  : "text-slate-500 hover:text-navy-900 dark:text-ink-300 dark:hover:text-white",
+                  : "text-slate-500 hover:text-deep-900 dark:text-ink-300 dark:hover:text-white",
             )}
           >
             {l}

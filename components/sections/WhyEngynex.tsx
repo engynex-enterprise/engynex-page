@@ -21,7 +21,7 @@ const items: { icon: LucideIcon; dot: string; tile: string }[] = [
  */
 export function WhyEngynex({ whyUs }: { whyUs: Dictionary["whyUs"] }) {
   return (
-    <section className="relative overflow-hidden bg-navy-950 py-24 text-ink-100 sm:py-32">
+    <section className="relative overflow-hidden bg-deep-950 py-24 text-ink-100 sm:py-32">
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <ParallaxLayer distance={70}>
           <Image
@@ -32,7 +32,7 @@ export function WhyEngynex({ whyUs }: { whyUs: Dictionary["whyUs"] }) {
             className="object-cover opacity-[0.12]"
           />
         </ParallaxLayer>
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-950 via-navy-950/88 to-navy-950" />
+        <div className="absolute inset-0 bg-gradient-to-b from-deep-950 via-deep-950/88 to-deep-950" />
         <div className="bg-grid absolute inset-0 opacity-30" />
         <div className="absolute -left-32 top-10 h-[26rem] w-[26rem] rounded-full bg-brand-green/12 blur-[140px]" />
         <div className="absolute -right-32 bottom-0 h-[26rem] w-[26rem] rounded-full bg-hue-violet/15 blur-[140px]" />

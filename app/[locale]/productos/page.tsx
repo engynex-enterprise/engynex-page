@@ -81,7 +81,7 @@ export default async function ProductsPage({
               return (
                 <div key={category.key}>
                   <div className="flex items-start gap-4">
-                    <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-green to-brand-blue text-navy-950 shadow-lg shadow-brand-blue/20">
+                    <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-green to-brand-blue text-deep-950 shadow-lg shadow-brand-blue/20">
                       <ProductIcon name={category.icon} className="h-6 w-6" />
                     </span>
                     <div>

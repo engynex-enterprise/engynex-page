@@ -122,7 +122,14 @@ const es = {
       quote: "Cotizar ahora",
       demo: "Solicitar demo",
     },
-    intro: { navLabel: "Fábrica digital" },
+    intro: {
+      navLabel: "Fábrica digital",
+      bullets: [
+        "Estrategia, diseño y desarrollo en un solo equipo",
+        "Entregas por etapas con fechas y costos claros",
+        "Soporte y mejora continua después del lanzamiento",
+      ],
+    },
     services: {
       navLabel: "Servicios",
       eyebrow: "16 servicios especializados",
@@ -131,6 +138,12 @@ const es = {
       subtitle:
         "Web, plataformas, apps, e-commerce, marketing, video, IA, nube, seguridad, soporte y alquiler de equipos. Elige uno o combínalos: nosotros hacemos que funcionen como un solo sistema.",
       cta: "Explorar servicios",
+      bullets: [
+        "Construye: web, apps, plataformas y e-commerce",
+        "Crece: UX/UI, marketing, video y datos",
+        "Opera: nube, seguridad, soporte y equipos",
+      ],
+      proof: { value: "16", label: "servicios con un mismo equipo" },
     },
     products: {
       navLabel: "Productos",
@@ -146,6 +159,7 @@ const es = {
         "En la nube o en tu propio servidor",
         "Capacitación y soporte incluidos",
       ],
+      proof: { value: "2–8", label: "semanas para salir en vivo" },
     },
     promo: {
       navLabel: "Web por suscripción",
@@ -915,7 +929,14 @@ const en = {
       quote: "Get a quote",
       demo: "Request a demo",
     },
-    intro: { navLabel: "Digital factory" },
+    intro: {
+      navLabel: "Digital factory",
+      bullets: [
+        "Strategy, design and development in one team",
+        "Staged delivery with clear dates and costs",
+        "Support and continuous improvement after launch",
+      ],
+    },
     services: {
       navLabel: "Services",
       eyebrow: "16 specialized services",
@@ -924,6 +945,12 @@ const en = {
       subtitle:
         "Web, platforms, apps, e-commerce, marketing, video, AI, cloud, security, support and equipment rental. Pick one or combine them: we make them work as a single system.",
       cta: "Explore services",
+      bullets: [
+        "Build: web, apps, platforms and e-commerce",
+        "Grow: UX/UI, marketing, video and data",
+        "Run: cloud, security, support and equipment",
+      ],
+      proof: { value: "16", label: "services from a single team" },
     },
     products: {
       navLabel: "Products",
@@ -939,6 +966,7 @@ const en = {
         "In the cloud or on your own server",
         "Training and support included",
       ],
+      proof: { value: "2–8", label: "weeks to go live" },
     },
     promo: {
       navLabel: "Website subscription",

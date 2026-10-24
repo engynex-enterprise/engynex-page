@@ -88,7 +88,7 @@ function Pipeline({ steps, accent }: { steps: Step[]; accent: Accent }) {
               className={cn(
                 "grid h-9 w-9 shrink-0 place-items-center rounded-full text-[0.65rem] font-extrabold",
                 isGreen
-                  ? "bg-brand-green text-navy-950"
+                  ? "bg-brand-green text-deep-950"
                   : "bg-brand-blue text-white",
               )}
             >
@@ -222,7 +222,7 @@ function Runbook({ steps, loopLabel }: { steps: Step[]; loopLabel?: string }) {
             className="group flex flex-col gap-4 p-6 transition-colors hover:bg-accent-soft/30 sm:flex-row sm:items-start sm:gap-6 sm:p-7"
           >
             <span className="flex shrink-0 items-center gap-3">
-              <span className="grid h-11 w-11 place-items-center rounded-xl bg-accent-soft text-sm font-extrabold text-accent transition-colors group-hover:bg-brand-green group-hover:text-navy-950">
+              <span className="grid h-11 w-11 place-items-center rounded-xl bg-accent-soft text-sm font-extrabold text-accent transition-colors group-hover:bg-brand-green group-hover:text-deep-950">
                 {num(i)}
               </span>
               <span
@@ -338,7 +338,7 @@ function Route({ steps }: { steps: Step[] }) {
           const Icon = routeIcons[i % routeIcons.length];
           return (
             <Fragment key={step.title}>
-              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand-blue to-brand-green text-navy-950 shadow-lg shadow-brand-blue/25">
+              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand-blue to-brand-green text-deep-950 shadow-lg shadow-brand-blue/25">
                 <Icon className="h-6 w-6" strokeWidth={2} aria-hidden />
               </span>
               {i < steps.length - 1 && (

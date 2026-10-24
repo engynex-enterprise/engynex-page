@@ -23,7 +23,7 @@ export function Timeline({
         <div className="space-y-6">
           {items.map((m, i) => (
             <Reveal key={m.year} delay={(i % 4) * 90} className="relative pl-14">
-              <span className="absolute left-0 top-1 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue text-xs font-extrabold text-navy-950 ring-4 ring-surface">
+              <span className="absolute left-0 top-1 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue text-xs font-extrabold text-deep-950 ring-4 ring-surface">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div className="rounded-2xl border border-line bg-card p-6 shadow-card transition-all duration-300 hover:border-brand-green/40 hover:shadow-card-hover">

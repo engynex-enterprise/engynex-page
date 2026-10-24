@@ -18,7 +18,7 @@ const variants: Record<Variant, string> = {
    * tono al pasar el cursor.
    */
   primary:
-    "bg-brand-green text-navy-950 hover:bg-brand-green-light hover:shadow-md hover:shadow-brand-green/25",
+    "bg-brand-green text-deep-950 hover:bg-brand-green-light hover:shadow-md hover:shadow-brand-green/25",
   secondary:
     "bg-accent-soft text-accent hover:bg-brand-green/20 dark:hover:bg-white/10",
   // Para fondos oscuros (heros, bandas navy).

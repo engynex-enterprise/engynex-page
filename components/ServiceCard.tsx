@@ -33,7 +33,7 @@ export function ServiceCard({
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-navy-950/88 via-navy-950/25 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-deep-950/88 via-deep-950/25 to-transparent" />
         <span
           className={cn(
             "absolute left-4 top-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg ring-1 ring-white/30 backdrop-blur transition-transform duration-300 group-hover:scale-110",

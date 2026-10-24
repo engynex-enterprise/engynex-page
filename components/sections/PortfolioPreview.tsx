@@ -67,12 +67,12 @@ export function PortfolioPreview({
               />
             </ParallaxLayer>
             {/* Velo: el texto va sobre la foto, tiene que leerse sí o sí */}
-            <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-deep-950/90 via-deep-950/40 to-transparent" />
 
             <span className="absolute left-6 top-6 rounded-full bg-white px-3 py-1 text-xs font-bold text-heading sm:left-8 sm:top-8">
               {categoryLabels[lead.category][locale]}
             </span>
-            <span className="absolute right-6 top-6 grid h-11 w-11 place-items-center rounded-full bg-white/95 text-navy-900 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:right-8 sm:top-8">
+            <span className="absolute right-6 top-6 grid h-11 w-11 place-items-center rounded-full bg-white/95 text-deep-900 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:right-8 sm:top-8">
               <ArrowUpRight className="h-5 w-5" />
             </span>
 

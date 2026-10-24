@@ -163,7 +163,7 @@ export function ContactForm({
       <button
         type="submit"
         disabled={status === "sending"}
-        className="mt-6 inline-flex h-13 w-full items-center justify-center gap-2 rounded-full bg-brand-green px-8 text-base font-bold text-navy-950 shadow-lg shadow-brand-green/25 transition-all hover:bg-brand-green-light hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-70"
+        className="mt-6 inline-flex h-13 w-full items-center justify-center gap-2 rounded-full bg-brand-green px-8 text-base font-bold text-deep-950 shadow-lg shadow-brand-green/25 transition-all hover:bg-brand-green-light hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-70"
       >
         {status === "sending" ? (
           <>
