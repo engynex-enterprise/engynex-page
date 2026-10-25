@@ -21,10 +21,10 @@ export const CHART = {
     tiers: { green: "#26a17a", yellow: "#c08a0c", red: "#e2595c" },
     single: "#9fb0d8",
     accent: "#9fdb4f",
-    grid: "#2a2a2e",
-    axis: "#a1a1aa",
-    surface: "#18181b",
-    tooltipBg: "#f4f4f5",
+    grid: "#3e4042",
+    axis: "#b0b3b8",
+    surface: "#242526",
+    tooltipBg: "#e4e6eb",
   },
 };
 
