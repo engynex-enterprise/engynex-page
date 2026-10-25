@@ -1,4 +1,5 @@
 import "server-only";
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "@/lib/supabase/config";
 
 /**
  * Códigos de verificación de Google Search Console y Bing Webmaster,
@@ -6,8 +7,8 @@ import "server-only";
  * hora (las páginas siguen siendo estáticas y se regeneran solas).
  */
 async function publicTagConfig(): Promise<Record<string, string> | null> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const url = SUPABASE_URL;
+  const key = SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) return null;
   try {
     const res = await fetch(`${url}/rest/v1/rpc/public_tag_config`, {

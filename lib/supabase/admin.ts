@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
+import { SUPABASE_URL } from "@/lib/supabase/config";
 
 /**
  * Cliente con la clave secreta: SALTA las reglas RLS. Solo para tareas del
@@ -15,7 +16,7 @@ export function createAdminClient() {
       "Falta SUPABASE_SECRET_KEY en las variables de entorno del servidor.",
     );
   }
-  return createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
+  return createClient<Database>(SUPABASE_URL, key, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
