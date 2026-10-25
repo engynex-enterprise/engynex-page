@@ -1,4 +1,4 @@
-import { Check, MousePointerClick, PenLine } from "lucide-react";
+import { BellRing, Check, MousePointerClick, PenLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -86,6 +86,45 @@ export function EditorVisual({ editor, publish, saved }: { editor: string; publi
         <span className="mt-auto inline-flex items-center gap-1.5 self-start rounded-full bg-emerald-100 px-2.5 py-1 text-[0.7rem] font-semibold text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300">
           <Check className="h-3 w-3" strokeWidth={3} />
           {saved}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+const BARS = [38, 52, 44, 66, 58, 74, 88];
+
+/** Tablero en vivo: dos indicadores, barras de la semana y una alerta. */
+export function DashboardVisual({ title, kpis, alert }: { title: string; kpis: { label: string; value: string; delta: string }[]; alert: string }) {
+  return (
+    <div className={frame} aria-hidden>
+      <div className="flex h-full flex-col rounded-2xl bg-white p-4 shadow-sm dark:bg-white/[0.06]">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-green opacity-60 motion-reduce:animate-none" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-green" />
+          </span>
+          <span className="text-xs font-semibold text-heading">{title}</span>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {kpis.slice(0, 2).map((k) => (
+            <div key={k.label} className="rounded-xl bg-surface-soft px-3 py-2 dark:bg-white/[0.06]">
+              <span className="block text-[0.65rem] text-muted">{k.label}</span>
+              <span className="flex items-baseline gap-1.5">
+                <span className="text-lg font-bold tabular-nums text-heading">{k.value}</span>
+                <span className="text-[0.65rem] font-semibold text-brand-green-dark dark:text-brand-green">{k.delta}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-1 items-end gap-1.5">
+          {BARS.map((h, i) => (
+            <span key={i} className={cn("flex-1 rounded-t-md", i === BARS.length - 1 ? "bg-brand-green" : "bg-deep-700/80 dark:bg-white/30")} style={{ height: `${h}%` }} />
+          ))}
+        </div>
+        <span className="mt-3 flex items-center gap-1.5 rounded-lg bg-amber-100 px-2.5 py-1.5 text-[0.68rem] font-semibold text-amber-900 dark:bg-amber-500/15 dark:text-amber-200">
+          <BellRing className="h-3.5 w-3.5 shrink-0" />
+          {alert}
         </span>
       </div>
     </div>

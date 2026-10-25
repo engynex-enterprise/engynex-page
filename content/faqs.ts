@@ -57,6 +57,26 @@ export const extraServiceFaqs: Record<string, { es: Faq[]; en: Faq[] }> = {
         q: "¿Cómo manejan los cambios durante el desarrollo?",
         a: "Trabajamos por sprints con entregas quincenales. Los cambios menores entran en el sprint siguiente; los que amplían el alcance se cotizan aparte y tú decides si entran ahora o después.",
       },
+      {
+        q: "¿Cómo estiman el tiempo y el costo?",
+        a: "Después del taller de descubrimiento convertimos los módulos en historias de usuario y las estimamos con la célula que hará el trabajo. Recibes un cronograma por fases, el equipo propuesto y el costo según el modelo que elijas.",
+      },
+      {
+        q: "¿Pueden trabajar junto a mi equipo de tecnología?",
+        a: "Sí. Con el modelo de ampliación de equipo nuestros desarrolladores, QA o DevOps se integran a tus rituales y herramientas. También podemos construir con nuestra célula y hacer traspaso de conocimiento a tu equipo.",
+      },
+      {
+        q: "¿Pueden modernizar un sistema que ya tenemos?",
+        a: "Sí. Analizamos el sistema actual, definimos qué conservar y migramos por fases (por ejemplo, un módulo a la vez) para que tu operación no se detenga.",
+      },
+      {
+        q: "¿Qué pasa después del lanzamiento?",
+        a: "El periodo de soporte incluye la corrección de errores de lo entregado. Después puedes seguir con un plan de mantenimiento y evolución mensual, o recibir todo documentado para continuar con tu propio equipo.",
+      },
+      {
+        q: "¿Firman acuerdo de confidencialidad?",
+        a: "Sí. Firmamos el acuerdo de confidencialidad antes del taller de descubrimiento, y el contrato deja claro que el código, los diseños y la documentación son de tu empresa.",
+      },
     ],
     en: [
       {
@@ -70,6 +90,26 @@ export const extraServiceFaqs: Record<string, { es: Faq[]; en: Faq[] }> = {
       {
         q: "How do you handle changes during development?",
         a: "We work in sprints with deliveries every two weeks. Minor changes go into the next sprint; anything that expands scope is quoted separately and you decide whether it goes in now or later.",
+      },
+      {
+        q: "How do you estimate time and cost?",
+        a: "After the discovery workshop we turn modules into user stories and estimate them with the squad that will do the work. You get a phased timeline, the proposed team and the cost under the model you choose.",
+      },
+      {
+        q: "Can you work alongside my tech team?",
+        a: "Yes. With team extension our developers, QA or DevOps join your rituals and tools. We can also build with our squad and transfer knowledge to your team.",
+      },
+      {
+        q: "Can you modernize a system we already have?",
+        a: "Yes. We analyze the current system, decide what to keep and migrate in phases (for example one module at a time) so your operation never stops.",
+      },
+      {
+        q: "What happens after launch?",
+        a: "The support period includes fixing bugs in what we delivered. Afterwards you can continue with a monthly maintenance and evolution plan, or receive everything documented to carry on with your own team.",
+      },
+      {
+        q: "Do you sign a non-disclosure agreement?",
+        a: "Yes. We sign the NDA before the discovery workshop, and the contract makes clear that the code, designs and documentation belong to your company.",
       },
     ],
   },

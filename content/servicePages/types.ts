@@ -34,9 +34,27 @@ export type ShowcaseIcon =
   | "sparkles"
   | "rocket"
   | "clipboard"
-  | "mouse";
+  | "mouse"
+  | "heart"
+  | "truck"
+  | "landmark"
+  | "graduation"
+  | "factory"
+  | "wallet"
+  | "briefcase"
+  | "kanban"
+  | "git"
+  | "lock"
+  | "unlock"
+  | "handshake"
+  | "lifebuoy"
+  | "bug"
+  | "target"
+  | "usercog"
+  | "repeat"
+  | "chat";
 
-/** "plans" lleva a la sección de planes; otro valor, al servicio con ese slug. */
+/** "plans" lleva a la sección de planes; "#ancla", a esa sección; otro valor, al servicio con ese slug. */
 export type ShowcaseHref = "plans" | string;
 
 export type ShowcaseCopy = {
@@ -52,6 +70,8 @@ export type ShowcaseCopy = {
     title: string;
     subtitle: string;
     items: { title: string; body: string }[];
+    /** Comparativo antes / después por tema (opcional). */
+    compare?: { beforeLabel: string; afterLabel: string; rows: { topic: string; before: string; after: string }[] };
     /** Textos de las tres ilustraciones (calendario, embudo, panel). */
     visual: {
       week: string;
@@ -61,6 +81,8 @@ export type ShowcaseCopy = {
       editor: string;
       publish: string;
       saved: string;
+      /** Si existe, la tercera ilustración es un tablero de indicadores en vez del editor. */
+      dashboard?: { kpis: { label: string; value: string; delta: string }[]; alert: string };
     };
   };
   performance: {
@@ -73,9 +95,24 @@ export type ShowcaseCopy = {
     vitals: { metric: string; target: string; label: string }[];
     security: string[];
   };
-  cases: { title: string; subtitle: string; cta: string; link: string; slugs: string[] };
+  cases: {
+    title: string;
+    subtitle: string;
+    cta: string;
+    link: string;
+    slugs: string[];
+    /** Caso de estudio completo por proyecto (reto, solución, métricas, equipo). */
+    details?: Record<string, ShowcaseCaseDetail>;
+    labels?: { challenge: string; solution: string; team: string; duration: string; stack: string };
+  };
   models: { title: string; subtitle: string; items: { name: string; fit: string; body: string; points: string[]; cta: string }[] };
   included: { title: string; items: string[] };
+  /**
+   * Bloques de fábrica de software (Globant, Endava, EPAM, Thoughtworks,
+   * BairesDev): la célula que trabaja en tu proyecto, industrias, cómo se
+   * gobierna la entrega, comparación de modelos y garantías.
+   */
+  factory?: ShowcaseFactoryCopy;
   /** Buscador y venta de dominios (reemplaza al diagnóstico gratuito). */
   domains?: boolean;
   /** Iconos de las etapas del proceso, en orden. */
@@ -93,4 +130,43 @@ export type ShowcaseCopy = {
     /** "url" valida una dirección web; "text" pide al menos unas palabras. */
     kind: "url" | "text";
   };
+};
+
+export type ShowcaseFactoryCopy = {
+  squad: {
+    eyebrow: string;
+    title: string;
+    body: string;
+    points: string[];
+    /** Encabezado del panel ("Tu célula · Sprint 6"). */
+    panelTitle: string;
+    panelStatus: string;
+    roles: { icon: ShowcaseIcon; role: string; focus: string; share: string }[];
+    panelFoot: string;
+  };
+  industries: { title: string; subtitle: string; items: { icon: ShowcaseIcon; name: string; examples: string }[] };
+  governance: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    rituals: { cadence: string; name: string; body: string }[];
+    metricsTitle: string;
+    metrics: { value: string; label: string }[];
+    toolsLabel: string;
+    tools: string[];
+    note: string;
+  };
+  /** Filas de comparación; una columna por modelo de trabajo (mismo orden). */
+  compare: { title: string; criterion: string; rows: { label: string; values: string[] }[] };
+  guarantees: { title: string; subtitle: string; items: { icon: ShowcaseIcon; title: string; body: string }[] };
+};
+
+export type ShowcaseCaseDetail = {
+  industry: string;
+  challenge: string;
+  solution: string;
+  metrics: { value: string; label: string }[];
+  team: string;
+  duration: string;
+  stack: string[];
 };

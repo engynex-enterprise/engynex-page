@@ -1,40 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Accessibility,
-  ArrowRight,
-  ArrowUpRight,
-  ClipboardList,
-  MousePointerClick,
-  Rocket,
-  Blocks,
-  Building2,
-  CalendarCheck,
-  Check,
-  Cloud,
-  Code2,
-  Compass,
-  Database,
-  FlaskConical,
-  Globe2,
-  KeyRound,
-  LayoutDashboard,
-  LayoutTemplate,
-  Megaphone,
-  Palette,
-  PenTool,
-  Plug,
-  RefreshCw,
-  Search,
-  ServerCog,
-  ShieldCheck,
-  ShoppingBag,
-  Sparkles,
-  Store,
-  Users,
-  Workflow,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, ShieldCheck } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
@@ -47,10 +13,12 @@ import { CtaBand } from "@/components/sections/CtaBand";
 import { TechStack } from "@/components/services/ServiceSections";
 import { AuditForm } from "@/components/services/showcase/AuditForm";
 import { ShowcaseProcess } from "@/components/services/showcase/ShowcaseProcess";
+import { SHOWCASE_ICONS as ICONS } from "@/components/services/showcase/icons";
+import { BeforeAfter, CaseStudy, CompareModels, GovernanceSection, GuaranteesSection, IndustriesSection, ShowcaseHeading as Heading, SquadSection } from "@/components/services/showcase/ShowcaseFactory";
 import { DomainSearch } from "@/components/domains/DomainSearch";
 import { domainSearchCopy } from "@/content/domainSearch";
-import { EditorVisual, FunnelVisual, ScoreRing, TimelineVisual } from "@/components/services/showcase/ShowcaseVisuals";
-import type { ShowcaseCopy, ShowcaseIcon } from "@/content/servicePages/types";
+import { DashboardVisual, EditorVisual, FunnelVisual, ScoreRing, TimelineVisual } from "@/components/services/showcase/ShowcaseVisuals";
+import type { ShowcaseCopy } from "@/content/servicePages/types";
 import { services, type Service } from "@/content/services";
 import { servicePlans, formatCOP } from "@/content/pricing";
 import { extraServiceFaqs } from "@/content/faqs";
@@ -62,47 +30,7 @@ import type { Locale } from "@/i18n/config";
 import { localizedHref, siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-const ICONS: Record<ShowcaseIcon, LucideIcon> = {
-  megaphone: Megaphone,
-  layout: LayoutTemplate,
-  bag: ShoppingBag,
-  blocks: Blocks,
-  globe: Globe2,
-  refresh: RefreshCw,
-  compass: Compass,
-  palette: Palette,
-  code: Code2,
-  pen: PenTool,
-  search: Search,
-  plug: Plug,
-  accessibility: Accessibility,
-  server: ServerCog,
-  users: Users,
-  dashboard: LayoutDashboard,
-  calendar: CalendarCheck,
-  store: Store,
-  building: Building2,
-  database: Database,
-  key: KeyRound,
-  cloud: Cloud,
-  shield: ShieldCheck,
-  flask: FlaskConical,
-  workflow: Workflow,
-  sparkles: Sparkles,
-  rocket: Rocket,
-  clipboard: ClipboardList,
-  mouse: MousePointerClick,
-};
 
-/** Titular de sección de meta.com: centrado, grande y en negrita. */
-function Heading({ title, subtitle, className }: { title: string; subtitle?: string; className?: string }) {
-  return (
-    <div className={cn("mx-auto max-w-3xl text-center", className)}>
-      <h2 className="text-balance text-[clamp(2rem,3.6vw,3rem)] font-bold leading-[1.12] text-heading">{title}</h2>
-      {subtitle && <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">{subtitle}</p>}
-    </div>
-  );
-}
 
 /**
  * Página insignia de un servicio (Desarrollo Web, Plataformas Web…). Toma de meta.com la cabecera a sangre
@@ -122,17 +50,25 @@ export function ShowcasePage({ service, locale, dict, copy: t }: { service: Serv
   const faqs = [...copy.faqs, ...(extraServiceFaqs[service.slug]?.[locale] ?? [])];
   const cases = t.cases.slugs.map((s) => projects.find((p) => p.slug === s)).filter((p): p is NonNullable<typeof p> => !!p);
   const related = services.filter((s) => s.slug !== service.slug);
-  const hrefFor = (h: string) => (h === "plans" ? "#planes" : localizedHref(locale, `servicios/${h}`));
+  const hrefFor = (h: string) => (h === "plans" ? "#planes" : h.startsWith("#") ? h : localizedHref(locale, `servicios/${h}`));
 
   return (
     <>
       {/* 1. Cabecera a sangre (meta.com) */}
-      <section className="relative isolate flex min-h-[38rem] flex-col overflow-hidden bg-deep-950 text-white sm:min-h-[44rem] lg:h-[calc(100svh-6.5rem)] lg:max-h-[58rem]">
+      <section className="relative isolate flex min-h-[38rem] flex-col overflow-hidden bg-deep-950 text-white sm:min-h-[44rem] lg:min-h-[min(calc(100svh-6.5rem),58rem)]">
         <Image src={t.hero.image} alt="" fill priority sizes="100vw" className="-z-20 object-cover object-[60%_center]" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/55 via-black/15 to-black/70" aria-hidden />
         <Container className="flex flex-1 flex-col pb-10 pt-24 sm:pb-14 sm:pt-28">
           <p className="mt-6 text-sm font-semibold uppercase tracking-[0.14em] text-brand-green">{t.hero.eyebrow}</p>
-          <h1 className="mt-4 max-w-[13ch] text-balance text-[clamp(3rem,7.6vw,7.25rem)] font-bold leading-[0.95] tracking-[-0.035em]">{t.hero.title}</h1>
+          {/* Los titulares largos bajan de tamaño para no empujar el texto y los botones */}
+          <h1
+            className={cn(
+              "mt-4 text-balance font-bold leading-[0.95] tracking-[-0.035em]",
+              t.hero.title.length > 32 ? "max-w-[16ch] text-[clamp(2.6rem,5.6vw,5.5rem)]" : "max-w-[13ch] text-[clamp(3rem,7.6vw,7.25rem)]",
+            )}
+          >
+            {t.hero.title}
+          </h1>
           <div className="mt-auto flex flex-col gap-8 pt-14 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-md">
               <p className="text-lg font-medium leading-snug text-white/95 sm:text-xl">{t.hero.subtitle}</p>
@@ -303,21 +239,35 @@ export function ShowcasePage({ service, locale, dict, copy: t }: { service: Serv
         </ul>
       </Section>
 
+      {t.factory && <SquadSection copy={t.factory.squad} />}
+
       {/* 7. Resultados con ilustración (Webflow) */}
       <Section tone="light">
         <Heading title={t.outcomes.title} subtitle={t.outcomes.subtitle} className="mb-12 sm:mb-16" />
+        {t.outcomes.compare && (
+          <div className="mb-16 sm:mb-24">
+            <BeforeAfter copy={t.outcomes.compare} />
+          </div>
+        )}
         <div className="grid gap-10 md:grid-cols-3 md:gap-6 lg:gap-8">
           {t.outcomes.items.map((item, i) => (
             <Reveal key={item.title} delay={i * 80}>
               {i === 0 && <TimelineVisual week={t.outcomes.visual.week} review={t.outcomes.visual.review} live={t.outcomes.visual.live} />}
               {i === 1 && <FunnelVisual rows={t.outcomes.visual.funnel} />}
-              {i === 2 && <EditorVisual editor={t.outcomes.visual.editor} publish={t.outcomes.visual.publish} saved={t.outcomes.visual.saved} />}
+              {i === 2 &&
+                (t.outcomes.visual.dashboard ? (
+                  <DashboardVisual title={t.outcomes.visual.editor} kpis={t.outcomes.visual.dashboard.kpis} alert={t.outcomes.visual.dashboard.alert} />
+                ) : (
+                  <EditorVisual editor={t.outcomes.visual.editor} publish={t.outcomes.visual.publish} saved={t.outcomes.visual.saved} />
+                ))}
               <h3 className="mt-6 text-xl font-bold leading-snug text-heading">{item.title}</h3>
               <p className="mt-2 text-base leading-relaxed text-muted">{item.body}</p>
             </Reveal>
           ))}
         </div>
       </Section>
+
+      {t.factory && <IndustriesSection copy={t.factory.industries} />}
 
       {/* 8. Rendimiento y seguridad (Vercel) */}
       <Section tone="dark" className="relative overflow-hidden">
@@ -356,6 +306,8 @@ export function ShowcasePage({ service, locale, dict, copy: t }: { service: Serv
         </div>
       </Section>
 
+      {t.factory && <GovernanceSection copy={t.factory.governance} />}
+
       {/* 9. Casos con métricas (Netguru) */}
       {cases.length > 0 && (
         <Section tone="light">
@@ -368,33 +320,39 @@ export function ShowcasePage({ service, locale, dict, copy: t }: { service: Serv
               {t.cases.cta}
             </Link>
           </div>
-          <div className="grid gap-16 sm:gap-24">
-            {cases.map((p, i) => (
-              <Reveal key={p.slug} className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
-                <div className={cn(i % 2 === 1 && "lg:order-2")}>
-                  <h3 className="text-[clamp(1.6rem,2.6vw,2.25rem)] leading-[1.15] text-heading">
-                    <span className="font-normal">{p[locale].title}: </span>
-                    <span className="font-bold">{p[locale].result}</span>
-                  </h3>
-                  <p className="mt-5 text-base leading-relaxed text-muted sm:text-lg">{p[locale].summary}</p>
-                  <ol className="mt-8 grid max-w-md grid-cols-3 gap-2">
-                    {p.tags.slice(0, 3).map((tag, j) => (
-                      <li key={tag} className="rounded-2xl bg-surface-soft p-4 dark:bg-white/[0.04]">
-                        <span className="block text-2xl font-semibold tabular-nums text-heading">{String(j + 1).padStart(2, "0")}</span>
-                        <span className="mt-1 block truncate text-sm text-muted">{tag}</span>
-                      </li>
-                    ))}
-                  </ol>
-                  <Link href={localizedHref(locale, "portafolio")} className="mt-8 inline-flex items-center gap-1.5 text-base font-semibold text-heading underline-offset-4 hover:underline">
-                    {t.cases.link}
-                    <ArrowRight className="h-4 w-4" aria-hidden />
-                  </Link>
-                </div>
-                <div className={cn("relative aspect-[4/3] overflow-hidden rounded-[2rem]", i % 2 === 1 && "lg:order-1")}>
-                  <Image src={p.image} alt={p[locale].title} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
-                </div>
-              </Reveal>
-            ))}
+          <div className={cn("grid", t.cases.details ? "gap-6 sm:gap-8" : "gap-16 sm:gap-24")}>
+            {cases.map((p, i) => {
+              const detail = t.cases.details?.[p.slug];
+              if (detail && t.cases.labels) {
+                return <CaseStudy key={p.slug} project={{ ...p[locale], image: p.image }} detail={detail} labels={t.cases.labels} reverse={i % 2 === 1} />;
+              }
+              return (
+                <Reveal key={p.slug} className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
+                  <div className={cn(i % 2 === 1 && "lg:order-2")}>
+                    <h3 className="text-[clamp(1.6rem,2.6vw,2.25rem)] leading-[1.15] text-heading">
+                      <span className="font-normal">{p[locale].title}: </span>
+                      <span className="font-bold">{p[locale].result}</span>
+                    </h3>
+                    <p className="mt-5 text-base leading-relaxed text-muted sm:text-lg">{p[locale].summary}</p>
+                    <ol className="mt-8 grid max-w-md grid-cols-3 gap-2">
+                      {p.tags.slice(0, 3).map((tag, j) => (
+                        <li key={tag} className="rounded-2xl bg-surface-soft p-4 dark:bg-white/[0.04]">
+                          <span className="block text-2xl font-semibold tabular-nums text-heading">{String(j + 1).padStart(2, "0")}</span>
+                          <span className="mt-1 block truncate text-sm text-muted">{tag}</span>
+                        </li>
+                      ))}
+                    </ol>
+                    <Link href={localizedHref(locale, "portafolio")} className="mt-8 inline-flex items-center gap-1.5 text-base font-semibold text-heading underline-offset-4 hover:underline">
+                      {t.cases.link}
+                      <ArrowRight className="h-4 w-4" aria-hidden />
+                    </Link>
+                  </div>
+                  <div className={cn("relative aspect-[4/3] overflow-hidden rounded-[2rem]", i % 2 === 1 && "lg:order-1")}>
+                    <Image src={p.image} alt={p[locale].title} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
+                  </div>
+                </Reveal>
+              );
+            })}
           </div>
         </Section>
       )}
@@ -418,7 +376,7 @@ export function ShowcasePage({ service, locale, dict, copy: t }: { service: Serv
       {(serviceStack[service.slug] ?? []).length > 0 && <TechStack items={serviceStack[service.slug]} copy={st.extras.stack} tone="light" />}
 
       {/* 12. Modelos de trabajo (Netguru / BairesDev) */}
-      <Section tone="muted">
+      <Section tone="muted" id="modelos" className="scroll-mt-32">
         <Heading title={t.models.title} subtitle={t.models.subtitle} className="mb-12 sm:mb-16" />
         <div className="grid gap-4 lg:grid-cols-3 lg:gap-6">
           {t.models.items.map((m, i) => {
@@ -452,7 +410,10 @@ export function ShowcasePage({ service, locale, dict, copy: t }: { service: Serv
             );
           })}
         </div>
+        {t.factory && <CompareModels copy={t.factory.compare} models={t.models.items.map((m) => m.name)} />}
       </Section>
+
+      {t.factory && <GuaranteesSection copy={t.factory.guarantees} />}
 
       {/* 13. Planes */}
       {plans.length > 0 && (

@@ -96,83 +96,82 @@ export const serviceProcess: Record<string, ServiceProcess> = {
 
   "plataformas-web": {
     es: {
-      eyebrow: "Cómo construimos tu plataforma",
-      title: "Módulo a módulo, con demo cada quince días",
+      eyebrow: "Ciclo de vida del software",
+      title: "De la idea a producción, y después también",
       subtitle:
-        "Nunca esperas meses para ver algo: cada sprint termina en software que ya puedes usar.",
+        "El ciclo completo de una fábrica de software: nunca esperas meses para ver algo y no te quedas solo después del lanzamiento.",
       steps: [
         {
-          title: "Levantamiento funcional",
+          title: "Descubrimiento",
           description:
-            "Mapeamos tus procesos actuales y definimos módulos, roles y reglas de negocio con las personas que los usan.",
-          meta: "1–2 semanas · Documento funcional",
+            "Talleres con tu equipo para entender procesos, usuarios y reglas de negocio. Definimos módulos, prioridades y el primer backlog.",
+          meta: "1–2 semanas · Backlog priorizado",
         },
         {
-          title: "Prototipo navegable",
+          title: "Arquitectura y prototipo",
           description:
-            "Diseñamos y validamos las pantallas clave con tus usuarios reales antes de escribir código.",
-          meta: "2 semanas · Prototipo aprobado",
+            "Diseñamos la arquitectura técnica y un prototipo navegable que validas con tus usuarios antes de programar.",
+          meta: "2–3 semanas · Prototipo aprobado",
         },
         {
-          title: "Sprints de desarrollo",
+          title: "Sprints con QA",
           description:
-            "Construimos por módulos y te mostramos avance cada quince días. Ajustamos sobre algo que ya funciona.",
-          meta: "8–16 semanas · Demo quincenal",
+            "La célula construye por módulos con pruebas en cada historia y te muestra software funcionando cada quince días.",
+          meta: "8–20 semanas · Demo quincenal",
         },
         {
-          title: "Pruebas e integraciones",
+          title: "Lanzamiento",
           description:
-            "Conectamos ERP, CRM y pagos, corremos pruebas automatizadas y validamos todo en un ambiente de staging.",
-          meta: "2 semanas · Ambiente de pruebas",
+            "Migramos los datos, desplegamos en producción, capacitamos a tu equipo y acompañamos de cerca las primeras semanas.",
+          meta: "1–2 semanas · Salida acompañada",
         },
         {
-          title: "Salida a producción",
+          title: "Evolución y soporte",
           description:
-            "Migramos los datos, capacitamos a tu equipo y acompañamos de cerca las primeras semanas de operación.",
-          meta: "1 semana · Go-live acompañado",
+            "Corregimos, monitoreamos y seguimos mejorando la plataforma según lo que piden tus usuarios y tu negocio.",
+          meta: "Continuo · Mejoras mensuales",
         },
       ],
     },
     en: {
-      eyebrow: "How we build your platform",
-      title: "Module by module, with a demo every two weeks",
+      eyebrow: "Software lifecycle",
+      title: "From idea to production, and beyond",
       subtitle:
-        "You never wait months to see something: every sprint ends in software you can already use.",
+        "The full software factory lifecycle: you never wait months to see something and you're never on your own after launch.",
       steps: [
         {
-          title: "Functional discovery",
+          title: "Discovery",
           description:
-            "We map your current processes and define modules, roles and business rules with the people who actually use them.",
-          meta: "1–2 weeks · Functional spec",
+            "Workshops with your team to understand processes, users and business rules. We define modules, priorities and the first backlog.",
+          meta: "1–2 weeks · Prioritized backlog",
         },
         {
-          title: "Clickable prototype",
+          title: "Architecture and prototype",
           description:
-            "We design and validate the key screens with your real users before writing code.",
-          meta: "2 weeks · Approved prototype",
+            "We design the technical architecture and a clickable prototype you validate with your users before coding.",
+          meta: "2–3 weeks · Approved prototype",
         },
         {
-          title: "Development sprints",
+          title: "Sprints with QA",
           description:
-            "We build module by module and show progress every two weeks. You give feedback on something that already works.",
-          meta: "8–16 weeks · Demo every 2 weeks",
+            "The squad builds module by module, tests every story and shows you working software every two weeks.",
+          meta: "8–20 weeks · Demo every 2 weeks",
         },
         {
-          title: "Testing and integrations",
+          title: "Launch",
           description:
-            "We connect ERP, CRM and payments, run automated tests and validate everything in a staging environment.",
-          meta: "2 weeks · Staging environment",
+            "We migrate the data, deploy to production, train your team and stay close during the first weeks.",
+          meta: "1–2 weeks · Supported go-live",
         },
         {
-          title: "Go live",
+          title: "Evolution and support",
           description:
-            "We migrate the data, train your team and stay close during the first weeks of operation.",
-          meta: "1 week · Supported go-live",
+            "We fix, monitor and keep improving the platform based on what your users and your business need.",
+          meta: "Ongoing · Monthly improvements",
         },
       ],
     },
   },
-
   "apps-moviles": {
     es: {
       eyebrow: "Cómo llevamos tu app a la tienda",
