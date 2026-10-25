@@ -6,6 +6,7 @@ import { A11Y_BOOT_SCRIPT } from "@/lib/a11yConfig";
 import { locales, isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { siteConfig } from "@/lib/site";
+import { gtmContainerId, siteVerification } from "@/lib/siteVerification";
 
 // Figtree — titulares y cuerpo. Es la alternativa libre más cercana a la
 // tipografía geométrica-humanista de meta.com (Optimistic, propietaria).
@@ -42,6 +43,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const safeLocale: Locale = isLocale(locale) ? locale : "es";
   const dict = getDictionary(safeLocale);
+  const verify = await siteVerification();
 
   return {
     metadataBase: new URL(siteConfig.url),
@@ -84,6 +86,11 @@ export async function generateMetadata({
       title: dict.meta.titleDefault,
       description: dict.meta.description,
     },
+    // Search Console y Bing Webmaster (se configuran en Integraciones).
+    verification: {
+      google: verify.google,
+      other: verify.bing ? { "msvalidate.01": verify.bing } : undefined,
+    },
   };
 }
 
@@ -96,6 +103,7 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
+  const gtm = await gtmContainerId();
 
   return (
     <html
@@ -104,6 +112,19 @@ export default async function LocaleLayout({
       className={`${figtree.variable} ${opendyslexic.variable} h-full`}
     >
       <body className="flex min-h-full flex-col bg-white font-sans antialiased dark:bg-deep-950">
+        {/* Google Tag Manager (noscript): solo actúa sin JavaScript. El script
+            del <head> lo carga lib/tracking.ts tras aceptar cookies. */}
+        {gtm && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtm}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+              title="Google Tag Manager"
+            />
+          </noscript>
+        )}
         <script
           dangerouslySetInnerHTML={{ __html: themeScript + A11Y_BOOT_SCRIPT }}
         />

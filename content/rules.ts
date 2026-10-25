@@ -66,7 +66,8 @@ export type ActionType =
   | "note"
   | "followup"
   | "deal"
-  | "webhook";
+  | "webhook"
+  | "team_chat";
 /** Listas (vacías = cualquiera) y condiciones sueltas. */
 export type ConditionKey =
   | "tiers"
@@ -133,6 +134,8 @@ export type RuleAction = {
   close_days?: number;
   /** webhook */
   url?: string;
+  /** team_chat: [] = todos los conectados */
+  channels?: string[];
 };
 
 export type RuleGroup = "sales" | "meetings" | "service" | "chat" | "tasks" | "deals" | "accounts";
@@ -191,13 +194,13 @@ export const TRIGGERS: Record<
 };
 
 export const ACTIONS_BY_ENTITY: Record<RuleEntity, ActionType[]> = {
-  lead: ["assign", "task", "notify", "email", "whatsapp", "status", "note", "followup", "deal", "webhook"],
-  appointment: ["assign", "task", "notify", "email", "whatsapp", "status", "note", "followup", "webhook"],
-  ticket: ["assign", "task", "notify", "email", "status", "priority", "tag", "note", "stage", "webhook"],
-  chat: ["assign", "task", "notify", "email", "whatsapp", "status", "tag", "webhook"],
-  task: ["assign", "notify", "email", "status", "priority", "tag", "webhook"],
-  deal: ["assign", "task", "notify", "email", "stage", "note", "webhook"],
-  account: ["assign", "task", "notify", "email", "stage", "tag", "note", "webhook"],
+  lead: ["assign", "task", "notify", "email", "whatsapp", "status", "note", "followup", "deal", "webhook", "team_chat"],
+  appointment: ["assign", "task", "notify", "email", "whatsapp", "status", "note", "followup", "webhook", "team_chat"],
+  ticket: ["assign", "task", "notify", "email", "status", "priority", "tag", "note", "stage", "webhook", "team_chat"],
+  chat: ["assign", "task", "notify", "email", "whatsapp", "status", "tag", "webhook", "team_chat"],
+  task: ["assign", "notify", "email", "status", "priority", "tag", "webhook", "team_chat"],
+  deal: ["assign", "task", "notify", "email", "stage", "note", "webhook", "team_chat"],
+  account: ["assign", "task", "notify", "email", "stage", "tag", "note", "webhook", "team_chat"],
 };
 
 /** Variables que se pueden usar en los textos, por tipo de elemento. */
@@ -348,6 +351,7 @@ export const rulesCopy = {
       followup: { label: "Secuencia de seguimiento", desc: "Inscribe al lead en la secuencia de correos o lo saca." },
       deal: { label: "Crear negocio", desc: "Abre un negocio en el CRM para el lead (si no tiene uno abierto)." },
       webhook: { label: "Enviar a otra app (webhook)", desc: "Envía los datos a Zapier, Make, n8n o tu sistema (HTTPS)." },
+      team_chat: { label: "Avisar en Slack / Teams / Google Chat", desc: "Publica un mensaje en el chat del equipo (se conecta en Integraciones)." },
     } as Record<ActionType, { label: string; desc: string }>,
     roundRobin: "Por turnos entre",
     person: "Una persona",
@@ -388,6 +392,10 @@ export const rulesCopy = {
     dealValue: "Valor (COP, opcional)",
     dealClose: "Cierre esperado en (días)",
     webhookUrl: "URL (https://…)",
+    teamChatChannels: "Canales",
+    teamChatAll: "Todos los conectados",
+    teamChatNames: { slack: "Slack", teams: "Microsoft Teams", google_chat: "Google Chat" } as Record<string, string>,
+    teamChatHint: "Usa *negrita* (Slack y Google Chat). Se agrega el enlace al portal al final.",
     webhookHint: "Enviamos un POST con JSON: regla, disparador y los datos del elemento.",
   },
   editor: {

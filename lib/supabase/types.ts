@@ -540,6 +540,48 @@ export type AccountEvent = {
   pinned: boolean;
 };
 
+export type WebhookEndpoint = {
+  id: string;
+  name: string;
+  url: string;
+  events: string[];
+  secret: string;
+  active: boolean;
+  failures: number;
+  last_status: number | null;
+  last_delivery_at: string | null;
+  created_by: string | null;
+  created_at: string;
+};
+
+export type WebhookDelivery = {
+  id: number;
+  endpoint_id: string;
+  event: string;
+  payload: Json;
+  request_id: number | null;
+  status: "sent" | "ok" | "failed";
+  status_code: number | null;
+  error: string | null;
+  created_at: string;
+  completed_at: string | null;
+};
+
+export type ApiScope = "leads:read" | "leads:write" | "tickets:read" | "tickets:write" | "appointments:read";
+
+export type ApiKey = {
+  id: string;
+  name: string;
+  prefix: string;
+  key_hash: string;
+  scopes: ApiScope[];
+  created_by: string | null;
+  created_at: string;
+  last_used_at: string | null;
+  uses: number;
+  revoked_at: string | null;
+};
+
 export type DocumentKind = "proposal" | "contract" | "invoice" | "deliverable" | "report" | "purchase_order" | "other";
 
 export type PortalDocument = {
@@ -847,6 +889,36 @@ export type Database = {
         Update: Partial<AutomationRule>;
         Relationships: [];
       };
+      integration_audit: {
+        Row: { id: number; key: string; action: "set" | "removed" | "test_ok" | "test_failed"; detail: string | null; actor: string | null; created_at: string };
+        Insert: { key: string; action: "test_ok" | "test_failed"; detail?: string | null; actor?: string };
+        Update: never;
+        Relationships: [];
+      };
+      webhook_endpoints: {
+        Row: WebhookEndpoint;
+        Insert: Pick<WebhookEndpoint, "name" | "url"> & Partial<WebhookEndpoint>;
+        Update: Partial<Pick<WebhookEndpoint, "name" | "url" | "events" | "active" | "failures">>;
+        Relationships: [];
+      };
+      webhook_deliveries: {
+        Row: WebhookDelivery;
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      api_keys: {
+        Row: ApiKey;
+        Insert: never;
+        Update: { revoked_at?: string | null; name?: string };
+        Relationships: [];
+      };
+      calendar_feeds: {
+        Row: { user_id: string; token: string; created_at: string };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       automation_pending: {
         Row: { id: number; rule_id: string; entity: string; entity_id: string; run_key: string; due_at: string; created_at: string };
         Insert: never;
@@ -1069,6 +1141,14 @@ export type Database = {
       staff_create_ticket: { Args: { p: Json }; Returns: Json };
       accounts_list: { Args: Record<string, never>; Returns: Json };
       automation_preview: { Args: { p_rule: Json; p_entity_id: string }; Returns: Json };
+      team_alert_test: { Args: { p_channel: string }; Returns: boolean };
+      webhook_test: { Args: { p_endpoint: string }; Returns: number };
+      webhook_redeliver: { Args: { p_delivery: number }; Returns: number };
+      webhook_rotate_secret: { Args: { p_endpoint: string }; Returns: string };
+      api_key_create: { Args: { p_name: string; p_scopes: string[] }; Returns: Json };
+      api_key_check: { Args: { p_key: string; p_scope: string }; Returns: Json };
+      calendar_feed_token: { Args: { p_rotate?: boolean }; Returns: string };
+      calendar_feed_events: { Args: { p_token: string }; Returns: Json };
       automation_samples: { Args: { p_trigger: string }; Returns: Json };
       automation_run_manual: { Args: { p_rule: string; p_entity_id: string }; Returns: Json };
       automation_stats: { Args: { p_days?: number; p_rule?: string | null }; Returns: Json };

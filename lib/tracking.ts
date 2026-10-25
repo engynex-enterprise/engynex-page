@@ -2,8 +2,8 @@ import { hasConsent } from "@/lib/cookieConsent";
 import { createClient } from "@/lib/supabase/client";
 
 /**
- * Etiquetas de marketing y medición (Google Tag Manager, GA4, Google Ads y
- * píxel de Meta). Los IDs se configuran en el portal (Integraciones) y se
+ * Etiquetas de marketing y medición (Google Tag Manager, GA4, Google Ads,
+ * píxel de Meta, Microsoft Clarity, LinkedIn Insight y píxel de TikTok). Los IDs se configuran en el portal (Integraciones) y se
  * leen al cargar la página, solo si el visitante ya aceptó analítica o
  * marketing. Sin IDs no se carga nada, y con IDs solo lo que el visitante
  * aceptó (Consent Mode v2 en modo básico).
@@ -21,6 +21,9 @@ const tagIds = {
   adsLeadLabel: process.env.NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL ?? "",
   adsBookingLabel: process.env.NEXT_PUBLIC_GOOGLE_ADS_BOOKING_LABEL ?? "",
   metaPixel: process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "",
+  clarity: process.env.NEXT_PUBLIC_CLARITY_ID ?? "",
+  linkedin: process.env.NEXT_PUBLIC_LINKEDIN_PARTNER_ID ?? "",
+  tiktok: process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID ?? "",
 };
 
 let configLoad: Promise<void> | null = null;
@@ -37,6 +40,9 @@ function loadTagConfig() {
       tagIds.adsLeadLabel = c.google_ads_lead_label || tagIds.adsLeadLabel;
       tagIds.adsBookingLabel = c.google_ads_booking_label || tagIds.adsBookingLabel;
       tagIds.metaPixel = c.meta_pixel_id || tagIds.metaPixel;
+      tagIds.clarity = c.clarity_id || tagIds.clarity;
+      tagIds.linkedin = c.linkedin_partner_id || tagIds.linkedin;
+      tagIds.tiktok = c.tiktok_pixel_id || tagIds.tiktok;
     } catch {
       // Sin conexión: se usan los respaldos.
     }
@@ -47,6 +53,15 @@ function loadTagConfig() {
 export const anyGoogleTag = () => !!(tagIds.gtm || tagIds.ga4 || tagIds.ads);
 
 type Gtag = (...args: unknown[]) => void;
+type TikTokQueue = unknown[] & {
+  methods?: string[];
+  load?: (id: string) => void;
+  page?: () => void;
+  track?: (...args: unknown[]) => void;
+  grantConsent?: () => void;
+  revokeConsent?: () => void;
+  [method: string]: unknown;
+};
 type Fbq = ((...args: unknown[]) => void) & { callMethod?: unknown; queue?: unknown[]; loaded?: boolean; version?: string; push?: unknown };
 
 declare global {
@@ -55,6 +70,12 @@ declare global {
     gtag?: Gtag;
     fbq?: Fbq;
     _fbq?: Fbq;
+    clarity?: ((...args: unknown[]) => void) & { q?: unknown[] };
+    _linkedin_partner_id?: string;
+    _linkedin_data_partner_ids?: string[];
+    lintrk?: ((...args: unknown[]) => void) & { q?: unknown[] };
+    ttq?: TikTokQueue;
+    TiktokAnalyticsObject?: string;
   }
 }
 
@@ -158,8 +179,56 @@ export async function applyTags() {
     }
   }
 
-  if (!analytics) clearCookies(/^_ga|^_gid$/);
-  if (!marketing) clearCookies(/^_gcl_|^_fbp$|^_fbc$/);
+  // Microsoft Clarity (analítica: mapas de calor y grabaciones de sesión).
+  if (tagIds.clarity) {
+    if (analytics) {
+      if (!window.clarity) {
+        const clarity = function (...args: unknown[]) {
+          (clarity.q = clarity.q ?? []).push(args);
+        } as NonNullable<Window["clarity"]>;
+        window.clarity = clarity;
+        loadScript("clarity-script", `https://www.clarity.ms/tag/${encodeURIComponent(tagIds.clarity)}`);
+      }
+      window.clarity("consent");
+    } else if (window.clarity) {
+      window.clarity("consent", false);
+    }
+  }
+
+  // LinkedIn Insight Tag (marketing).
+  if (tagIds.linkedin && marketing && !document.getElementById("linkedin-insight")) {
+    window._linkedin_partner_id = tagIds.linkedin;
+    window._linkedin_data_partner_ids = [...(window._linkedin_data_partner_ids ?? []), tagIds.linkedin];
+    if (!window.lintrk) {
+      const lintrk = function (...args: unknown[]) {
+        (lintrk.q = lintrk.q ?? []).push(args);
+      } as NonNullable<Window["lintrk"]>;
+      window.lintrk = lintrk;
+    }
+    loadScript("linkedin-insight", "https://snap.licdn.com/li.lms-analytics/insight.min.js");
+  }
+
+  // Píxel de TikTok (marketing).
+  if (tagIds.tiktok) {
+    if (marketing) {
+      if (!window.ttq) {
+        // Igual que el código oficial: cola de llamadas hasta que carga el script.
+        const ttq = [] as unknown as TikTokQueue;
+        ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie", "holdConsent", "revokeConsent", "grantConsent"];
+        for (const m of ttq.methods) ttq[m] = (...args: unknown[]) => ttq.push([m, ...args]);
+        window.TiktokAnalyticsObject = "ttq";
+        window.ttq = ttq;
+        loadScript("tiktok-pixel", `https://analytics.tiktok.com/i18n/pixel/events.js?sdkid=${encodeURIComponent(tagIds.tiktok)}&lib=ttq`);
+        (ttq.page as () => void)();
+      }
+      (window.ttq.grantConsent as (() => void) | undefined)?.();
+    } else if (window.ttq) {
+      (window.ttq.revokeConsent as (() => void) | undefined)?.();
+    }
+  }
+
+  if (!analytics) clearCookies(/^_ga|^_gid$|^_clck$|^_clsk$/);
+  if (!marketing) clearCookies(/^_gcl_|^_fbp$|^_fbc$|^_ttp$|^li_fat_id$|^lidc$/);
 }
 
 /** Borra cookies de terceros en este dominio y en el dominio raíz. */
@@ -214,6 +283,7 @@ export function trackLead({ tier, category, email, phone }: LeadEvent) {
     }
   }
   if (window.fbq && marketing) window.fbq("track", "Lead", { content_category: category, lead_tier: tier });
+  if (window.ttq && marketing && qualified) (window.ttq.track as (...a: unknown[]) => void)?.("SubmitForm", { content_category: category });
 }
 
 export function trackBooking() {
@@ -226,6 +296,7 @@ export function trackBooking() {
     }
   }
   if (window.fbq && hasConsent("marketing")) window.fbq("track", "Schedule");
+  if (window.ttq && hasConsent("marketing")) (window.ttq.track as (...a: unknown[]) => void)?.("Schedule");
 }
 
 /** Contactos secundarios: chat en vivo y clic a WhatsApp. */

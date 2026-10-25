@@ -11,6 +11,7 @@ import {
   Mail,
   MessageCircle,
   MessagesSquare,
+  Megaphone,
   Repeat,
   StickyNote,
   Tag,
@@ -37,6 +38,7 @@ export const ACTION_ICONS: Record<ActionType, LucideIcon> = {
   followup: Repeat,
   deal: Handshake,
   webhook: Webhook,
+  team_chat: Megaphone,
 };
 
 export const GROUP_ICONS: Record<RuleGroup, LucideIcon> = {

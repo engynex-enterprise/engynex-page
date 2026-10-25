@@ -45,6 +45,8 @@ export const defaultAction = (type: ActionType): RuleAction => {
       return { type, title: "{empresa} · {nombre}", close_days: 30 };
     case "webhook":
       return { type, url: "" };
+    case "team_chat":
+      return { type, body: "", channels: [] };
   }
 };
 
@@ -278,6 +280,21 @@ export function RuleActionCard({
           <div className="grid gap-2">
             {text("url", t.actions.webhookUrl, false, "https://hooks.zapier.com/…")}
             <p className="text-xs text-muted">{t.actions.webhookHint}</p>
+          </div>
+        );
+      case "team_chat":
+        return (
+          <div className="grid gap-2">
+            <span className="block text-xs font-medium text-muted">{t.actions.teamChatChannels}</span>
+            <Chips
+              options={["slack", "teams", "google_chat"].map((c) => ({ value: c, label: t.actions.teamChatNames[c] }))}
+              value={a.channels ?? []}
+              onChange={(v) => onChange({ channels: v })}
+              disabled={disabled}
+            />
+            <p className="text-xs text-muted">{(a.channels ?? []).length ? "" : t.actions.teamChatAll}</p>
+            {text("body", t.actions.bodyLabel, true)}
+            <p className="text-xs text-muted">{t.actions.teamChatHint}</p>
           </div>
         );
     }

@@ -15,6 +15,11 @@ export type IntegrationKey =
   | "google_ads_lead_label"
   | "google_ads_booking_label"
   | "meta_pixel_id"
+  | "clarity_id"
+  | "linkedin_partner_id"
+  | "tiktok_pixel_id"
+  | "gsc_verification"
+  | "bing_verification"
   | "whatsapp_phone_number_id"
   | "whatsapp_business_account_id"
   | "whatsapp_graph_version"
@@ -38,7 +43,10 @@ export type IntegrationKey =
   | "ai_lead_insights"
   | "followup_sequence"
   | "abandoned_recovery"
-  | "weekly_report";
+  | "weekly_report"
+  | "slack_webhook_url"
+  | "teams_webhook_url"
+  | "google_chat_webhook_url";
 
 const ENV_FALLBACK: Record<IntegrationKey, string> = {
   gtm_id: "NEXT_PUBLIC_GTM_ID",
@@ -47,6 +55,11 @@ const ENV_FALLBACK: Record<IntegrationKey, string> = {
   google_ads_lead_label: "NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL",
   google_ads_booking_label: "NEXT_PUBLIC_GOOGLE_ADS_BOOKING_LABEL",
   meta_pixel_id: "NEXT_PUBLIC_META_PIXEL_ID",
+  clarity_id: "NEXT_PUBLIC_CLARITY_ID",
+  linkedin_partner_id: "NEXT_PUBLIC_LINKEDIN_PARTNER_ID",
+  tiktok_pixel_id: "NEXT_PUBLIC_TIKTOK_PIXEL_ID",
+  gsc_verification: "GOOGLE_SITE_VERIFICATION",
+  bing_verification: "BING_SITE_VERIFICATION",
   whatsapp_phone_number_id: "WHATSAPP_PHONE_NUMBER_ID",
   whatsapp_business_account_id: "WHATSAPP_BUSINESS_ACCOUNT_ID",
   whatsapp_graph_version: "WHATSAPP_GRAPH_VERSION",
@@ -71,6 +84,9 @@ const ENV_FALLBACK: Record<IntegrationKey, string> = {
   followup_sequence: "FOLLOWUP_SEQUENCE",
   abandoned_recovery: "ABANDONED_RECOVERY",
   weekly_report: "WEEKLY_REPORT",
+  slack_webhook_url: "SLACK_WEBHOOK_URL",
+  teams_webhook_url: "TEAMS_WEBHOOK_URL",
+  google_chat_webhook_url: "GOOGLE_CHAT_WEBHOOK_URL",
 };
 
 /** Interruptores: sin valor guardado cuentan como activos ("on"). */
