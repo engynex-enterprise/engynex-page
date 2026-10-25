@@ -26,7 +26,7 @@ const es = {
   renewIn: "En {n} días",
   renewToday: "Hoy",
   renewOverdue: "Vencida hace {n} días",
-  tabs: { summary: "Resumen", activity: "Actividad", tickets: "Solicitudes", documents: "Documentos", meetings: "Reuniones" },
+  tabs: { summary: "Resumen", activity: "Actividad", tickets: "Solicitudes", projects: "Proyectos", invoices: "Facturas", documents: "Documentos", meetings: "Reuniones" },
   profile: {
     title: "Ficha comercial",
     edit: "Editar",
@@ -123,7 +123,7 @@ const en: AccountDetailCopy = {
   renewIn: "In {n} days",
   renewToday: "Today",
   renewOverdue: "Overdue by {n} days",
-  tabs: { summary: "Summary", activity: "Activity", tickets: "Requests", documents: "Documents", meetings: "Meetings" },
+  tabs: { summary: "Summary", activity: "Activity", tickets: "Requests", projects: "Projects", invoices: "Invoices", documents: "Documents", meetings: "Meetings" },
   profile: {
     title: "Account profile",
     edit: "Edit",

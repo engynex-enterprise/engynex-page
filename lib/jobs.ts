@@ -8,6 +8,7 @@ import { sendEmail } from "@/lib/email/send";
 import { abandoned, bookingConfirmation, customEmail, followup, newLeadAlert, weeklyReport, type Rendered } from "@/lib/email/templates";
 import { normalizeFollowupConfig } from "@/content/followupDefaults";
 import { reconcileDomainOrders } from "@/lib/domainOrders";
+import { reconcileInvoices } from "@/lib/invoices";
 
 export type JobsSummary = {
   whatsapp?: { sent: number; failed: number } | string;
@@ -17,6 +18,7 @@ export type JobsSummary = {
   ai?: { analyzed: number; failed: number } | string;
   emails?: { sent: number; failed: number; cancelled: number } | string;
   domains?: { registered: number; retried: number; confirmed: number; cancelled: number } | string;
+  invoices?: { overdue: number; reminders: number; paid: number } | string;
 };
 
 type Claimed = {
@@ -95,6 +97,15 @@ export async function runJobs(budgetMs = 50_000): Promise<JobsSummary> {
       summary.domains = await reconcileDomainOrders(Math.min(15_000, left() - 10_000));
     } catch (e) {
       summary.domains = errorText(e);
+    }
+  }
+
+  // 5b. Facturas: vencidas, recordatorios y pagos pendientes en Wompi.
+  if (left() > 12_000) {
+    try {
+      summary.invoices = await reconcileInvoices(Math.min(10_000, left() - 10_000));
+    } catch (e) {
+      summary.invoices = errorText(e);
     }
   }
 

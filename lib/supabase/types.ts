@@ -38,6 +38,7 @@ export type Profile = {
   last_seen_at: string | null;
   created_at: string;
   updated_at: string;
+  notify_prefs?: Json;
 };
 
 export type LeadTier = "green" | "yellow" | "red";
@@ -567,6 +568,87 @@ export type WebhookDelivery = {
   completed_at: string | null;
 };
 
+export type ProjectStatus = "planning" | "in_progress" | "review" | "delivered" | "paused" | "cancelled";
+export type ClientProject = {
+  id: string;
+  account_id: string;
+  name: string;
+  description: string | null;
+  service_slug: string | null;
+  status: ProjectStatus;
+  progress: number;
+  start_date: string | null;
+  due_date: string | null;
+  manager_id: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+export type ProjectMilestone = {
+  id: string;
+  project_id: string;
+  title: string;
+  description: string | null;
+  position: number;
+  due_date: string | null;
+  done_at: string | null;
+  needs_approval: boolean;
+  approval_status: "pending" | "approved" | "changes_requested" | null;
+  client_comment: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+};
+export type ProjectUpdate = {
+  id: number;
+  project_id: string;
+  author_id: string | null;
+  kind: "update" | "delivery" | "question" | "client";
+  body: string;
+  link_url: string | null;
+  visible_to_client: boolean;
+  created_at: string;
+};
+export type ClientBilling = { user_id: string; legal_name: string; tax_id: string; email: string; phone: string | null; address: string | null; city: string | null; updated_at: string };
+export type InvoiceItem = { description: string; quantity: number; unit_price: number };
+export type InvoiceStatus = "draft" | "issued" | "paid" | "overdue" | "cancelled";
+export type ClientInvoice = {
+  id: string;
+  number: number;
+  account_id: string;
+  project_id: string | null;
+  concept: string;
+  items: InvoiceItem[];
+  subtotal: number;
+  tax_rate: number;
+  tax: number;
+  total: number;
+  status: InvoiceStatus;
+  issued_at: string | null;
+  due_date: string | null;
+  paid_at: string | null;
+  payment_reference: string | null;
+  payment_id: string | null;
+  receipt: Json | null;
+  is_test: boolean;
+  notes: string | null;
+  reminded_at: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+export type ClientReferral = {
+  id: string;
+  referrer_id: string;
+  lead_id: string | null;
+  name: string;
+  company: string | null;
+  email: string;
+  phone: string | null;
+  note: string | null;
+  reward_status: "pending" | "eligible" | "paid" | "not_eligible";
+  created_at: string;
+};
+
 export type DomainOrderStatus = "pending_payment" | "paid" | "registering" | "registered" | "failed" | "declined" | "cancelled" | "manual";
 
 export type DomainOrder = {
@@ -991,6 +1073,42 @@ export type Database = {
         Update: { revoked_at?: string | null; name?: string };
         Relationships: [];
       };
+      client_projects: {
+        Row: ClientProject;
+        Insert: Pick<ClientProject, "account_id" | "name"> & Partial<ClientProject>;
+        Update: Partial<Omit<ClientProject, "id">>;
+        Relationships: [];
+      };
+      project_milestones: {
+        Row: ProjectMilestone;
+        Insert: Pick<ProjectMilestone, "project_id" | "title"> & Partial<ProjectMilestone>;
+        Update: Partial<Omit<ProjectMilestone, "id">>;
+        Relationships: [];
+      };
+      project_updates: {
+        Row: ProjectUpdate;
+        Insert: Pick<ProjectUpdate, "project_id" | "body"> & Partial<Omit<ProjectUpdate, "id">>;
+        Update: Partial<Omit<ProjectUpdate, "id">>;
+        Relationships: [];
+      };
+      client_billing: {
+        Row: ClientBilling;
+        Insert: Omit<ClientBilling, "updated_at"> & Partial<ClientBilling>;
+        Update: Partial<ClientBilling>;
+        Relationships: [];
+      };
+      client_invoices: {
+        Row: ClientInvoice;
+        Insert: Pick<ClientInvoice, "account_id" | "concept"> & Partial<Omit<ClientInvoice, "id" | "number">>;
+        Update: Partial<Omit<ClientInvoice, "id" | "number">>;
+        Relationships: [];
+      };
+      client_referrals: {
+        Row: ClientReferral;
+        Insert: never;
+        Update: Partial<Pick<ClientReferral, "reward_status">>;
+        Relationships: [];
+      };
       client_whois: {
         Row: ClientWhois;
         Insert: Omit<ClientWhois, "updated_at" | "registrar_ids"> & Partial<ClientWhois>;
@@ -1246,6 +1364,21 @@ export type Database = {
       calendar_feed_token: { Args: { p_rotate?: boolean }; Returns: string };
       calendar_feed_events: { Args: { p_token: string }; Returns: Json };
       domain_order_status: { Args: { p_reference: string }; Returns: Json };
+      project_milestone_review: { Args: { p_milestone: string; p_decision: "approved" | "changes_requested"; p_comment?: string | null }; Returns: undefined };
+      project_client_comment: { Args: { p_project: string; p_body: string }; Returns: undefined };
+      project_post_update: {
+        Args: { p_project: string; p_body: string; p_kind?: string; p_link?: string | null; p_visible?: boolean };
+        Returns: number;
+      };
+      project_manager_name: { Args: { p_project: string }; Returns: string | null };
+      my_booking_token: { Args: Record<string, never>; Returns: string };
+      my_appointment_cancel: { Args: { p_id: string; p_reason?: string | null }; Returns: undefined };
+      my_account_manager: { Args: Record<string, never>; Returns: { full_name: string; email: string; phone: string | null }[] };
+      client_refer: { Args: { p: Json }; Returns: string };
+      my_referrals: {
+        Args: Record<string, never>;
+        Returns: { id: string; name: string; company: string | null; email: string; created_at: string; lead_status: string; reward_status: string }[];
+      };
       self_signup_client: { Args: { p_email: string; p_password: string; p_full_name: string; p_phone?: string | null }; Returns: Json };
       notify: {
         Args: { p_roles: AppRole[] | null; p_user: string | null; p_kind: string; p_title: string; p_body: string | null; p_link: string | null };
@@ -1258,7 +1391,18 @@ export type Database = {
       account_timeline: { Args: { p_account: string; p_limit?: number }; Returns: Json };
       my_appointments: {
         Args: Record<string, never>;
-        Returns: { id: string; starts_at: string; ends_at: string; channel: MeetingChannel; status: string }[];
+        Returns: {
+          id: string;
+          starts_at: string;
+          ends_at: string;
+          channel: MeetingChannel;
+          status: string;
+          meeting_url: string | null;
+          location: string | null;
+          kind: string | null;
+          host_name: string | null;
+          booking_token: string;
+        }[];
       };
       public_tag_config: { Args: Record<string, never>; Returns: Json };
       integration_status: { Args: Record<string, never>; Returns: Json };

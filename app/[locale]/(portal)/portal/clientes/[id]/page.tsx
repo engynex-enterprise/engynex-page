@@ -7,6 +7,8 @@ import { AccountHeader } from "@/components/accounts/AccountHeader";
 import { AccountProfileCard } from "@/components/accounts/AccountProfileCard";
 import { AccountContacts } from "@/components/accounts/AccountContacts";
 import { AccountTimeline } from "@/components/accounts/AccountTimeline";
+import { AccountProjects } from "@/components/projects/AccountProjects";
+import { AccountInvoices } from "@/components/billing/AccountInvoices";
 import { accountDetailCopy } from "@/content/accountDetail";
 import { accountsProCopy } from "@/content/accountsPro";
 import { supportProCopy } from "@/content/supportPro";
@@ -18,10 +20,10 @@ import { nowIso } from "@/lib/dates";
 import { listEmployees } from "@/lib/employees";
 import { shortDuration, slaState, slaTone } from "@/lib/supportSla";
 import { ticketPriorityTone, ticketStatusTone } from "@/lib/tickets";
-import type { AccountContact, AccountDetails, AccountEvent, AccountNote, AccountRow, PortalDocument, Ticket } from "@/lib/supabase/types";
+import type { AccountContact, AccountDetails, AccountEvent, AccountNote, AccountRow, ClientInvoice, PortalDocument, Ticket } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 
-const TABS = ["summary", "activity", "tickets", "documents", "meetings"] as const;
+const TABS = ["summary", "activity", "tickets", "projects", "invoices", "documents", "meetings"] as const;
 type Tab = (typeof TABS)[number];
 
 export default async function AccountPage({
@@ -80,6 +82,13 @@ export default async function AccountPage({
     tab === "meetings" && leadId
       ? await supabase.from("appointments").select("id, starts_at, channel, status, kind, outcome").eq("lead_id", leadId).order("starts_at", { ascending: false })
       : { data: [] };
+  const [{ data: invoices }, { data: projects }] =
+    tab === "invoices"
+      ? await Promise.all([
+          supabase.from("client_invoices").select("*").eq("account_id", id).order("number", { ascending: false }),
+          supabase.from("client_projects").select("id, name").eq("account_id", id).order("created_at", { ascending: false }),
+        ])
+      : [{ data: [] }, { data: [] }];
 
   const now = nowIso();
   const nowMs = new Date(now).getTime();
@@ -263,6 +272,18 @@ export default async function AccountPage({
               names={names}
             />
           )}
+
+          {tab === "invoices" && (
+            <AccountInvoices
+              locale={locale}
+              accountId={id}
+              invoices={(invoices ?? []) as ClientInvoice[]}
+              projects={projects ?? []}
+              canWrite={profile.role === "admin" || profile.role === "sales"}
+            />
+          )}
+
+          {tab === "projects" && <AccountProjects locale={locale} accountId={id} employees={employees} today={today} />}
 
           {tab === "meetings" && (
             <section className={cn(card, "max-w-3xl")}>

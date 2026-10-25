@@ -5,6 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  FolderKanban,
+  Receipt,
+  Gift,
   Globe,
   BarChart3,
   Building2,
@@ -80,9 +83,14 @@ const NAV: NavItem[] = [
   { key: "support", path: "soporte", icon: Headset, group: "service", roles: ["admin", "support", "sales"], counter: "tickets" },
   { key: "accounts", path: "clientes", icon: Building2, group: "service", roles: ["admin", "sales", "support"] },
   { key: "domains", path: "dominios", icon: Globe, group: "service", roles: ["admin", "sales"] },
+  { key: "projects", path: "proyectos", icon: FolderKanban, group: "client", roles: ["client"] },
   { key: "tickets", path: "soporte", icon: LifeBuoy, group: "client", roles: ["client", "provider"] },
+  { key: "meetings", path: "reuniones", icon: CalendarDays, group: "client", roles: ["client"] },
   { key: "documents", path: "documentos", icon: FolderOpen, group: "client", roles: ["client", "provider"] },
+  { key: "billing", path: "facturacion", icon: Receipt, group: "client", roles: ["client"] },
   { key: "myDomains", path: "dominios", icon: Globe, group: "client", roles: ["client", "provider"] },
+  { key: "referrals", path: "referidos", icon: Gift, group: "client", roles: ["client"] },
+  { key: "help", path: "ayuda", icon: CircleHelp, group: "client", roles: ["client", "provider"] },
   { key: "automations", path: "automatizaciones", icon: Workflow, group: "admin", roles: ["admin", "sales", "marketing"] },
   { key: "integrations", path: "integraciones", icon: Plug, group: "admin", roles: ["admin"] },
   { key: "settings", path: "configuracion", icon: Settings, group: "admin", roles: ["admin"] },
