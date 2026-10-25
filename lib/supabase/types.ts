@@ -567,6 +567,84 @@ export type WebhookDelivery = {
   completed_at: string | null;
 };
 
+export type DomainOrderStatus = "pending_payment" | "paid" | "registering" | "registered" | "failed" | "declined" | "cancelled" | "manual";
+
+export type DomainOrder = {
+  id: string;
+  reference: string;
+  domain: string;
+  years: number;
+  item_id: string | null;
+  price_cop: number;
+  cost_cents: number | null;
+  cost_currency: string | null;
+  name: string;
+  email: string;
+  phone: string | null;
+  legal_id: string | null;
+  status: DomainOrderStatus;
+  payment_provider: string;
+  payment_id: string | null;
+  payment_status: string | null;
+  registrar_order_id: string | null;
+  registrar_status: string | null;
+  error: string | null;
+  lead_id: string | null;
+  created_at: string;
+  paid_at: string | null;
+  registered_at: string | null;
+  updated_at: string;
+  register_attempts: number;
+  last_attempt_at: string | null;
+  user_id: string | null;
+  kind: "register" | "renewal";
+  domain_id: string | null;
+  registrar_subscription_id: string | null;
+  receipt: Json | null;
+  is_test: boolean;
+  payment_checked_at: string | null;
+};
+
+export type ClientWhois = {
+  user_id: string;
+  entity_type: "individual" | "organization";
+  first_name: string;
+  last_name: string;
+  company: string | null;
+  document_id: string | null;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+  registrar_ids: Json;
+  updated_at: string;
+};
+
+export type ClientDomainStatus = "pending" | "active" | "expiring" | "expired" | "transferred" | "cancelled";
+
+export type ClientDomain = {
+  id: string;
+  owner_id: string;
+  domain: string;
+  status: ClientDomainStatus;
+  registered_at: string;
+  expires_at: string | null;
+  auto_renew: boolean;
+  privacy: boolean;
+  locked: boolean;
+  subscription_id: string | null;
+  renewal_price_cop: number | null;
+  last_synced_at: string | null;
+  last_reminder_days: number | null;
+  order_id: string | null;
+  is_test: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ApiScope = "leads:read" | "leads:write" | "tickets:read" | "tickets:write" | "appointments:read";
 
 export type ApiKey = {
@@ -913,6 +991,24 @@ export type Database = {
         Update: { revoked_at?: string | null; name?: string };
         Relationships: [];
       };
+      client_whois: {
+        Row: ClientWhois;
+        Insert: Omit<ClientWhois, "updated_at" | "registrar_ids"> & Partial<ClientWhois>;
+        Update: Partial<ClientWhois>;
+        Relationships: [];
+      };
+      client_domains: {
+        Row: ClientDomain;
+        Insert: Pick<ClientDomain, "owner_id" | "domain"> & Partial<ClientDomain>;
+        Update: Partial<Omit<ClientDomain, "id">>;
+        Relationships: [];
+      };
+      domain_orders: {
+        Row: DomainOrder;
+        Insert: Pick<DomainOrder, "reference" | "domain" | "price_cop" | "name" | "email"> & Partial<DomainOrder>;
+        Update: Partial<Omit<DomainOrder, "id" | "reference">>;
+        Relationships: [];
+      };
       calendar_feeds: {
         Row: { user_id: string; token: string; created_at: string };
         Insert: never;
@@ -1149,6 +1245,12 @@ export type Database = {
       api_key_check: { Args: { p_key: string; p_scope: string }; Returns: Json };
       calendar_feed_token: { Args: { p_rotate?: boolean }; Returns: string };
       calendar_feed_events: { Args: { p_token: string }; Returns: Json };
+      domain_order_status: { Args: { p_reference: string }; Returns: Json };
+      self_signup_client: { Args: { p_email: string; p_password: string; p_full_name: string; p_phone?: string | null }; Returns: Json };
+      notify: {
+        Args: { p_roles: AppRole[] | null; p_user: string | null; p_kind: string; p_title: string; p_body: string | null; p_link: string | null };
+        Returns: undefined;
+      };
       automation_samples: { Args: { p_trigger: string }; Returns: Json };
       automation_run_manual: { Args: { p_rule: string; p_entity_id: string }; Returns: Json };
       automation_stats: { Args: { p_days?: number; p_rule?: string | null }; Returns: Json };

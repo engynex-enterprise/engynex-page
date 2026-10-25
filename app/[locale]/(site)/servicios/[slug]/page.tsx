@@ -15,6 +15,8 @@ import { PricingTable } from "@/components/PricingTable";
 import { CtaBand } from "@/components/sections/CtaBand";
 import { ServiceHero } from "@/components/services/ServiceHero";
 import { ServiceProcess } from "@/components/services/ServiceProcess";
+import { ShowcasePage } from "@/components/services/showcase/ShowcasePage";
+import { showcasePages } from "@/content/servicePages";
 import {
   TechStack,
   WorkGallery,
@@ -184,6 +186,9 @@ export default async function ServiceDetailPage({
   if (!service) notFound();
 
   const dict = getDictionary(locale);
+  // Servicios con página insignia propia (Desarrollo Web, Plataformas Web…).
+  const flagship = showcasePages[slug];
+  if (flagship) return <ShowcasePage service={service} locale={locale} dict={dict} copy={flagship[locale]} />;
   const t = dict.servicesPage;
   const copy = service[locale];
   const family = serviceFamily(slug);

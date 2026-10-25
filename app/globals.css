@@ -813,3 +813,19 @@ h3,
 .portal-title-slot:has(.portal-page-title) .portal-title-fallback {
   display: none;
 }
+
+/* Flechas del proceso (páginas insignia): el trazo punteado avanza. */
+.flow-dash {
+  stroke-dasharray: 6 7;
+  animation: flowDash 1.2s linear infinite;
+}
+@keyframes flowDash {
+  to {
+    stroke-dashoffset: -13;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow-dash {
+    animation: none;
+  }
+}

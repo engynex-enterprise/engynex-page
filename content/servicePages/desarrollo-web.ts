@@ -1,0 +1,233 @@
+import type { Locale } from "@/i18n/config";
+import type { ShowcaseCopy } from "./types";
+
+/** Página insignia de Desarrollo Web. Cifras: las del sitio (statsBand y portafolio). */
+const es: ShowcaseCopy = {
+  hero: {
+    eyebrow: "Desarrollo web a la medida",
+    title: "Tu sitio web, tu mejor vendedor.",
+    subtitle: "Diseñamos y programamos sitios rápidos, seguros y pensados para convertir visitas en clientes. Listos en semanas, editables por tu equipo.",
+    primary: "Cotizar mi sitio",
+    secondary: "Ver proyectos",
+    wordmark: "Desarrollo Web",
+    image: "/images/about-team.jpg",
+  },
+  proof: [
+    { value: "+120", label: "proyectos entregados" },
+    { value: "+80", label: "clientes en la región" },
+    { value: "98%", label: "vuelve por un segundo proyecto" },
+    { value: "3 meses", label: "de garantía en cada sitio" },
+  ],
+  tiles: { title: "¿Qué necesitas construir?", hint: "Elige y te mostramos cómo lo hacemos" },
+  featured: {
+    eyebrow: "Así trabajamos",
+    title: "Algo revisable en tus manos cada semana",
+    body: "Sin cajas negras: ves el diseño antes de programarlo, pruebas el sitio en un enlace privado y apruebas cada etapa.",
+    cta: "Conocer el proceso",
+    image: "/images/about-meeting.jpg",
+  },
+  solutionsTitle: "Un tipo de sitio para cada objetivo",
+  solutionsSubtitle: "Del lanzamiento de una campaña a un portal con miles de usuarios: el mismo equipo, el mismo estándar de calidad.",
+  solutions: [
+    { key: "landing", icon: "megaphone", image: "/images/svc-marketing-digital.jpg", href: "plans", eyebrow: "Para campañas y lanzamientos", title: "Landing pages", body: "Una página, un objetivo. Diseñada para tus anuncios, medida desde el primer clic y lista en días.", more: "Ver planes" },
+    { key: "corporate", icon: "layout", image: "/images/about-office.jpg", href: "plans", eyebrow: "Para que confíen en tu marca", title: "Sitio corporativo", body: "Tu empresa explicada en minutos: servicios, casos, equipo y contacto, con un gestor fácil de usar.", more: "Ver planes" },
+    { key: "ecommerce", icon: "bag", image: "/images/svc-ecommerce.jpg", href: "ecommerce", eyebrow: "Para vender en línea", title: "Tienda online", body: "Catálogo, pagos locales, envíos e inventario conectado. Vende las 24 horas.", more: "Ver E-commerce" },
+    { key: "platform", icon: "blocks", image: "/images/svc-plataformas-web.jpg", href: "plataformas-web", eyebrow: "Para operar en la web", title: "Portales y web apps", body: "Zonas de clientes, reservas, cotizadores y paneles a la medida de tu proceso.", more: "Ver Plataformas web" },
+    { key: "global", icon: "globe", image: "/images/svc-cloud-devops.jpg", href: "plans", eyebrow: "Para crecer fuera de Colombia", title: "Sitios multilenguaje", body: "Español, inglés y más idiomas con SEO por país, monedas y formularios localizados.", more: "Ver planes" },
+    { key: "redesign", icon: "refresh", image: "/images/portfolio-4.jpg", href: "plans", eyebrow: "Para renovar lo que ya tienes", title: "Rediseño y migración", body: "Modernizamos tu sitio sin perder posiciones en Google: redirecciones, contenido y analítica migrados.", more: "Ver planes" },
+  ],
+  capabilities: {
+    titleLight: "Servicios de desarrollo web",
+    titleBold: "para cada parte de tu proyecto",
+    intro: "Un sitio que vende no es solo diseño ni solo código. Cubrimos cada capa, de la estrategia al mantenimiento, con un solo equipo responsable.",
+    items: [
+      { icon: "compass", title: "Estrategia y arquitectura", body: "Objetivos, público, mapa del sitio y recorrido de conversión antes de diseñar.", tags: ["Mapa del sitio", "Embudo", "Contenido"] },
+      { icon: "palette", title: "Diseño UI/UX", body: "Pantallas a la medida de tu marca en Figma, para escritorio y celular, con dos rondas de ajuste.", tags: ["Figma", "Design system", "Prototipo"] },
+      { icon: "code", title: "Desarrollo front-end", body: "Código moderno y liviano que carga en menos de 2 segundos y se ve perfecto en cualquier pantalla.", tags: ["Next.js", "React", "Tailwind"] },
+      { icon: "pen", title: "Gestor de contenidos", body: "Edita textos, imágenes, blog y páginas sin programar, con roles y vista previa.", tags: ["CMS headless", "WordPress", "Blog"] },
+      { icon: "search", title: "SEO técnico y AEO", body: "Estructura, datos estructurados, velocidad y metadatos para aparecer en Google y en los asistentes de IA.", tags: ["Schema", "Core Web Vitals", "Search Console"] },
+      { icon: "plug", title: "Integraciones", body: "Formularios al CRM, WhatsApp, pagos, agenda, analítica y píxeles de anuncios conectados.", tags: ["CRM", "WhatsApp", "GA4 · Meta"] },
+      { icon: "accessibility", title: "Accesibilidad", body: "Contraste, teclado, lectores de pantalla y textos alternativos según WCAG 2.2 AA.", tags: ["WCAG 2.2", "Teclado", "Lectores"] },
+      { icon: "server", title: "Hosting y mantenimiento", body: "Hosting rápido, SSL, copias de seguridad, actualizaciones y soporte por WhatsApp.", tags: ["SSL", "Backups", "Monitoreo"] },
+    ],
+  },
+  outcomes: {
+    title: "Lo que cambia con un sitio bien hecho",
+    subtitle: "Medimos el éxito en resultados de negocio, no en número de páginas.",
+    items: [
+      { title: "Lanza rápido sin sacrificar calidad", body: "Etapas cortas con entregables revisables. Tu sitio en línea en 4 a 8 semanas, no en meses." },
+      { title: "Convierte tráfico en clientes", body: "Llamados a la acción claros, formularios cortos y WhatsApp a un clic. Cada visita tiene un siguiente paso." },
+      { title: "Tu equipo edita sin depender de nadie", body: "Cambia textos, imágenes y publicaciones en minutos desde un panel sencillo, con vista previa." },
+    ],
+    visual: {
+      week: "Semana",
+      review: "Revisión",
+      live: "En línea",
+      funnel: [
+        { label: "Visitas", value: "2.400" },
+        { label: "Contactos", value: "96" },
+        { label: "Clientes", value: "18" },
+      ],
+      editor: "Editar página de inicio",
+      publish: "Publicar",
+      saved: "Cambios guardados",
+    },
+  },
+  performance: {
+    eyebrow: "Rendimiento y seguridad",
+    title: "Rápido para tus clientes. Rápido para Google.",
+    subtitle: "Cada sitio sale con un informe de Lighthouse y las Core Web Vitals en verde. Si no las cumple, no lo entregamos.",
+    scores: [
+      { label: "Rendimiento", value: 95 },
+      { label: "Accesibilidad", value: 100 },
+      { label: "Buenas prácticas", value: 100 },
+      { label: "SEO", value: 100 },
+    ],
+    scoresNote: "Meta mínima de entrega en Lighthouse (móvil).",
+    vitals: [
+      { metric: "LCP", target: "< 2,5 s", label: "Carga del contenido principal" },
+      { metric: "INP", target: "< 200 ms", label: "Respuesta al tocar o hacer clic" },
+      { metric: "CLS", target: "< 0,1", label: "Estabilidad visual" },
+    ],
+    security: ["Certificado SSL y HTTPS forzado", "Cabeceras de seguridad y protección anti-spam", "Copias de seguridad automáticas", "Cumplimiento de la Ley 1581 de datos personales y banner de cookies"],
+  },
+  cases: {
+    title: "Resultados que se pueden medir",
+    subtitle: "Algunos proyectos recientes y lo que lograron.",
+    cta: "Ver portafolio completo",
+    link: "Ver portafolio",
+    slugs: ["vertex-corporate-web", "nova-retail-ecommerce", "meridian-saas"],
+  },
+  models: {
+    title: "Elige cómo quieres trabajar",
+    subtitle: "Tres formas de contratar, según tu presupuesto y tu ritmo.",
+    items: [
+      { name: "Suscripción", fit: "Para empezar sin inversión inicial", body: "Pagas una cuota mensual y nosotros ponemos diseño, dominio, hosting y mantenimiento.", points: ["Sin cuota inicial", "Cambios de contenido cada mes", "Soporte por WhatsApp"], cta: "Ver plan" },
+      { name: "Proyecto cerrado", fit: "Para tener tu sitio en propiedad", body: "Precio fijo, alcance definido y fechas acordadas. El código y el diseño son tuyos desde el primer día.", points: ["Precio y fechas fijos", "Código a tu nombre", "3 meses de garantía"], cta: "Ver planes" },
+      { name: "Evolución continua", fit: "Para equipos que crecen cada mes", body: "Un equipo con horas al mes para nuevas secciones, campañas, pruebas A/B y mejoras de conversión.", points: ["Bolsa de horas mensual", "Prioridades cada mes", "Informe de resultados"], cta: "Hablar con un asesor" },
+    ],
+  },
+  included: {
+    title: "Incluido en todos los proyectos",
+    items: ["Diseño a la medida, sin plantillas", "Versión para celular y tableta", "Formularios y WhatsApp conectados", "SEO técnico y Google Analytics", "Certificado SSL", "Capacitación para tu equipo", "Manual de uso del gestor", "Garantía de 3 meses"],
+  },
+  domains: true,
+  processIcons: ["clipboard", "palette", "code", "rocket"],
+  process: { stepLabel: "Etapa", ctaTitle: "La primera reunión no tiene costo: salimos con el mapa de tu sitio y una propuesta clara.", ctaLabel: "Agendar mi primera reunión" },
+};
+
+const en: ShowcaseCopy = {
+  hero: {
+    eyebrow: "Custom web development",
+    title: "Your website, your best salesperson.",
+    subtitle: "We design and build fast, secure websites made to turn visits into customers. Ready in weeks, editable by your team.",
+    primary: "Get a quote",
+    secondary: "See projects",
+    wordmark: "Web Development",
+    image: "/images/about-team.jpg",
+  },
+  proof: [
+    { value: "+120", label: "projects delivered" },
+    { value: "+80", label: "clients across the region" },
+    { value: "98%", label: "come back for a second project" },
+    { value: "3 months", label: "warranty on every site" },
+  ],
+  tiles: { title: "What do you need to build?", hint: "Pick one and we'll show you how we do it" },
+  featured: {
+    eyebrow: "How we work",
+    title: "Something you can review every week",
+    body: "No black boxes: you see the design before we code it, test the site on a private link and approve every stage.",
+    cta: "See the process",
+    image: "/images/about-meeting.jpg",
+  },
+  solutionsTitle: "A type of site for every goal",
+  solutionsSubtitle: "From a campaign launch to a portal with thousands of users: the same team, the same quality bar.",
+  solutions: [
+    { key: "landing", icon: "megaphone", image: "/images/svc-marketing-digital.jpg", href: "plans", eyebrow: "For campaigns and launches", title: "Landing pages", body: "One page, one goal. Built for your ads, measured from the first click and ready in days.", more: "See plans" },
+    { key: "corporate", icon: "layout", image: "/images/about-office.jpg", href: "plans", eyebrow: "So people trust your brand", title: "Corporate website", body: "Your company explained in minutes: services, cases, team and contact, with an easy CMS.", more: "See plans" },
+    { key: "ecommerce", icon: "bag", image: "/images/svc-ecommerce.jpg", href: "ecommerce", eyebrow: "To sell online", title: "Online store", body: "Catalog, local payments, shipping and connected inventory. Sell 24/7.", more: "See E-commerce" },
+    { key: "platform", icon: "blocks", image: "/images/svc-plataformas-web.jpg", href: "plataformas-web", eyebrow: "To run your business on the web", title: "Portals and web apps", body: "Client areas, bookings, quoting tools and dashboards built around your process.", more: "See Web platforms" },
+    { key: "global", icon: "globe", image: "/images/svc-cloud-devops.jpg", href: "plans", eyebrow: "To grow beyond Colombia", title: "Multilingual sites", body: "Spanish, English and more with per-country SEO, currencies and localized forms.", more: "See plans" },
+    { key: "redesign", icon: "refresh", image: "/images/portfolio-4.jpg", href: "plans", eyebrow: "To refresh what you have", title: "Redesign and migration", body: "We modernize your site without losing Google rankings: redirects, content and analytics migrated.", more: "See plans" },
+  ],
+  capabilities: {
+    titleLight: "Web development services",
+    titleBold: "for every part of your build",
+    intro: "A site that sells isn't just design or just code. We cover every layer, from strategy to maintenance, with one accountable team.",
+    items: [
+      { icon: "compass", title: "Strategy and architecture", body: "Goals, audience, sitemap and conversion journey before any design.", tags: ["Sitemap", "Funnel", "Content"] },
+      { icon: "palette", title: "UI/UX design", body: "Screens tailored to your brand in Figma, for desktop and mobile, with two review rounds.", tags: ["Figma", "Design system", "Prototype"] },
+      { icon: "code", title: "Front-end development", body: "Modern, lightweight code that loads in under 2 seconds and looks perfect on any screen.", tags: ["Next.js", "React", "Tailwind"] },
+      { icon: "pen", title: "Content management", body: "Edit text, images, blog and pages without code, with roles and preview.", tags: ["Headless CMS", "WordPress", "Blog"] },
+      { icon: "search", title: "Technical SEO and AEO", body: "Structure, structured data, speed and metadata to show up on Google and AI assistants.", tags: ["Schema", "Core Web Vitals", "Search Console"] },
+      { icon: "plug", title: "Integrations", body: "Forms to your CRM, WhatsApp, payments, booking, analytics and ad pixels connected.", tags: ["CRM", "WhatsApp", "GA4 · Meta"] },
+      { icon: "accessibility", title: "Accessibility", body: "Contrast, keyboard, screen readers and alt text following WCAG 2.2 AA.", tags: ["WCAG 2.2", "Keyboard", "Screen readers"] },
+      { icon: "server", title: "Hosting and maintenance", body: "Fast hosting, SSL, backups, updates and WhatsApp support.", tags: ["SSL", "Backups", "Monitoring"] },
+    ],
+  },
+  outcomes: {
+    title: "What changes with a well-built site",
+    subtitle: "We measure success in business results, not page count.",
+    items: [
+      { title: "Launch fast without cutting corners", body: "Short stages with reviewable deliverables. Live in 4 to 8 weeks, not months." },
+      { title: "Turn traffic into customers", body: "Clear calls to action, short forms and one-tap WhatsApp. Every visit has a next step." },
+      { title: "Your team edits on its own", body: "Change text, images and posts in minutes from a simple panel, with preview." },
+    ],
+    visual: {
+      week: "Week",
+      review: "Review",
+      live: "Live",
+      funnel: [
+        { label: "Visits", value: "2,400" },
+        { label: "Leads", value: "96" },
+        { label: "Customers", value: "18" },
+      ],
+      editor: "Edit home page",
+      publish: "Publish",
+      saved: "Changes saved",
+    },
+  },
+  performance: {
+    eyebrow: "Performance and security",
+    title: "Fast for your customers. Fast for Google.",
+    subtitle: "Every site ships with a Lighthouse report and green Core Web Vitals. If it doesn't pass, we don't deliver it.",
+    scores: [
+      { label: "Performance", value: 95 },
+      { label: "Accessibility", value: 100 },
+      { label: "Best practices", value: 100 },
+      { label: "SEO", value: 100 },
+    ],
+    scoresNote: "Minimum delivery target in Lighthouse (mobile).",
+    vitals: [
+      { metric: "LCP", target: "< 2.5 s", label: "Main content load" },
+      { metric: "INP", target: "< 200 ms", label: "Response to taps and clicks" },
+      { metric: "CLS", target: "< 0.1", label: "Visual stability" },
+    ],
+    security: ["SSL certificate and forced HTTPS", "Security headers and anti-spam protection", "Automatic backups", "Data protection compliance and cookie banner"],
+  },
+  cases: {
+    title: "Results you can measure",
+    subtitle: "A few recent projects and what they achieved.",
+    cta: "See full portfolio",
+    link: "See portfolio",
+    slugs: ["vertex-corporate-web", "nova-retail-ecommerce", "meridian-saas"],
+  },
+  models: {
+    title: "Choose how you want to work",
+    subtitle: "Three ways to hire us, depending on your budget and pace.",
+    items: [
+      { name: "Subscription", fit: "To start with no upfront cost", body: "Pay a monthly fee and we provide design, domain, hosting and maintenance.", points: ["No upfront fee", "Monthly content changes", "WhatsApp support"], cta: "See plan" },
+      { name: "Fixed project", fit: "To own your website", body: "Fixed price, defined scope and agreed dates. The code and design are yours from day one.", points: ["Fixed price and dates", "Code in your name", "3-month warranty"], cta: "See plans" },
+      { name: "Continuous growth", fit: "For teams that grow every month", body: "A team with monthly hours for new sections, campaigns, A/B tests and conversion improvements.", points: ["Monthly hour bank", "Monthly priorities", "Results report"], cta: "Talk to an advisor" },
+    ],
+  },
+  included: {
+    title: "Included in every project",
+    items: ["Custom design, no templates", "Mobile and tablet versions", "Forms and WhatsApp connected", "Technical SEO and Google Analytics", "SSL certificate", "Team training", "CMS user guide", "3-month warranty"],
+  },
+  domains: true,
+  processIcons: ["clipboard", "palette", "code", "rocket"],
+  process: { stepLabel: "Stage", ctaTitle: "The first meeting is free: you leave with your sitemap and a clear proposal.", ctaLabel: "Book my first meeting" },
+};
+
+export const desarrolloWebPage: Record<Locale, ShowcaseCopy> = { es, en };

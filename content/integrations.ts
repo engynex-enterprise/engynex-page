@@ -139,6 +139,16 @@ const es = {
     slack_webhook_url: { label: "URL del webhook de Slack", placeholder: "https://hooks.slack.com/services/…", help: "Slack → tu app → Incoming Webhooks → Add New Webhook to Workspace." },
     teams_webhook_url: { label: "URL del webhook de Teams", placeholder: "https://…", help: "Teams → canal → Flujos de trabajo → «Publicar en un canal cuando se recibe una solicitud de webhook»." },
     google_chat_webhook_url: { label: "URL del webhook de Google Chat", placeholder: "https://chat.googleapis.com/v1/spaces/…", help: "Google Chat → espacio → Apps e integraciones → Webhooks." },
+    hostinger_api_token: { label: "Token de la API de Hostinger", help: "hPanel → tu perfil → API (Account → API) → Generate token. Se usa para consultar disponibilidad, precios y registrar dominios." },
+    domain_usd_cop: { label: "TRM para convertir precios (COP por USD)", placeholder: "4200", help: "El catálogo de Hostinger viene en USD. Actualízala cuando cambie el dólar." },
+    domain_margin_pct: { label: "Margen sobre el costo (%)", placeholder: "30", help: "Se suma al costo del registrador. El precio final se redondea a miles." },
+    domain_tlds: { label: "Extensiones que se muestran", placeholder: "com, co, com.co, net, org, store", help: "Separadas por coma, sin punto inicial. Máximo 20." },
+    domain_auto_register: { label: "Registrar automáticamente al aprobarse el pago", help: "Apágalo si prefieres revisar cada pedido y registrarlo a mano desde Portal → Dominios." },
+    wompi_public_key: { label: "Llave pública de Wompi", placeholder: "pub_prod_…", help: "Wompi → Desarrolladores → Llaves del API. Usa pub_test_… para probar." },
+    wompi_integrity_secret: { label: "Secreto de integridad", placeholder: "prod_integrity_…", help: "Wompi → Desarrolladores → Secretos para integración técnica → Integridad." },
+    wompi_private_key: { label: "Llave privada de Wompi", placeholder: "prv_prod_…", help: "Wompi → Desarrolladores → Llaves del API. Permite consultar el estado de cada pago (no depende solo del webhook)." },
+    domain_test_safe: { label: "Proteger pruebas: no comprar con pagos de prueba", help: "Encendido (recomendado): un pago de prueba (sandbox) se marca como pagado pero no compra el dominio en Hostinger. Apágalo solo para probar el registro real (se cobra a tu cuenta)." },
+    wompi_events_secret: { label: "Secreto de eventos", placeholder: "prod_events_…", help: "Wompi → Desarrolladores → Secretos para integración técnica → Eventos." },
   } as Record<string, Field>,
   preview: "Próximo envío (últimos 90 días)",
   previewEmpty: "Aún no hay conversiones: aparecen cuando llegan leads desde anuncios (con gclid) y avanzan en el CRM.",
@@ -285,6 +295,16 @@ const en: IntegrationsCopy = {
     slack_webhook_url: { label: "Slack webhook URL", placeholder: "https://hooks.slack.com/services/…", help: "Slack → your app → Incoming Webhooks → Add New Webhook to Workspace." },
     teams_webhook_url: { label: "Teams webhook URL", placeholder: "https://…", help: "Teams → channel → Workflows → “Post to a channel when a webhook request is received”." },
     google_chat_webhook_url: { label: "Google Chat webhook URL", placeholder: "https://chat.googleapis.com/v1/spaces/…", help: "Google Chat → space → Apps & integrations → Webhooks." },
+    hostinger_api_token: { label: "Hostinger API token", help: "hPanel → your profile → API (Account → API) → Generate token. Used to check availability, prices and register domains." },
+    domain_usd_cop: { label: "Exchange rate (COP per USD)", placeholder: "4200", help: "Hostinger's catalog is in USD. Update it when the dollar changes." },
+    domain_margin_pct: { label: "Margin over cost (%)", placeholder: "30", help: "Added to the registrar cost. The final price is rounded to thousands." },
+    domain_tlds: { label: "Extensions shown", placeholder: "com, co, com.co, net, org, store", help: "Comma separated, no leading dot. Up to 20." },
+    domain_auto_register: { label: "Register automatically when payment is approved", help: "Turn off to review each order and register it manually from Portal → Domains." },
+    wompi_public_key: { label: "Wompi public key", placeholder: "pub_prod_…", help: "Wompi → Developers → API keys. Use pub_test_… to test." },
+    wompi_integrity_secret: { label: "Integrity secret", placeholder: "prod_integrity_…", help: "Wompi → Developers → Technical integration secrets → Integrity." },
+    wompi_private_key: { label: "Wompi private key", placeholder: "prv_prod_…", help: "Wompi → Developers → API keys. Lets us check each payment's status (not only via the webhook)." },
+    domain_test_safe: { label: "Protect tests: don't buy with test payments", help: "On (recommended): a test (sandbox) payment is marked paid but doesn't buy the domain at Hostinger. Turn off only to test real registration (charged to your account)." },
+    wompi_events_secret: { label: "Events secret", placeholder: "prod_events_…", help: "Wompi → Developers → Technical integration secrets → Events." },
   },
   preview: "Next upload (last 90 days)",
   previewEmpty: "No conversions yet: they appear when leads arrive from ads (with gclid) and move forward in the CRM.",
@@ -326,9 +346,13 @@ export const secretKeys = new Set([
   "slack_webhook_url",
   "teams_webhook_url",
   "google_chat_webhook_url",
+  "hostinger_api_token",
+  "wompi_integrity_secret",
+  "wompi_events_secret",
+  "wompi_private_key",
 ]);
 /** Interruptores (on/off); sin valor guardado cuentan como encendidos. */
-export const toggleKeys = new Set(["ai_lead_insights", "followup_sequence", "abandoned_recovery", "weekly_report"]);
+export const toggleKeys = new Set(["ai_lead_insights", "followup_sequence", "abandoned_recovery", "weekly_report", "domain_auto_register", "domain_test_safe"]);
 /** Secretos que la plataforma puede generar (no vienen de un tercero). */
 export const generatableKeys = new Set(["whatsapp_verify_token", "ads_feed_password", "cron_secret"]);
 /** Campos que deben estar para que una sección cuente como conectada. */

@@ -101,6 +101,7 @@ export default async function IntegrationPage({
   if (slug === "whatsapp") urls.push({ label: old.sections.whatsapp.webhook, url: `${site}/api/whatsapp/webhook` });
   if (slug === "messenger-instagram") urls.push({ label: old.sections.social.webhook, url: `${site}/api/meta/webhook` });
   if (slug === "resend") urls.push({ label: old.sections.email.webhook, url: `${site}/api/email/webhook` });
+  if (slug === "wompi") urls.push({ label: locale === "en" ? "Events URL (Wompi → Developers → Events URL)" : "URL de eventos (Wompi → Desarrolladores → URL de eventos)", url: `${site}/api/payments/wompi` });
   if (slug === "google-ads") urls.push({ label: old.sections.feed.url, url: `${site}/api/ads/conversions` });
   if (slug === "scheduled-jobs") urls.push({ label: old.sections.automation.url, url: `${site}/api/jobs/run` });
   const steps = slug === "messenger-instagram" ? old.sections.social.steps : slug === "google-ads" ? old.sections.feed.steps : [];

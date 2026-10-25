@@ -7,6 +7,7 @@ import { analyzeLead } from "@/lib/ai";
 import { sendEmail } from "@/lib/email/send";
 import { abandoned, bookingConfirmation, customEmail, followup, newLeadAlert, weeklyReport, type Rendered } from "@/lib/email/templates";
 import { normalizeFollowupConfig } from "@/content/followupDefaults";
+import { reconcileDomainOrders } from "@/lib/domainOrders";
 
 export type JobsSummary = {
   whatsapp?: { sent: number; failed: number } | string;
@@ -15,6 +16,7 @@ export type JobsSummary = {
   abandoned?: number | string;
   ai?: { analyzed: number; failed: number } | string;
   emails?: { sent: number; failed: number; cancelled: number } | string;
+  domains?: { registered: number; retried: number; confirmed: number; cancelled: number } | string;
 };
 
 type Claimed = {
@@ -87,7 +89,16 @@ export async function runJobs(budgetMs = 50_000): Promise<JobsSummary> {
     }
   }
 
-  // 5. Correos
+  // 5. Dominios: registra pagados pendientes, reintenta y confirma en Hostinger.
+  if (left() > 15_000) {
+    try {
+      summary.domains = await reconcileDomainOrders(Math.min(15_000, left() - 10_000));
+    } catch (e) {
+      summary.domains = errorText(e);
+    }
+  }
+
+  // 6. Correos (al final, para enviar también los que generaron los dominios)
   if (c.resend_api_key && c.email_from) {
     summary.emails = await sendQueuedEmails(c.resend_api_key, c.email_from, c, left);
   } else {

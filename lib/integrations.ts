@@ -46,7 +46,17 @@ export type IntegrationKey =
   | "weekly_report"
   | "slack_webhook_url"
   | "teams_webhook_url"
-  | "google_chat_webhook_url";
+  | "google_chat_webhook_url"
+  | "hostinger_api_token"
+  | "domain_usd_cop"
+  | "domain_margin_pct"
+  | "domain_tlds"
+  | "domain_auto_register"
+  | "wompi_public_key"
+  | "wompi_integrity_secret"
+  | "wompi_events_secret"
+  | "wompi_private_key"
+  | "domain_test_safe";
 
 const ENV_FALLBACK: Record<IntegrationKey, string> = {
   gtm_id: "NEXT_PUBLIC_GTM_ID",
@@ -87,6 +97,16 @@ const ENV_FALLBACK: Record<IntegrationKey, string> = {
   slack_webhook_url: "SLACK_WEBHOOK_URL",
   teams_webhook_url: "TEAMS_WEBHOOK_URL",
   google_chat_webhook_url: "GOOGLE_CHAT_WEBHOOK_URL",
+  hostinger_api_token: "HOSTINGER_API_TOKEN",
+  domain_usd_cop: "DOMAIN_USD_COP",
+  domain_margin_pct: "DOMAIN_MARGIN_PCT",
+  domain_tlds: "DOMAIN_TLDS",
+  domain_auto_register: "DOMAIN_AUTO_REGISTER",
+  wompi_public_key: "WOMPI_PUBLIC_KEY",
+  wompi_integrity_secret: "WOMPI_INTEGRITY_SECRET",
+  wompi_events_secret: "WOMPI_EVENTS_SECRET",
+  wompi_private_key: "WOMPI_PRIVATE_KEY",
+  domain_test_safe: "DOMAIN_TEST_SAFE",
 };
 
 /** Interruptores: sin valor guardado cuentan como activos ("on"). */

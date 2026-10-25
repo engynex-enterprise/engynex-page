@@ -6,7 +6,7 @@ import type { IntegrationKey } from "@/lib/integrations";
  * del servicio del tercero. Las guías paso a paso están en
  * content/integrationGuides.ts (por slug).
  */
-export type IntegrationCategory = "analytics" | "ads" | "messaging" | "email" | "ai" | "team" | "developers" | "system";
+export type IntegrationCategory = "analytics" | "ads" | "messaging" | "ecommerce" | "email" | "ai" | "team" | "developers" | "system";
 
 export type Pricing = "free" | "freemium" | "paid" | "included";
 
@@ -32,7 +32,7 @@ export type IntegrationDef = {
   via?: string[];
 };
 
-export const INTEGRATION_CATEGORIES: IntegrationCategory[] = ["analytics", "ads", "messaging", "email", "ai", "team", "developers", "system"];
+export const INTEGRATION_CATEGORIES: IntegrationCategory[] = ["analytics", "ads", "messaging", "ecommerce", "email", "ai", "team", "developers", "system"];
 
 const SUPABASE_PROJECT = "fdmmxaaydsqmxfknpaqw";
 
@@ -216,6 +216,44 @@ export const INTEGRATIONS: IntegrationDef[] = [
       { kind: "docs", label: "Messenger Platform", url: "https://developers.facebook.com/docs/messenger-platform" },
       { kind: "docs", label: "Instagram Messaging", url: "https://developers.facebook.com/docs/instagram-platform/instagram-api-with-facebook-login/messaging-api" },
       { kind: "status", label: "Estado de la plataforma", url: "https://metastatus.com/" },
+    ],
+  },
+  // ---------------- Ventas en línea ----------------
+  {
+    slug: "hostinger-domains",
+    name: "Venta de dominios (Hostinger)",
+    vendor: "Hostinger",
+    category: "ecommerce",
+    keys: ["hostinger_api_token", "domain_usd_cop", "domain_margin_pct", "domain_tlds", "domain_auto_register", "domain_test_safe"],
+    required: ["hostinger_api_token"],
+    pricing: "paid",
+    mono: "H",
+    color: "#673DE6",
+    links: [
+      { kind: "account", label: "hPanel de Hostinger", url: "https://hpanel.hostinger.com/" },
+      { kind: "console", label: "Tokens de la API", url: "https://hpanel.hostinger.com/profile/api" },
+      { kind: "console", label: "Dominios en hPanel", url: "https://hpanel.hostinger.com/domains" },
+      { kind: "docs", label: "Documentación de la API", url: "https://developers.hostinger.com/" },
+      { kind: "pricing", label: "Precios de dominios", url: "https://www.hostinger.com/domain-name-search" },
+      { kind: "status", label: "Estado del servicio", url: "https://statuspage.hostinger.com/" },
+    ],
+  },
+  {
+    slug: "wompi",
+    name: "Pagos en línea (Wompi)",
+    vendor: "Bancolombia",
+    category: "ecommerce",
+    keys: ["wompi_public_key", "wompi_private_key", "wompi_integrity_secret", "wompi_events_secret"],
+    required: ["wompi_public_key", "wompi_integrity_secret", "wompi_events_secret"],
+    pricing: "paid",
+    mono: "W",
+    color: "#2C2A29",
+    links: [
+      { kind: "account", label: "Panel de comercios", url: "https://comercios.wompi.co/" },
+      { kind: "docs", label: "Inicio rápido", url: "https://docs.wompi.co/docs/colombia/inicio-rapido/" },
+      { kind: "docs", label: "Checkout web", url: "https://docs.wompi.co/docs/colombia/widget-checkout-web/" },
+      { kind: "docs", label: "Eventos (webhooks)", url: "https://docs.wompi.co/docs/colombia/eventos/" },
+      { kind: "pricing", label: "Tarifas", url: "https://wompi.com/es/co/tarifas" },
     ],
   },
   // ---------------- Correo ----------------
