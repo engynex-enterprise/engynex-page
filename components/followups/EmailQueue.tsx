@@ -18,6 +18,7 @@ import {
   UserPlus,
   X,
 } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { createClient } from "@/lib/supabase/client";
 import type { EmailQueueRow, LeadTier } from "@/lib/supabase/types";
 import { automationCopy } from "@/content/automation";
@@ -35,7 +36,7 @@ type Tab = "queued" | "sent" | "problems" | "all";
 type Payload = { subject?: string; manual?: boolean; internal?: boolean } | null;
 
 const iconBtn = "grid h-10 w-10 shrink-0 place-items-center rounded-[10px] text-heading transition-colors hover:bg-[var(--meta-hover)]";
-const menu = "absolute z-30 mt-2 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
+const menu = "rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
 const softBtn = "inline-flex h-10 items-center gap-2 rounded-[10px] px-3.5 text-sm font-medium text-heading ring-1 ring-line hover:bg-[var(--meta-hover)]";
 
 const statusTone: Record<string, string> = {
@@ -79,6 +80,7 @@ export function EmailQueue({
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [filterAnchor, setFilterAnchor] = useState<HTMLElement | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [openId, setOpenId] = useState<number | null>(null);
   const [dialog, setDialog] = useState<"compose" | "enroll" | null>(null);
@@ -110,7 +112,7 @@ export function EmailQueue({
   useEffect(() => {
     if (!filterOpen) return;
     const onDown = (event: MouseEvent) => {
-      if (!(event.target as HTMLElement).closest("[data-filter]")) setFilterOpen(false);
+      if (!(event.target as HTMLElement).closest("[data-filter], [data-popover]")) setFilterOpen(false);
     };
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
@@ -205,12 +207,12 @@ export function EmailQueue({
           />
         </label>
         <div className="relative" data-filter>
-          <button type="button" onClick={() => setFilterOpen((v) => !v)} aria-expanded={filterOpen} aria-label={t.filter} className={cn(iconBtn, "relative", kind && "bg-[var(--meta-active)] text-accent")}>
+          <button type="button" onClick={(e) => { setFilterAnchor(e.currentTarget); setFilterOpen((v) => !v); }} aria-expanded={filterOpen} aria-label={t.filter} className={cn(iconBtn, "relative", kind && "bg-[var(--meta-active)] text-accent")}>
             <ListFilter className="h-[18px] w-[18px]" aria-hidden />
             {kind && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-brand-green-dark" />}
           </button>
           {filterOpen && (
-            <div className={cn(menu, "left-0 grid w-72 gap-3 p-3")}>
+            <FloatingPanel anchor={filterAnchor} open onClose={() => setFilterOpen(false)} align="start" className={cn(menu, "grid w-72 gap-3 p-3")}>
               <Select
                 size="md"
                 label={t.kind}
@@ -223,7 +225,7 @@ export function EmailQueue({
                   {t.clear}
                 </button>
               )}
-            </div>
+            </FloatingPanel>
           )}
         </div>
         {toast && (
@@ -648,6 +650,7 @@ function LeadDialog({
   const supabase = useMemo(() => createClient(), []);
   const titleId = useId();
   const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState<HTMLInputElement | null>(null);
   const [hits, setHits] = useState<LeadHit[]>([]);
   const [lead, setLead] = useState<LeadHit | null>(null);
   const [form, setForm] = useState({ subject: "", body: "", cta_label: "", cta_url: "", later: false, send_at: null as string | null });
@@ -736,25 +739,27 @@ function LeadDialog({
           </div>
         ) : (
           <div className="relative">
-            <input value={search} onChange={(e) => find(e.target.value)} placeholder={c.leadSearch} aria-label={c.lead} autoFocus className={field} />
+            <input ref={setSearchInput} value={search} onChange={(e) => find(e.target.value)} placeholder={c.leadSearch} aria-label={c.lead} autoFocus className={field} />
             {search.trim().length >= 2 && (
-              <ul className="absolute inset-x-0 top-full z-10 mt-1 max-h-64 overflow-y-auto rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
-                {hits.length === 0 && <li className="px-3 py-2 text-sm text-muted">{c.noResults}</li>}
-                {hits.map((h) => (
-                  <li key={h.id}>
-                    <button type="button" onClick={() => setLead(h)} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left hover:bg-[var(--meta-hover)]">
-                      <span className={cn("h-2 w-2 shrink-0 rounded-full", tierStyles[h.tier].dot)} aria-hidden />
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm text-heading">{h.name}</span>
-                        <span className="block truncate text-xs text-muted">
-                          {h.email}
-                          {h.email_opt_out_at && <span className="text-red-600 dark:text-red-400"> · {c.optedOut}</span>}
+              <FloatingPanel anchor={searchInput} open onClose={() => find("")} align="start" matchWidth className="max-h-64 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
+                <ul>
+                  {hits.length === 0 && <li className="px-3 py-2 text-sm text-muted">{c.noResults}</li>}
+                  {hits.map((h) => (
+                    <li key={h.id}>
+                      <button type="button" onClick={() => setLead(h)} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left hover:bg-[var(--meta-hover)]">
+                        <span className={cn("h-2 w-2 shrink-0 rounded-full", tierStyles[h.tier].dot)} aria-hidden />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm text-heading">{h.name}</span>
+                          <span className="block truncate text-xs text-muted">
+                            {h.email}
+                            {h.email_opt_out_at && <span className="text-red-600 dark:text-red-400"> · {c.optedOut}</span>}
+                          </span>
                         </span>
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </FloatingPanel>
             )}
           </div>
         )}

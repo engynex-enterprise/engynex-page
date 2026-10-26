@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Braces } from "lucide-react";
 import { CAMPAIGN_VARS, varToken } from "@/lib/campaignVars";
 import { campaignEditorCopy } from "@/content/campaignEditor";
 import type { Locale } from "@/i18n/config";
-import { cn } from "@/lib/utils";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 
 /**
  * Botón "Variable": lista de variables con ejemplo y un valor opcional por si
@@ -26,29 +26,18 @@ export function VariablePicker({
   const t = campaignEditorCopy[locale].vars;
   const [open, setOpen] = useState(false);
   const [fallbacks, setFallbacks] = useState<Record<string, string>>(() => Object.fromEntries(CAMPAIGN_VARS.map((v) => [v.key, v.fallback])));
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (event: MouseEvent) => {
-      if (!ref.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
 
   const vars = CAMPAIGN_VARS.filter((v) => !only || only.includes(v.key));
   return (
-    <div ref={ref} className="relative">
+    <div className="relative">
       <button
         type="button"
         onMouseDown={(e) => e.preventDefault()}
-        onClick={() => setOpen((v) => !v)}
+        onClick={(e) => {
+          setAnchor(e.currentTarget);
+          setOpen((v) => !v);
+        }}
         aria-expanded={open}
         className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs font-semibold text-accent ring-1 ring-brand-green/40 hover:bg-[var(--meta-active)]"
       >
@@ -56,11 +45,12 @@ export function VariablePicker({
         {t.button}
       </button>
       {open && (
-        <div
-          className={cn(
-            "absolute z-40 mt-1.5 w-[22rem] max-w-[calc(100vw-2rem)] rounded-xl bg-surface p-2 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card",
-            align === "right" ? "right-0" : "left-0",
-          )}
+        <FloatingPanel
+          anchor={anchor}
+          open
+          onClose={() => setOpen(false)}
+          align={align === "right" ? "end" : "start"}
+          className="w-[22rem] max-w-[calc(100vw-2rem)] rounded-xl bg-surface p-2 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card"
         >
           <p className="px-2 pb-1 pt-1 text-sm font-semibold text-heading">{t.title}</p>
           <p className="px-2 pb-2 text-xs text-muted">{t.hint}</p>
@@ -94,7 +84,7 @@ export function VariablePicker({
               </li>
             ))}
           </ul>
-        </div>
+        </FloatingPanel>
       )}
     </div>
   );

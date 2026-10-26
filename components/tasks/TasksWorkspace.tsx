@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { CalendarDays, CheckCircle2, KanbanSquare, List, ListFilter, Loader2, Plus, Search, Trash2, X } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { createClient } from "@/lib/supabase/client";
 import type { Task, TaskPriority, TaskType } from "@/lib/supabase/types";
 import { tasksProCopy } from "@/content/tasksPro";
@@ -26,7 +27,7 @@ type Workload = { id: string; name: string; open: number; overdue: number };
 const LOCAL_FIELDS = ["lead_name", "ticket_number", "comments"] as const;
 
 const iconBtn = "grid h-10 w-10 shrink-0 place-items-center rounded-[10px] text-heading transition-colors hover:bg-[var(--meta-hover)]";
-const menu = "absolute z-30 mt-2 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
+const menu = "rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
 const typing = (el: EventTarget | null) => {
   const node = el as HTMLElement | null;
   return !!node && (node.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(node.tagName));
@@ -81,6 +82,7 @@ export function TasksWorkspace({
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState({ priority: "", type: "", assignee: "", tag: "" });
   const [filterOpen, setFilterOpen] = useState(false);
+  const [filterAnchor, setFilterAnchor] = useState<HTMLElement | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [openId, setOpenId] = useState<string | null>(initialOpen);
   const [creating, setCreating] = useState(false);
@@ -216,7 +218,7 @@ export function TasksWorkspace({
   useEffect(() => {
     if (!filterOpen) return;
     const onDown = (event: MouseEvent) => {
-      if (!(event.target as HTMLElement).closest("[data-filter]")) setFilterOpen(false);
+      if (!(event.target as HTMLElement).closest("[data-filter], [data-popover]")) setFilterOpen(false);
     };
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
@@ -323,12 +325,12 @@ export function TasksWorkspace({
           />
         </label>
         <div className="relative" data-filter>
-          <button type="button" onClick={() => setFilterOpen((v) => !v)} aria-expanded={filterOpen} aria-label={t.filter} className={cn(iconBtn, "relative", activeFilters && "bg-[var(--meta-active)] text-accent")}>
+          <button type="button" onClick={(e) => { setFilterAnchor(e.currentTarget); setFilterOpen((v) => !v); }} aria-expanded={filterOpen} aria-label={t.filter} className={cn(iconBtn, "relative", activeFilters && "bg-[var(--meta-active)] text-accent")}>
             <ListFilter className="h-[18px] w-[18px]" aria-hidden />
             {activeFilters > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-brand-green-dark" />}
           </button>
           {filterOpen && (
-            <div className={cn(menu, "left-0 grid w-72 gap-3 p-3")}>
+            <FloatingPanel anchor={filterAnchor} open onClose={() => setFilterOpen(false)} align="start" className={cn(menu, "grid w-72 gap-3 p-3")}>
               <Select size="md" label={t.filters.priority} value={filters.priority} onChange={(v) => setFilters((f) => ({ ...f, priority: v }))} options={[{ value: "", label: t.filters.any }, ...PRIORITIES.map((x) => ({ value: x, label: p.priorities[x] }))]} />
               <Select size="md" label={t.filters.type} value={filters.type} onChange={(v) => setFilters((f) => ({ ...f, type: v }))} options={[{ value: "", label: t.filters.any }, ...TYPES.map((x) => ({ value: x, label: p.types[x] }))]} />
               <Select
@@ -346,7 +348,7 @@ export function TasksWorkspace({
                   {t.filters.clear}
                 </button>
               )}
-            </div>
+            </FloatingPanel>
           )}
         </div>
         {toast && (

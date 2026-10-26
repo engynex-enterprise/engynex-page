@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Copy, ExternalLink, Loader2, MoreHorizontal, Search } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { createClient } from "@/lib/supabase/client";
 import type { CampaignChannel, WaCampaign } from "@/lib/supabase/types";
 import { campaignsCopy } from "@/content/campaigns";
@@ -25,7 +26,7 @@ const inTab = (c: ListCampaign, tab: Tab) =>
   tab === "all" ||
   (tab === "active" ? c.status === "sending" || c.status === "paused" : c.status === tab);
 
-const menu = "absolute right-0 z-30 mt-1 w-44 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
+const menu = "w-44 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
 const menuItem = "flex h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm text-heading hover:bg-[var(--meta-hover)]";
 
 /**
@@ -53,6 +54,7 @@ export function CampaignsList({
   const [channel, setChannel] = useState<"" | CampaignChannel>("");
   const [query, setQuery] = useState("");
   const [menuFor, setMenuFor] = useState<string | null>(null);
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -233,7 +235,10 @@ export function CampaignsList({
                     <td className="relative px-1 py-2" data-row-menu>
                       <button
                         type="button"
-                        onClick={() => setMenuFor((v) => (v === x.id ? null : x.id))}
+                        onClick={(e) => {
+                          setMenuAnchor(e.currentTarget);
+                          setMenuFor((v) => (v === x.id ? null : x.id));
+                        }}
                         aria-expanded={menuFor === x.id}
                         aria-label={t.menu.more}
                         className="grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-[var(--meta-hover)] hover:text-heading"
@@ -241,7 +246,7 @@ export function CampaignsList({
                         {busy === x.id ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <MoreHorizontal className="h-4 w-4" aria-hidden />}
                       </button>
                       {menuFor === x.id && (
-                        <div className={menu}>
+                        <FloatingPanel anchor={menuAnchor} open onClose={() => setMenuFor(null)} role="menu" className={menu}>
                           <Link href={href} className={menuItem}>
                             <ExternalLink className="h-4 w-4" aria-hidden />
                             {t.menu.open}
@@ -250,7 +255,7 @@ export function CampaignsList({
                             <Copy className="h-4 w-4" aria-hidden />
                             {t.menu.duplicate}
                           </button>
-                        </div>
+                        </FloatingPanel>
                       )}
                     </td>
                   </tr>

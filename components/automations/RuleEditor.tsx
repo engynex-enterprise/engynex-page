@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Copy, Hourglass, Loader2, Plus, Trash2 } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { createClient } from "@/lib/supabase/client";
 import type { AutomationRule, Json, WaTemplate } from "@/lib/supabase/types";
 import {
@@ -76,6 +77,7 @@ export function RuleEditor({
   const [folder, setFolder] = useState(rule?.folder ?? t.groups[TRIGGERS[initialTrigger].group]);
   const [maxPerDay, setMaxPerDay] = useState<number | null>(rule?.max_per_day ?? null);
   const [adding, setAdding] = useState(false);
+  const [addAnchor, setAddAnchor] = useState<HTMLElement | null>(null);
   const [busy, setBusy] = useState<false | "save" | "dup">(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -285,12 +287,20 @@ export function RuleEditor({
           </ol>
           {canEdit && (
             <div className="relative mt-3">
-              <button type="button" onClick={() => setAdding((v) => !v)} aria-expanded={adding} className={buttonClasses("outline", "md", "h-10")}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  setAddAnchor(e.currentTarget);
+                  setAdding((v) => !v);
+                }}
+                aria-expanded={adding}
+                className={buttonClasses("outline", "md", "h-10")}
+              >
                 <Plus className="h-4 w-4" aria-hidden />
                 {t.actions.add}
               </button>
               {adding && (
-                <div className="absolute left-0 top-12 z-20 grid w-[min(36rem,calc(100vw-3rem))] gap-1 rounded-xl border border-line bg-surface p-1.5 shadow-[0_12px_28px_0_rgba(0,0,0,0.2),0_2px_4px_0_rgba(0,0,0,0.1)] sm:grid-cols-2 dark:bg-card">
+                <FloatingPanel anchor={addAnchor} open onClose={() => setAdding(false)} align="start" role="menu" className="grid w-[min(36rem,calc(100vw-3rem))] gap-1 rounded-xl border border-line bg-surface p-1.5 shadow-[0_12px_28px_0_rgba(0,0,0,0.2),0_2px_4px_0_rgba(0,0,0,0.1)] sm:grid-cols-2 dark:bg-card">
                   {allowed.map((type) => {
                     const Icon = ACTION_ICONS[type];
                     return (
@@ -313,7 +323,7 @@ export function RuleEditor({
                       </button>
                     );
                   })}
-                </div>
+                </FloatingPanel>
               )}
             </div>
           )}

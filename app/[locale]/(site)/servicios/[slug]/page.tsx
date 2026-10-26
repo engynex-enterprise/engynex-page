@@ -214,7 +214,7 @@ export default async function ServiceDetailPage({
   const useCases = getUseCases(slug, locale);
   const catalog = getCatalog(slug, locale);
 
-  const contactHref = localizedHref(locale, "contacto");
+  const contactHref = `${localizedHref(locale, "contacto")}?servicio=${service.slug}`;
 
   /** Tarjeta gris sobre blanco, blanca sobre gris (como meta.com). */
   const cardSurface = (tone: Tone) =>

@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRightLeft, Loader2, Lock, MessageSquareText, Paperclip, SendHorizontal, Star, X, Zap } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { createClient } from "@/lib/supabase/client";
 import type { Ticket, TicketAttachment, TicketMacro, TicketMessage, TicketStatus } from "@/lib/supabase/types";
 import { ticketsCopy } from "@/content/tickets";
@@ -65,6 +66,7 @@ export function TicketThread({
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [macroOpen, setMacroOpen] = useState(false);
+  const [macroAnchor, setMacroAnchor] = useState<HTMLElement | null>(null);
   const [macroQ, setMacroQ] = useState("");
   const listEnd = useRef<HTMLDivElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -377,7 +379,10 @@ export function TicketThread({
                   <div className="relative">
                     <button
                       type="button"
-                      onClick={() => setMacroOpen((v) => !v)}
+                      onClick={(e) => {
+                        setMacroAnchor(e.currentTarget);
+                        setMacroOpen((v) => !v);
+                      }}
                       aria-expanded={macroOpen}
                       className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-sm text-muted hover:bg-[var(--meta-hover)] hover:text-heading"
                     >
@@ -385,7 +390,7 @@ export function TicketThread({
                       {t.macros}
                     </button>
                     {macroOpen && (
-                      <div className="absolute bottom-full left-0 z-20 mb-2 w-[min(22rem,calc(100vw-3rem))] overflow-hidden rounded-xl bg-surface shadow-[0_16px_40px_-12px_rgba(16,24,40,0.35),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
+                      <FloatingPanel anchor={macroAnchor} open onClose={() => setMacroOpen(false)} align="start" placement="top" className="w-[min(22rem,calc(100vw-3rem))] rounded-xl bg-surface shadow-[0_16px_40px_-12px_rgba(16,24,40,0.35),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
                         <div className="border-b border-line p-2">
                           <input
                             autoFocus
@@ -418,7 +423,7 @@ export function TicketThread({
                         <Link href={`/${locale}/portal/soporte/respuestas`} className="block border-t border-line px-3 py-2 text-xs font-medium text-accent hover:underline">
                           {t.macrosManage}
                         </Link>
-                      </div>
+                      </FloatingPanel>
                     )}
                   </div>
                 )}

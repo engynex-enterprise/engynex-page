@@ -25,6 +25,8 @@ export function LeadAiCard({
   hasText,
   configured,
   canRun,
+  bare = false,
+  onAnalyzed,
 }: {
   locale: Locale;
   leadId: string;
@@ -34,6 +36,10 @@ export function LeadAiCard({
   hasText: boolean;
   configured: boolean;
   canRun: boolean;
+  /** Sin tarjeta propia (dentro del drawer del CRM). */
+  bare?: boolean;
+  /** Tras analizar; si no se pasa, se refresca la página. */
+  onAnalyzed?: () => void;
 }) {
   const t = automationCopy[locale].ai;
   const router = useRouter();
@@ -63,14 +69,15 @@ export function LeadAiCard({
       );
       return;
     }
-    router.refresh();
+    if (onAnalyzed) onAnalyzed();
+    else router.refresh();
   };
 
   const serviceTitle = (slug: string) => services.find((s) => s.slug === slug)?.[locale].title ?? slug;
   const label = "text-xs font-semibold text-muted";
 
   return (
-    <section className="rounded-lg bg-surface p-6 shadow-meta dark:bg-card">
+    <section className={bare ? undefined : "rounded-lg bg-surface p-6 shadow-meta dark:bg-card"}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="flex items-center gap-2 text-lg text-heading">

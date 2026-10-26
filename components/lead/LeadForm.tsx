@@ -208,6 +208,8 @@ export function LeadForm({
         whatsapp_opt_in: whatsappOptIn,
         locale,
         source_page: window.location.pathname,
+        // Servicio desde el que llegó la persona (/contacto?servicio=<slug>).
+        service: new URLSearchParams(window.location.search).get("servicio"),
         referrer: origin?.referrer ?? null,
         utm: origin?.utm ?? null,
         gclid: origin?.gclid ?? null,

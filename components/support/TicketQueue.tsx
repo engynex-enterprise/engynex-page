@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GitMerge, KanbanSquare, List, ListFilter, Loader2, Search, Tag, X } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { createClient } from "@/lib/supabase/client";
 import { Select } from "@/components/ui/Select";
 import { QueueBoard, initials } from "./QueueBoard";
@@ -26,7 +27,7 @@ const RANK: Record<TicketPriority, number> = { critical: 0, high: 1, medium: 2, 
 const NO_FILTERS: Filters = { priority: "", category: "", agent: "", tag: "", source: "" };
 
 const iconBtn = "grid h-10 w-10 shrink-0 place-items-center rounded-[10px] text-heading transition-colors hover:bg-[var(--meta-hover)]";
-const menu = "absolute z-30 mt-2 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
+const menu = "rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
 const bulkBtn = "inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-medium text-heading hover:bg-surface/70 disabled:opacity-50";
 
 /**
@@ -70,6 +71,7 @@ export function TicketQueue({
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [tagDraft, setTagDraft] = useState("");
   const [tagOpen, setTagOpen] = useState(false);
@@ -102,7 +104,7 @@ export function TicketQueue({
   useEffect(() => {
     if (!filterOpen && !tagOpen) return;
     const onDown = (e: MouseEvent) => {
-      if (!(e.target as HTMLElement).closest("[data-menu]")) {
+      if (!(e.target as HTMLElement).closest("[data-menu], [data-popover]")) {
         setFilterOpen(false);
         setTagOpen(false);
       }
@@ -304,7 +306,10 @@ export function TicketQueue({
         <div className="relative" data-menu>
           <button
             type="button"
-            onClick={() => setFilterOpen((v) => !v)}
+            onClick={(e) => {
+              setMenuAnchor(e.currentTarget);
+              setFilterOpen((v) => !v);
+            }}
             aria-expanded={filterOpen}
             aria-label={t.filter}
             title={t.filter}
@@ -314,7 +319,7 @@ export function TicketQueue({
             {activeFilters > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-brand-green-dark" />}
           </button>
           {filterOpen && (
-            <div className={cn(menu, "left-0 grid w-72 gap-3 p-3")}>
+            <FloatingPanel anchor={menuAnchor} open onClose={() => setFilterOpen(false)} align="start" className={cn(menu, "grid w-72 gap-3 p-3")}>
               <Select
                 size="md"
                 label={t.filters.priority}
@@ -357,7 +362,7 @@ export function TicketQueue({
                   {t.filters.clear}
                 </button>
               )}
-            </div>
+            </FloatingPanel>
           )}
         </div>
         {toast && (
@@ -427,36 +432,38 @@ export function TicketQueue({
             />
           </div>
           <div className="relative" data-menu>
-            <button type="button" onClick={() => setTagOpen((v) => !v)} aria-expanded={tagOpen} className={bulkBtn}>
+            <button type="button" onClick={(e) => { setMenuAnchor(e.currentTarget); setTagOpen((v) => !v); }} aria-expanded={tagOpen} className={bulkBtn}>
               <Tag className="h-4 w-4" aria-hidden />
               {t.bulk.tag}
             </button>
             {tagOpen && (
-              <form
-                className={cn(menu, "left-0 flex w-64 gap-2 p-2")}
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void addTag();
-                }}
-              >
-                <input
-                  autoFocus
-                  value={tagDraft}
-                  onChange={(e) => setTagDraft(e.target.value)}
-                  placeholder={t.bulk.tagPlaceholder}
-                  list="ticket-tags"
-                  aria-label={t.bulk.tag}
-                  className="h-9 min-w-0 flex-1 rounded-lg bg-transparent px-2.5 text-sm text-heading outline-none ring-1 ring-line focus:ring-line-strong"
-                />
-                <datalist id="ticket-tags">
-                  {allTags.map((x) => (
-                    <option key={x} value={x} />
-                  ))}
-                </datalist>
-                <button type="submit" className="h-9 rounded-lg bg-[var(--meta-active)] px-3 text-sm font-semibold text-accent">
-                  OK
-                </button>
-              </form>
+              <FloatingPanel anchor={menuAnchor} open onClose={() => setTagOpen(false)} align="start" className={cn(menu, "w-64 p-2")}>
+                <form
+                  className="flex gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    void addTag();
+                  }}
+                >
+                  <input
+                    autoFocus
+                    value={tagDraft}
+                    onChange={(e) => setTagDraft(e.target.value)}
+                    placeholder={t.bulk.tagPlaceholder}
+                    list="ticket-tags"
+                    aria-label={t.bulk.tag}
+                    className="h-9 min-w-0 flex-1 rounded-lg bg-transparent px-2.5 text-sm text-heading outline-none ring-1 ring-line focus:ring-line-strong"
+                  />
+                  <datalist id="ticket-tags">
+                    {allTags.map((x) => (
+                      <option key={x} value={x} />
+                    ))}
+                  </datalist>
+                  <button type="submit" className="h-9 rounded-lg bg-[var(--meta-active)] px-3 text-sm font-semibold text-accent">
+                    OK
+                  </button>
+                </form>
+              </FloatingPanel>
             )}
           </div>
           <button type="button" onClick={() => void merge()} disabled={selected.size !== 2 || busy} title={selected.size !== 2 ? t.bulk.mergeHint : undefined} className={bulkBtn}>

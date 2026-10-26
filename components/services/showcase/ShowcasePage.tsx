@@ -45,7 +45,7 @@ import { cn } from "@/lib/utils";
 export function ShowcasePage({ service, locale, dict, copy: t }: { service: Service; locale: Locale; dict: Dictionary; copy: ShowcaseCopy }) {
   const st = dict.servicesPage;
   const copy = service[locale];
-  const contactHref = localizedHref(locale, "contacto");
+  const contactHref = `${localizedHref(locale, "contacto")}?servicio=${service.slug}`;
   const plans = servicePlans[service.slug] ?? [];
   const cheapest = plans.filter((p): p is typeof p & { price: number } => p.price !== null).sort((a, b) => a.price - b.price)[0];
   const startingPrice = cheapest ? `${formatCOP(cheapest.price)}${cheapest.billing === "monthly" ? ` ${st.plans.monthly}` : ""}` : undefined;

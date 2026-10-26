@@ -16,6 +16,7 @@ import { DateTimePicker } from "@/components/ui/DateTimePicker";
 import { buttonClasses } from "@/components/ui/Button";
 import { TemplatePreview } from "./TemplatePreview";
 import { VariablePicker } from "./VariablePicker";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { renderVars, sampleVars } from "@/lib/campaignVars";
 import { ChannelIcon } from "./shared";
 import type { Locale } from "@/i18n/config";
@@ -123,6 +124,7 @@ export function CampaignEditor({
   const [abOn, setAbOn] = useState(!!campaign?.subject_b);
   const [throttle, setThrottle] = useState(campaign?.throttle_per_hour ? String(campaign.throttle_per_hour) : "");
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [emojiAnchor, setEmojiAnchor] = useState<HTMLElement | null>(null);
   const [tested, setTested] = useState(false);
   const initialSegment = (campaign?.segment ?? {}) as WaSegment;
   const [segment, setSegment] = useState<WaSegment>({
@@ -465,17 +467,17 @@ export function CampaignEditor({
                   <Link2 className="h-4 w-4" aria-hidden />
                 </button>
                 <div className="relative">
-                  <button type="button" onMouseDown={(ev) => ev.preventDefault()} onClick={() => setEmojiOpen((v) => !v)} aria-expanded={emojiOpen} aria-label={e.toolbar.emoji} title={e.toolbar.emoji} className="grid h-7 w-7 place-items-center rounded-md text-heading hover:bg-[var(--meta-hover)]">
+                  <button type="button" onMouseDown={(ev) => ev.preventDefault()} onClick={(ev) => { setEmojiAnchor(ev.currentTarget); setEmojiOpen((v) => !v); }} aria-expanded={emojiOpen} aria-label={e.toolbar.emoji} title={e.toolbar.emoji} className="grid h-7 w-7 place-items-center rounded-md text-heading hover:bg-[var(--meta-hover)]">
                     <Smile className="h-4 w-4" aria-hidden />
                   </button>
                   {emojiOpen && (
-                    <div className="absolute left-0 z-30 mt-1 grid w-56 grid-cols-8 gap-0.5 rounded-xl bg-surface p-2 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
+                    <FloatingPanel anchor={emojiAnchor} open onClose={() => setEmojiOpen(false)} align="start" className="grid w-56 grid-cols-8 gap-0.5 rounded-xl bg-surface p-2 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
                       {EMOJIS.map((em) => (
                         <button key={em} type="button" onMouseDown={(ev) => ev.preventDefault()} onClick={() => { insertAt("body", em); setEmojiOpen(false); }} className="grid h-6 w-6 place-items-center rounded text-base hover:bg-[var(--meta-hover)]" aria-label={em}>
                           {em}
                         </button>
                       ))}
-                    </div>
+                    </FloatingPanel>
                   )}
                 </div>
                 <span className="mx-1 h-5 w-px bg-line" aria-hidden />

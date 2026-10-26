@@ -49,6 +49,7 @@ import { AttachmentView, uploadChatFile } from "./Attachment";
 import { CHAT_SHORTCUT_EVENT, initialsOf, type ChatShortcut, type InboxConversation } from "./ChatInbox";
 import type { Locale } from "@/i18n/config";
 import { cn } from "@/lib/utils";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 
 type Presence = { role?: string; page?: string };
 type Mode = "reply" | "note";
@@ -58,7 +59,7 @@ const EMOJIS = ["😊", "😄", "🙌", "👍", "👌", "🙏", "👋", "🎉", 
 const MEETING_CHANNELS: MeetingChannel[] = ["meet", "call", "whatsapp", "in_person"];
 
 const iconBtn = "grid h-9 w-9 shrink-0 place-items-center rounded-[10px] text-heading transition-colors hover:bg-[var(--meta-hover)] disabled:opacity-40 disabled:hover:bg-transparent";
-const menu = "absolute z-30 mt-2 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
+const menu = "rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
 const menuItem = "flex h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm text-heading hover:bg-[var(--meta-hover)]";
 const chip = "inline-flex h-8 items-center gap-1.5 rounded-[10px] px-2.5 text-xs font-medium text-heading ring-1 ring-line hover:bg-[var(--meta-hover)]";
 
@@ -166,6 +167,7 @@ export function ChatThread({
   const [toast, setToast] = useState<string | null>(null);
   const [slashIndex, setSlashIndex] = useState(0);
   const [popover, setPopover] = useState<"emoji" | "replies" | "more" | "tags" | null>(null);
+  const [popAnchor, setPopAnchor] = useState<HTMLElement | null>(null);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [newTag, setNewTag] = useState("");
   const [aiBusy, setAiBusy] = useState(false);
@@ -532,7 +534,10 @@ export function ChatThread({
             <div className="relative" data-popover>
               <button
                 type="button"
-                onClick={() => setPopover((p) => (p === "more" ? null : "more"))}
+                onClick={(e) => {
+                  setPopAnchor(e.currentTarget);
+                  setPopover((p) => (p === "more" ? null : "more"));
+                }}
                 aria-expanded={popover === "more"}
                 aria-label={t.actions.more}
                 className={iconBtn}
@@ -540,7 +545,7 @@ export function ChatThread({
                 <MoreHorizontal className="h-[18px] w-[18px]" aria-hidden />
               </button>
               {popover === "more" && (
-                <div className={cn(menu, "right-0 w-60")}>
+                <FloatingPanel anchor={popAnchor} open onClose={() => setPopover(null)} role="menu" className={cn(menu, "w-60")}>
                   {c.assigned_to !== me.id && (
                     <button type="button" className={menuItem} onClick={() => (update({ assigned_to: me.id }), setPopover(null))}>
                       <UserCheck className="h-4 w-4" aria-hidden />
@@ -568,7 +573,7 @@ export function ChatThread({
                     <Download className="h-4 w-4" aria-hidden />
                     {t.transcript}
                   </button>
-                </div>
+                </FloatingPanel>
               )}
             </div>
           </div>
@@ -595,12 +600,20 @@ export function ChatThread({
               </>
             )}
             <div className="relative" data-popover>
-              <button type="button" onClick={() => setPopover((p) => (p === "tags" ? null : "tags"))} aria-expanded={popover === "tags"} className={chip}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  setPopAnchor(e.currentTarget);
+                  setPopover((p) => (p === "tags" ? null : "tags"));
+                }}
+                aria-expanded={popover === "tags"}
+                className={chip}
+              >
                 <Tag className="h-3.5 w-3.5" aria-hidden />
                 {t.tags}
               </button>
               {popover === "tags" && (
-                <div className={cn(menu, "left-0 w-64 p-3")}>
+                <FloatingPanel anchor={popAnchor} open onClose={() => setPopover(null)} align="start" className={cn(menu, "w-64 p-3")}>
                   <div className="flex flex-wrap gap-1.5">
                     {allTags.map((x) => {
                       const on = (c.tags ?? []).includes(x);
@@ -641,7 +654,7 @@ export function ChatThread({
                       <Plus className="h-4 w-4" aria-hidden />
                     </button>
                   </form>
-                </div>
+                </FloatingPanel>
               )}
             </div>
             {(c.tags ?? []).map((x) => (
@@ -897,17 +910,27 @@ export function ChatThread({
 
           <div className="mt-2 flex items-center gap-0.5">
             <div className="relative" data-popover>
-              <button type="button" onClick={() => setPopover((p) => (p === "emoji" ? null : "emoji"))} aria-expanded={popover === "emoji"} aria-label={t.composer.emoji} title={t.composer.emoji} className={iconBtn}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  setPopAnchor(e.currentTarget);
+                  setPopover((p) => (p === "emoji" ? null : "emoji"));
+                }}
+                aria-expanded={popover === "emoji"}
+                aria-label={t.composer.emoji}
+                title={t.composer.emoji}
+                className={iconBtn}
+              >
                 <Smile className="h-[18px] w-[18px]" aria-hidden />
               </button>
               {popover === "emoji" && (
-                <div className={cn(menu, "bottom-11 left-0 mt-0 grid w-64 grid-cols-8 gap-0.5 p-2")}>
+                <FloatingPanel anchor={popAnchor} open onClose={() => setPopover(null)} placement="top" align="start" className={cn(menu, "grid w-64 grid-cols-8 gap-0.5 p-2")}>
                   {EMOJIS.map((e) => (
                     <button key={e} type="button" onClick={() => insert(e)} className="grid h-7 w-7 place-items-center rounded-md text-lg hover:bg-[var(--meta-hover)]" aria-label={e}>
                       {e}
                     </button>
                   ))}
-                </div>
+                </FloatingPanel>
               )}
             </div>
             <button type="button" onClick={() => insert("*", "*")} aria-label={t.composer.bold} title={`${t.composer.bold} (Ctrl+B)`} className={iconBtn}>

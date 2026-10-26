@@ -23,7 +23,7 @@ export default async function CrmPage({
     supabase
       .from("leads")
       .select(
-        "id, name, email, phone, company, tier, score, status, assigned_to, value_cop, created_at, last_activity_at, problem_category, problem_text, source, utm, gclid, referrer",
+        "id, name, email, phone, company, tier, score, status, assigned_to, value_cop, created_at, last_activity_at, problem_category, problem_text, source, utm, gclid, referrer, service, request_summary",
         { count: "exact" },
       )
       .order("created_at", { ascending: false })

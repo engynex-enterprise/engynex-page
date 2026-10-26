@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -39,6 +39,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GreenLeadAlerts } from "@/components/crm/GreenLeadAlerts";
 import { ChatAlerts } from "@/components/chat/ChatAlerts";
@@ -159,7 +160,7 @@ export function PortalShell({
   const [userMenu, setUserMenu] = useState(false);
   const [chatUnread, setChatUnread] = useState(0);
   const folded = useSyncExternalStore(subscribeFolded, readFolded, () => "");
-  const userRef = useRef<HTMLDivElement>(null);
+  const [userAnchor, setUserAnchor] = useState<HTMLElement | null>(null);
   const base = `/${locale}/portal`;
   const employee = profile.kind === "employee";
 
@@ -176,14 +177,6 @@ export function PortalShell({
       document.body.style.overflow = "";
     };
   }, [mobileOpen]);
-  useEffect(() => {
-    if (!userMenu) return;
-    const onDown = (event: PointerEvent) => {
-      if (!userRef.current?.contains(event.target as Node)) setUserMenu(false);
-    };
-    window.addEventListener("pointerdown", onDown);
-    return () => window.removeEventListener("pointerdown", onDown);
-  }, [userMenu]);
 
   const items = NAV.filter((item) => !item.roles || item.roles.includes(profile.role));
   const href = (item: NavItem) => (item.path ? `${base}/${item.path}` : base);
@@ -281,7 +274,7 @@ export function PortalShell({
       </nav>
 
       {/* Usuario */}
-      <div ref={userRef} className="relative border-t border-line p-3">
+      <div className="relative border-t border-line p-3">
         <div className="flex items-center gap-3 rounded-[10px] p-1.5">
           <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-deep-700 text-xs font-bold text-white dark:bg-white dark:text-deep-700">
             {initialsOf(name)}
@@ -293,7 +286,10 @@ export function PortalShell({
           </span>
           <button
             type="button"
-            onClick={() => setUserMenu((v) => !v)}
+            onClick={(e) => {
+              setUserAnchor(e.currentTarget.parentElement);
+              setUserMenu((v) => !v);
+            }}
             aria-expanded={userMenu}
             aria-label={s.more}
             className="grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-[var(--meta-hover)] hover:text-heading"
@@ -301,27 +297,6 @@ export function PortalShell({
             <MoreHorizontal className="h-5 w-5" aria-hidden />
           </button>
         </div>
-        {userMenu && (
-          <div className="absolute bottom-full left-3 right-3 z-50 mb-2 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
-            <Link href={`${base}/perfil`} className="flex h-10 items-center gap-3 rounded-lg px-2.5 text-sm text-heading hover:bg-[var(--meta-hover)]">
-              <UserRound className="h-4 w-4 text-muted" aria-hidden />
-              {t.nav.profile}
-            </Link>
-            <Link href={`/${locale}`} className="flex h-10 items-center gap-3 rounded-lg px-2.5 text-sm text-heading hover:bg-[var(--meta-hover)]">
-              <ExternalLink className="h-4 w-4 text-muted" aria-hidden />
-              {t.nav.site}
-            </Link>
-            <div className="flex h-10 items-center gap-3 rounded-lg px-2.5 text-sm text-heading">
-              <ThemeToggle label="Tema" tone="light" />
-            </div>
-            <form action={`/${locale}/auth/signout`} method="post">
-              <button type="submit" className="flex h-10 w-full items-center gap-3 rounded-lg px-2.5 text-left text-sm text-red-600 hover:bg-[var(--meta-hover)]">
-                <LogOut className="h-4 w-4" aria-hidden />
-                {portalCopy[locale].userMenu.signOut}
-              </button>
-            </form>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -332,6 +307,27 @@ export function PortalShell({
   return (
     <div className="portal-theme min-h-dvh bg-surface text-body">
       {/* Barra lateral (escritorio) */}
+      {userMenu && (
+        <FloatingPanel anchor={userAnchor} open onClose={() => setUserMenu(false)} placement="top" align="start" matchWidth role="menu" className="rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
+          <Link href={`${base}/perfil`} className="flex h-10 items-center gap-3 rounded-lg px-2.5 text-sm text-heading hover:bg-[var(--meta-hover)]">
+            <UserRound className="h-4 w-4 text-muted" aria-hidden />
+            {t.nav.profile}
+          </Link>
+          <Link href={`/${locale}`} className="flex h-10 items-center gap-3 rounded-lg px-2.5 text-sm text-heading hover:bg-[var(--meta-hover)]">
+            <ExternalLink className="h-4 w-4 text-muted" aria-hidden />
+            {t.nav.site}
+          </Link>
+          <div className="flex h-10 items-center gap-3 rounded-lg px-2.5 text-sm text-heading">
+            <ThemeToggle label="Tema" tone="light" />
+          </div>
+          <form action={`/${locale}/auth/signout`} method="post">
+            <button type="submit" className="flex h-10 w-full items-center gap-3 rounded-lg px-2.5 text-left text-sm text-red-600 hover:bg-[var(--meta-hover)]">
+              <LogOut className="h-4 w-4" aria-hidden />
+              {portalCopy[locale].userMenu.signOut}
+            </button>
+          </form>
+        </FloatingPanel>
+      )}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-[17.5rem] border-r border-line bg-[var(--sidebar)] lg:block print:!hidden">{sidebar}</aside>
 
       {/* Barra lateral (celular) */}

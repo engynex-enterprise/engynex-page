@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   AtSign,
+  Briefcase,
   Building2,
   CalendarClock,
   CheckCheck,
@@ -25,6 +26,12 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import type { ActivityReaction, Deal, DealStage, Lead, LeadActivity, LeadDocument, MeetingChannel } from "@/lib/supabase/types";
 import { crmPlus } from "@/content/crmPlus";
+import { crmCopy } from "@/content/crm";
+import { leadDrawerCopy } from "@/content/leadDrawer";
+import { services } from "@/content/services";
+import { tierStyles } from "@/lib/tiers";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
+import { AiPanel, AnswersPanel, ChatPanel, EmailsPanel, JourneyPanel, MeetingsPanel, OriginPanel, PanelLoading, TasksPanel } from "./drawer/panels";
 import { leadFormCopy } from "@/content/leadForm";
 import { LeadTimeline } from "@/components/crm/LeadDetail";
 import { DateTimePicker } from "@/components/ui/DateTimePicker";
@@ -36,7 +43,8 @@ import type { WorkspaceLead } from "./LeadsWorkspace";
 import type { Locale } from "@/i18n/config";
 import { cn } from "@/lib/utils";
 
-type Tab = keyof typeof crmPlus.drawer.tabs;
+type Tab = keyof (typeof leadDrawerCopy)["es"]["tabs"];
+const TABS: Tab[] = ["answers", "activity", "notes", "tasks", "meetings", "chat", "emails", "deals", "docs", "ai", "journey", "origin"];
 const EMOJIS = ["👍", "👌", "🎉", "❤️", "🔥", "👀"];
 const STAGES: DealStage[] = ["prospecting", "proposal", "negotiation", "won", "lost"];
 const BUCKET = "portal-docs";
@@ -53,8 +61,10 @@ const cop = (n: number) => new Intl.NumberFormat("es-CO", { style: "currency", c
 
 /**
  * Ficha lateral del cliente: datos de contacto, agendar llamada, editar, y
- * pestañas de actividad, notas (con @menciones y reacciones), negocios y
- * documentos.
+ * pestañas con todo lo de la ficha completa: respuestas y puntaje, historial,
+ * notas (con @menciones y reacciones), tareas, citas, chat y WhatsApp,
+ * correos, negocios, documentos, lectura con IA, recorrido y origen. Cada
+ * pestaña consulta sus datos la primera vez que se abre.
  */
 export function LeadDrawer({
   locale,
@@ -75,13 +85,43 @@ export function LeadDrawer({
 }) {
   const t = crmPlus;
   const supabase = useMemo(() => createClient(), []);
-  const [tab, setTab] = useState<Tab>("notes");
+  const d = leadDrawerCopy[locale];
+  const tc = crmCopy[locale];
+  const [tab, setTab] = useState<Tab>("answers");
+  const [visited, setVisited] = useState<Set<Tab>>(() => new Set<Tab>(["answers"]));
+  const [full, setFull] = useState<Lead | null>(null);
+  const [counts, setCounts] = useState<Partial<Record<Tab, number>>>({});
+  const setTaskCount = useCallback((n: number) => setCounts((c) => ({ ...c, tasks: n })), []);
   const [activities, setActivities] = useState<LeadActivity[] | null>(null);
   const [reactions, setReactions] = useState<ActivityReaction[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [docs, setDocs] = useState<LeadDocument[]>([]);
   const [mode, setMode] = useState<"view" | "edit" | "schedule">("view");
   const names = useMemo(() => Object.fromEntries(employees.map((e) => [e.id, e.name])), [employees]);
+
+  const loadFull = useCallback(async () => {
+    const { data } = await supabase.from("leads").select("*").eq("id", lead.id).maybeSingle();
+    setFull((data as Lead | null) ?? null);
+  }, [supabase, lead.id]);
+
+  // Ficha completa del lead y contadores de las pestañas (solo conteos).
+  useEffect(() => {
+    const first = window.setTimeout(() => void loadFull(), 0);
+    const head = { count: "exact" as const, head: true };
+    void Promise.all([
+      supabase.from("tasks").select("id", head).eq("lead_id", lead.id).eq("done", false),
+      supabase.from("appointments").select("id", head).eq("lead_id", lead.id),
+      supabase.from("chat_conversations").select("id", head).eq("lead_id", lead.id),
+      supabase.from("email_queue").select("id", head).eq("lead_id", lead.id),
+    ]).then(([tk, ap, ch, em]) => setCounts((c) => ({ ...c, tasks: tk.count ?? 0, meetings: ap.count ?? 0, chat: ch.count ?? 0, emails: em.count ?? 0 })));
+    return () => window.clearTimeout(first);
+  }, [supabase, lead.id, loadFull]);
+
+  const openTab = (k: Tab) => {
+    setTab(k);
+    setVisited((v) => (v.has(k) ? v : new Set(v).add(k)));
+  };
+  const service = full?.service ? services.find((x) => x.slug === full.service)?.[locale].title ?? full.service : null;
 
   const loadAll = useMemo(
     () => async () => {
@@ -119,6 +159,62 @@ export function LeadDrawer({
     };
   }, [supabase, lead.id, loadAll, onClose]);
 
+  const renderPanel = (k: Tab) => {
+    if (["activity", "notes", "deals", "docs"].includes(k) && activities === null) return <PanelLoading locale={locale} />;
+    if (["answers", "origin", "tasks", "meetings", "chat", "emails", "ai", "journey"].includes(k) && !full) return <PanelLoading locale={locale} />;
+    switch (k) {
+      case "answers":
+        return <AnswersPanel locale={locale} lead={full!} />;
+      case "activity":
+        return (
+          <LeadTimeline
+            locale={locale}
+            leadId={lead.id}
+            initial={(activities ?? []).filter((a) => a.type !== "note")}
+            names={names}
+            currentUserId={me.id}
+            canWrite={false}
+            isAdmin={false}
+          />
+        );
+      case "notes":
+        return (
+          <Notes
+            leadId={lead.id}
+            notes={(activities ?? []).filter((a) => a.type === "note" && !((a.meta as Record<string, unknown> | null)?.auto))}
+            reactions={reactions}
+            names={names}
+            employees={employees}
+            me={me}
+            canWrite={canEdit}
+            onUpload={async (file) => {
+              const doc = await uploadDoc(supabase, lead.id, file);
+              if (doc) setDocs((x) => [doc, ...x]);
+            }}
+            onChanged={loadAll}
+          />
+        );
+      case "tasks":
+        return <TasksPanel locale={locale} lead={full!} canWrite={canEdit} meId={me.id} onCount={setTaskCount} />;
+      case "meetings":
+        return <MeetingsPanel locale={locale} lead={full!} />;
+      case "chat":
+        return <ChatPanel locale={locale} lead={full!} names={names} />;
+      case "emails":
+        return <EmailsPanel locale={locale} lead={full!} />;
+      case "deals":
+        return <Deals leadId={lead.id} deals={deals} canEdit={canEdit} onChanged={loadAll} />;
+      case "docs":
+        return <Docs leadId={lead.id} docs={docs} canEdit={canEdit} names={names} locale={locale} onChanged={loadAll} />;
+      case "ai":
+        return <AiPanel locale={locale} lead={full!} canRun={canEdit} onAnalyzed={() => void loadFull()} />;
+      case "journey":
+        return <JourneyPanel locale={locale} lead={full!} />;
+      case "origin":
+        return <OriginPanel locale={locale} lead={full!} />;
+    }
+  };
+
   return (
     <div className="fixed inset-y-3 right-3 z-50 flex w-[min(30rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-2xl bg-surface shadow-[0_24px_64px_-12px_rgba(16,24,40,0.35),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card" role="dialog" aria-label={t.drawer.title}>
       {/* Encabezado */}
@@ -150,8 +246,26 @@ export function LeadDrawer({
                   <li className="flex items-center gap-2"><Mail className="h-4 w-4 text-muted" aria-hidden /><a href={`mailto:${lead.email}`} className="truncate hover:underline">{lead.email}</a></li>
                   <li className="flex items-center gap-2"><Phone className="h-4 w-4 text-muted" aria-hidden />{lead.phone ? <a href={`tel:${lead.phone.replace(/\s/g, "")}`} className="hover:underline">{lead.phone}</a> : t.drawer.noPhone}</li>
                 </ul>
+                <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                  <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[0.7rem] font-bold", tierStyles[lead.tier].pill)}>
+                    <span className={cn("h-1.5 w-1.5 rounded-full", tierStyles[lead.tier].dot)} aria-hidden />
+                    {tc.tier[lead.tier]}
+                  </span>
+                  <span className="rounded-full bg-surface-soft px-2.5 py-0.5 text-[0.7rem] font-bold tabular-nums text-heading dark:bg-white/[0.06]">
+                    {tc.lead.score} {lead.score}/100
+                  </span>
+                  {service && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[var(--meta-active)] px-2.5 py-0.5 text-[0.7rem] font-bold text-accent ring-1 ring-brand-green-dark/25" title={d.service}>
+                      <Briefcase className="h-3 w-3" aria-hidden />
+                      {service}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
+          )}
+          {mode !== "edit" && full?.request_summary && (
+            <p className="mt-3 rounded-xl bg-surface-soft px-3 py-2 text-sm leading-snug text-body dark:bg-white/[0.05]">{full.request_summary}</p>
           )}
           {mode === "schedule" && <Schedule locale={locale} leadId={lead.id} onDone={(ok) => { setMode("view"); if (ok) { onChange({ status: "meeting" }); void loadAll(); } }} />}
           {mode === "view" && canEdit && (
@@ -169,56 +283,33 @@ export function LeadDrawer({
         </div>
 
         {/* Pestañas */}
-        <div role="tablist" className="flex border-b border-line px-3">
-          {(Object.keys(t.drawer.tabs) as Tab[]).map((k) => (
-            <button
-              key={k}
-              type="button"
-              role="tab"
-              aria-selected={tab === k}
-              onClick={() => setTab(k)}
-              className={cn("-mb-px flex-1 border-b-2 py-3 text-sm transition-colors", tab === k ? "border-brand-green-dark font-semibold text-heading dark:border-brand-green" : "border-transparent text-muted hover:text-heading")}
-            >
-              {t.drawer.tabs[k]}
-              {k === "deals" && deals.length > 0 && <span className="ml-1 text-xs text-muted">{deals.length}</span>}
-              {k === "docs" && docs.length > 0 && <span className="ml-1 text-xs text-muted">{docs.length}</span>}
-            </button>
-          ))}
+        <div role="tablist" aria-label={d.tabsLabel} className="sticky top-0 z-10 flex overflow-x-auto border-b border-line bg-surface px-3 [scrollbar-width:none] dark:bg-card">
+          {TABS.map((k) => {
+            const n = k === "deals" ? deals.length : k === "docs" ? docs.length : counts[k];
+            return (
+              <button
+                key={k}
+                type="button"
+                role="tab"
+                id={`lead-tab-${k}`}
+                aria-selected={tab === k}
+                aria-controls={`lead-panel-${k}`}
+                onClick={() => openTab(k)}
+                className={cn("-mb-px shrink-0 whitespace-nowrap border-b-2 px-2.5 py-3 text-sm transition-colors", tab === k ? "border-brand-green-dark font-semibold text-heading dark:border-brand-green" : "border-transparent text-muted hover:text-heading")}
+              >
+                {d.tabs[k]}
+                {!!n && <span className="ml-1 rounded-full bg-surface-soft px-1.5 py-px text-[0.68rem] font-semibold tabular-nums text-muted dark:bg-white/[0.08]">{n}</span>}
+              </button>
+            );
+          })}
         </div>
 
         <div className="px-5 py-4">
-          {activities === null ? (
-            <Loader2 className="mx-auto my-8 h-5 w-5 animate-spin text-muted" aria-hidden />
-          ) : tab === "activity" ? (
-            <LeadTimeline
-              locale={locale}
-              leadId={lead.id}
-              initial={activities.filter((a) => a.type !== "note")}
-              names={names}
-              currentUserId={me.id}
-              canWrite={false}
-              isAdmin={false}
-            />
-          ) : tab === "notes" ? (
-            <Notes
-              leadId={lead.id}
-              notes={activities.filter((a) => a.type === "note" && !((a.meta as Record<string, unknown> | null)?.auto))}
-              reactions={reactions}
-              names={names}
-              employees={employees}
-              me={me}
-              canWrite={canEdit}
-              onUpload={async (file) => {
-                const doc = await uploadDoc(supabase, lead.id, file);
-                if (doc) setDocs((d) => [doc, ...d]);
-              }}
-              onChanged={loadAll}
-            />
-          ) : tab === "deals" ? (
-            <Deals leadId={lead.id} deals={deals} canEdit={canEdit} onChanged={loadAll} />
-          ) : (
-            <Docs leadId={lead.id} docs={docs} canEdit={canEdit} names={names} locale={locale} onChanged={loadAll} />
-          )}
+          {TABS.filter((k) => visited.has(k)).map((k) => (
+            <div key={k} role="tabpanel" id={`lead-panel-${k}`} aria-labelledby={`lead-tab-${k}`} hidden={tab !== k}>
+              {renderPanel(k)}
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -335,12 +426,15 @@ function Notes({
   const [mentions, setMentions] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [picker, setPicker] = useState<string | null>(null);
+  const [pickerAnchor, setPickerAnchor] = useState<HTMLElement | null>(null);
+  const [composer, setComposer] = useState<HTMLDivElement | null>(null);
+  const [dismissed, setDismissed] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [now] = useState(() => Date.now());
 
   // "@abc" al final del texto → sugerencias.
   const at = /@([\p{L}]*)$/u.exec(body);
-  const suggestions = at ? employees.filter((e) => e.id !== me.id && e.name.toLowerCase().includes(at[1].toLowerCase())).slice(0, 5) : [];
+  const suggestions = at && dismissed !== body ? employees.filter((e) => e.id !== me.id && e.name.toLowerCase().includes(at[1].toLowerCase())).slice(0, 5) : [];
 
   const send = async () => {
     const text = body.trim();
@@ -394,7 +488,15 @@ function Notes({
                 </p>
                 <p className="mt-0.5 whitespace-pre-wrap break-words text-sm leading-relaxed text-body">{render(n.body ?? "")}</p>
                 <div className="relative mt-1.5 flex flex-wrap items-center gap-1.5">
-                  <button type="button" onClick={() => setPicker((p) => (p === n.id ? null : n.id))} aria-label={t.react} className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-[var(--meta-hover)] hover:text-heading">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      setPickerAnchor(e.currentTarget);
+                      setPicker((p) => (p === n.id ? null : n.id));
+                    }}
+                    aria-label={t.react}
+                    aria-expanded={picker === n.id}
+                    className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-[var(--meta-hover)] hover:text-heading">
                     <SmilePlus className="h-4 w-4" aria-hidden />
                   </button>
                   {grouped.map((g) => (
@@ -410,13 +512,13 @@ function Notes({
                     </button>
                   ))}
                   {picker === n.id && (
-                    <div className="absolute left-0 top-8 z-20 flex gap-1 rounded-full bg-surface p-1 shadow-[0_8px_24px_-6px_rgba(16,24,40,0.3),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
+                    <FloatingPanel anchor={pickerAnchor} open onClose={() => setPicker(null)} role="menu" align="start" className="flex gap-1 rounded-full bg-surface p-1 shadow-[0_8px_24px_-6px_rgba(16,24,40,0.3),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
                       {EMOJIS.map((e) => (
-                        <button key={e} type="button" onClick={() => react(n.id, e)} className="grid h-8 w-8 place-items-center rounded-full text-lg hover:bg-[var(--meta-hover)]">
+                        <button key={e} type="button" role="menuitem" onClick={() => react(n.id, e)} className="grid h-8 w-8 place-items-center rounded-full text-lg hover:bg-[var(--meta-hover)]">
                           {e}
                         </button>
                       ))}
-                    </div>
+                    </FloatingPanel>
                   )}
                   {n.mentions?.length > 0 && <CheckCheck className="ml-auto h-4 w-4 text-muted" aria-label="Notificado" />}
                 </div>
@@ -427,9 +529,10 @@ function Notes({
       </ol>
 
       {canWrite && (
-        <div className="relative mt-6 rounded-xl bg-card-soft p-3">
+        <div ref={setComposer} className="relative mt-6 rounded-xl bg-card-soft p-3">
           {suggestions.length > 0 && (
-            <ul className="absolute bottom-full left-3 z-20 mb-2 w-60 rounded-xl bg-surface p-1 shadow-[0_8px_24px_-6px_rgba(16,24,40,0.3),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
+            <FloatingPanel anchor={composer} open onClose={() => setDismissed(body)} role="listbox" placement="top" align="start" className="w-60 rounded-xl bg-surface p-1 shadow-[0_8px_24px_-6px_rgba(16,24,40,0.3),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
+              <ul>
               {suggestions.map((e) => (
                 <li key={e.id}>
                   <button
@@ -446,7 +549,8 @@ function Notes({
                   </button>
                 </li>
               ))}
-            </ul>
+              </ul>
+            </FloatingPanel>
           )}
           <textarea
             value={body}

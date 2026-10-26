@@ -29,6 +29,8 @@ import { crmCopy, pipeline } from "@/content/crm";
 import { crmPlus } from "@/content/crmPlus";
 import { CrmBoard, type CrmLead, type Employee } from "@/components/crm/CrmBoard";
 import { Select } from "@/components/ui/Select";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
+import { leadServicesCopy, requestKey, requestLabel } from "@/content/leadServices";
 import { leadSourceKey } from "@/lib/leadSource";
 import { Sparkline } from "./Sparkline";
 import { ScoreBars } from "./ScoreBars";
@@ -58,6 +60,8 @@ export type WorkspaceLead = Pick<
   | "utm"
   | "gclid"
   | "referrer"
+  | "service"
+  | "request_summary"
 >;
 
 export type CrmKpis = {
@@ -129,6 +133,9 @@ export function LeadsWorkspace({
   const overdueSet = useMemo(() => new Set(overdue), [overdue]);
   const names = useMemo(() => Object.fromEntries(employees.map((e) => [e.id, e.name])), [employees]);
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const [rowAnchor, setRowAnchor] = useState<HTMLElement | null>(null);
+  const [toolAnchor, setToolAnchor] = useState<HTMLElement | null>(null);
+  const [kind, setKind] = useState("");
 
   // Tiempo real.
   useEffect(() => {
@@ -181,7 +188,8 @@ export function LeadsWorkspace({
         (!filters.status || l.status === filters.status) &&
         (!filters.source || leadSourceKey(l) === filters.source) &&
         (!filters.owner || (filters.owner === "none" ? !l.assigned_to : l.assigned_to === filters.owner)) &&
-        (!q || [l.name, l.email, l.company, l.phone].some((v) => v?.toLowerCase().includes(q))),
+        (!kind || requestKey(l) === kind) &&
+        (!q || [l.name, l.email, l.company, l.phone, l.request_summary, requestLabel(requestKey(l), locale)].some((v) => v?.toLowerCase().includes(q))),
     );
     return list.sort((a, b) =>
       sort === "score"
@@ -193,9 +201,17 @@ export function LeadsWorkspace({
             : b.created_at.localeCompare(a.created_at),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leads, tab, query, filters, sort, favorites, overdueSet, me.id]);
+  }, [leads, tab, query, filters, kind, sort, favorites, overdueSet, me.id]);
 
   const sources = useMemo(() => [...new Set(leads.map(leadSourceKey))].sort(), [leads]);
+  // Tipos de solicitud presentes en la pestaña actual, con su conteo.
+  const kinds = useMemo(() => {
+    const count = new Map<string, number>();
+    for (const l of leads) if (inTab(l, tab)) count.set(requestKey(l), (count.get(requestKey(l)) ?? 0) + 1);
+    return [...count.entries()].sort((a, b) => b[1] - a[1] || requestLabel(a[0], locale).localeCompare(requestLabel(b[0], locale)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leads, tab, favorites, overdueSet, me.id, locale]);
+  const sv = leadServicesCopy[locale];
   const activeFilters = Object.values(filters).filter(Boolean).length;
   const allChecked = filtered.length > 0 && filtered.every((l) => selected.has(l.id));
 
@@ -223,7 +239,7 @@ export function LeadsWorkspace({
   };
 
   const exportCsv = () => {
-    const header = ["Nombre", "Empresa", "Correo", "Teléfono", "Estado", "Color", "Puntaje", "Responsable", "Origen", "Valor COP", "Necesidad", "Creado"];
+    const header = ["Nombre", "Empresa", "Correo", "Teléfono", "Estado", "Color", "Puntaje", "Responsable", "Origen", sv.csv, "Valor COP", "Necesidad", "Creado"];
     const rows = filtered.map((l) => [
       l.name,
       l.company ?? "",
@@ -234,6 +250,7 @@ export function LeadsWorkspace({
       l.score,
       l.assigned_to ? names[l.assigned_to] ?? "" : "",
       t.sources[leadSourceKey(l)] ?? leadSourceKey(l),
+      requestLabel(requestKey(l), locale),
       l.value_cop ?? "",
       l.problem_text ?? l.problem_category,
       l.created_at.slice(0, 10),
@@ -266,7 +283,7 @@ export function LeadsWorkspace({
   ] as const;
 
   const iconBtn = "grid h-10 w-10 place-items-center rounded-[10px] text-heading transition-colors hover:bg-[var(--meta-hover)]";
-  const menu = "absolute z-30 mt-2 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
+  const menuPanel = "rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
   const menuItem = "flex h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm text-heading hover:bg-[var(--meta-hover)]";
   const openLead = leads.find((l) => l.id === openId) ?? null;
 
@@ -334,12 +351,12 @@ export function LeadsWorkspace({
           </label>
 
           <div className="relative" data-popover>
-            <button type="button" onClick={() => setPopover((p) => (p === "filter" ? null : "filter"))} aria-label={t.filter} aria-expanded={popover === "filter"} className={cn(iconBtn, "relative")}>
+            <button type="button" onClick={(e) => { setToolAnchor(e.currentTarget); setPopover((p) => (p === "filter" ? null : "filter")); }} aria-label={t.filter} aria-expanded={popover === "filter"} className={cn(iconBtn, "relative")}>
               <ListFilter className="h-[18px] w-[18px]" aria-hidden />
               {activeFilters > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-brand-green-dark" />}
             </button>
             {popover === "filter" && (
-              <div className={cn(menu, "left-0 grid w-72 gap-3 p-3")}>
+              <FloatingPanel anchor={toolAnchor} open onClose={() => setPopover(null)} align="start" className={cn(menuPanel, "grid w-72 gap-3 p-3")}>
                 <Select size="md" label={t.filters.tier} value={filters.tier} onChange={(v) => setFilters((f) => ({ ...f, tier: v }))} options={[{ value: "", label: t.any }, ...(["green", "yellow", "red"] as LeadTier[]).map((k) => ({ value: k, label: crm.tier[k] }))]} />
                 <Select size="md" label={t.filters.status} value={filters.status} onChange={(v) => setFilters((f) => ({ ...f, status: v }))} options={[{ value: "", label: t.any }, ...pipeline.map((k) => ({ value: k, label: crm.status[k] }))]} />
                 <Select size="md" label={t.filters.source} value={filters.source} onChange={(v) => setFilters((f) => ({ ...f, source: v }))} options={[{ value: "", label: t.any }, ...sources.map((k) => ({ value: k, label: t.sources[k] ?? k }))]} />
@@ -349,23 +366,23 @@ export function LeadsWorkspace({
                     {t.clearFilters}
                   </button>
                 )}
-              </div>
+              </FloatingPanel>
             )}
           </div>
 
           <div className="relative" data-popover>
-            <button type="button" onClick={() => setPopover((p) => (p === "sort" ? null : "sort"))} aria-label={t.sort} aria-expanded={popover === "sort"} className={iconBtn}>
+            <button type="button" onClick={(e) => { setToolAnchor(e.currentTarget); setPopover((p) => (p === "sort" ? null : "sort")); }} aria-label={t.sort} aria-expanded={popover === "sort"} className={iconBtn}>
               <ArrowDownUp className="h-[18px] w-[18px]" aria-hidden />
             </button>
             {popover === "sort" && (
-              <div className={cn(menu, "left-0 w-56")}>
+              <FloatingPanel anchor={toolAnchor} open onClose={() => setPopover(null)} align="start" role="menu" className={cn(menuPanel, "w-56")}>
                 {(Object.keys(t.sorts) as Sort[]).map((k) => (
                   <button key={k} type="button" onClick={() => { setSort(k); setPopover(null); }} className={menuItem}>
                     <Check className={cn("h-4 w-4", sort === k ? "text-accent" : "invisible")} aria-hidden />
                     {t.sorts[k]}
                   </button>
                 ))}
-              </div>
+              </FloatingPanel>
             )}
           </div>
 
@@ -397,6 +414,26 @@ export function LeadsWorkspace({
           </div>
         </div>
 
+        {kinds.length > 1 && (
+          <div role="group" aria-label={sv.filterLabel} className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6">
+            {[["", filtered.length] as const, ...kinds].map(([key, n]) => (
+              <button
+                key={key || "all"}
+                type="button"
+                aria-pressed={kind === key}
+                onClick={() => setKind(key)}
+                className={cn(
+                  "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium ring-1 transition-colors",
+                  kind === key ? "bg-heading text-surface ring-heading" : "text-heading ring-line hover:bg-[var(--meta-hover)]",
+                )}
+              >
+                {key ? requestLabel(key, locale) : sv.all}
+                <span className={cn("rounded-md px-1.5 text-xs tabular-nums", kind === key ? "bg-white/20" : "bg-card-soft text-muted dark:bg-white/[0.08]")}>{key ? n : kinds.reduce((s, [, c]) => s + c, 0)}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
         {view === "board" ? (
           <CrmBoard
             locale={locale}
@@ -420,8 +457,8 @@ export function LeadsWorkspace({
                       className="h-4 w-4 rounded accent-brand-green-dark"
                     />
                   </th>
-                  {(["customer", "company", "email", "status", "manager", "source", "score", "created"] as const).map((k) => (
-                    <th key={k} scope="col" className="px-3 py-3 font-medium">{t.cols[k]}</th>
+                  {(["customer", "request", "company", "status", "manager", "source", "score", "created"] as const).map((k) => (
+                    <th key={k} scope="col" className="px-3 py-3 font-medium">{k === "request" ? sv.column : t.cols[k]}</th>
                   ))}
                   <th scope="col" className="w-12"><span className="sr-only">Acciones</span></th>
                 </tr>
@@ -460,9 +497,12 @@ export function LeadsWorkspace({
                           className="h-4 w-4 rounded accent-brand-green-dark"
                         />
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="max-w-[13rem] px-3 py-2">
                         <span className="flex items-center gap-2">
-                          <span className="truncate font-medium text-heading">{l.name}</span>
+                          <span className="min-w-0">
+                            <span className="block truncate font-medium text-heading">{l.name}</span>
+                            <span className="block truncate text-xs text-muted">{l.email}</span>
+                          </span>
                           <button
                             type="button"
                             onClick={() => toggleFavorite(l.id)}
@@ -474,8 +514,22 @@ export function LeadsWorkspace({
                           </button>
                         </span>
                       </td>
-                      <td className="max-w-[12rem] truncate px-3 py-2 text-body">{l.company ?? "—"}</td>
-                      <td className="max-w-[15rem] truncate px-3 py-2 text-body">{l.email}</td>
+                      <td className="max-w-[14rem] px-3 py-2">
+                        <span
+                          className={cn(
+                            "inline-flex max-w-full truncate rounded-md px-1.5 py-0.5 text-[0.72rem] font-semibold",
+                            l.service ? "bg-[var(--meta-active)] text-accent" : "bg-card-soft text-heading dark:bg-white/[0.08]",
+                          )}
+                        >
+                          {requestLabel(requestKey(l), locale)}
+                        </span>
+                        {(l.request_summary || l.problem_text) && (
+                          <span className="mt-0.5 block truncate text-xs text-muted" title={l.request_summary ?? l.problem_text ?? undefined}>
+                            {l.request_summary ?? l.problem_text}
+                          </span>
+                        )}
+                      </td>
+                      <td className="max-w-[9rem] truncate px-3 py-2 text-body">{l.company ?? "—"}</td>
                       <td className="px-3 py-2">
                         <span className="whitespace-nowrap rounded-md border border-line-strong px-1.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-heading">
                           {crm.status[l.status]}
@@ -488,14 +542,18 @@ export function LeadsWorkspace({
                       <td className="relative py-2 pr-1 text-right" data-popover>
                         <button
                           type="button"
-                          onClick={() => setPopover((p) => (p === `row-${l.id}` ? null : `row-${l.id}`))}
+                          onClick={(e) => {
+                            setRowAnchor(e.currentTarget);
+                            setPopover((p) => (p === `row-${l.id}` ? null : `row-${l.id}`));
+                          }}
+                          aria-expanded={popover === `row-${l.id}`}
                           aria-label={`${t.rowMenu.open}: ${l.name}`}
                           className="grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-[var(--meta-hover)] hover:text-heading"
                         >
                           <MoreHorizontal className="h-5 w-5" aria-hidden />
                         </button>
                         {popover === `row-${l.id}` && (
-                          <div className={cn(menu, "right-0 w-56")}>
+                          <FloatingPanel anchor={rowAnchor} open onClose={() => setPopover(null)} role="menu" className="w-56 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
                             <button type="button" onClick={() => router.push(`/${locale}/portal/crm/${l.id}`)} className={menuItem}>
                               <ExternalLink className="h-4 w-4 text-muted" aria-hidden />
                               {t.rowMenu.open}
@@ -518,7 +576,7 @@ export function LeadsWorkspace({
                                 {t.rowMenu.delete}
                               </button>
                             )}
-                          </div>
+                          </FloatingPanel>
                         )}
                       </td>
                     </tr>
@@ -536,33 +594,33 @@ export function LeadsWorkspace({
           <span className="pr-2 text-white/70">{t.bulk.selected.replace("{n}", String(selected.size))}</span>
           <span className="h-5 w-px bg-white/15" aria-hidden />
           <div className="relative">
-            <button type="button" onClick={() => setPopover((p) => (p === "bulk-status" ? null : "bulk-status"))} className="inline-flex h-9 items-center gap-2 rounded-xl px-3 hover:bg-white/10">
+            <button type="button" onClick={(e) => { setToolAnchor(e.currentTarget); setPopover((p) => (p === "bulk-status" ? null : "bulk-status")); }} className="inline-flex h-9 items-center gap-2 rounded-xl px-3 hover:bg-white/10">
               <Pencil className="h-4 w-4" aria-hidden />
               {t.bulk.status}
             </button>
             {popover === "bulk-status" && (
-              <div className={cn(menu, "bottom-12 left-0 mt-0 w-52 text-heading")}>
+              <FloatingPanel anchor={toolAnchor} open onClose={() => setPopover(null)} align="start" placement="top" role="menu" className={cn(menuPanel, "w-52 text-heading")}>
                 {pipeline.map((s) => (
                   <button key={s} type="button" onClick={() => { void update([...selected], { status: s }); setPopover(null); }} className={menuItem}>
                     {crm.status[s]}
                   </button>
                 ))}
-              </div>
+              </FloatingPanel>
             )}
           </div>
           <div className="relative">
-            <button type="button" onClick={() => setPopover((p) => (p === "bulk-assign" ? null : "bulk-assign"))} className="inline-flex h-9 items-center gap-2 rounded-xl px-3 hover:bg-white/10">
+            <button type="button" onClick={(e) => { setToolAnchor(e.currentTarget); setPopover((p) => (p === "bulk-assign" ? null : "bulk-assign")); }} className="inline-flex h-9 items-center gap-2 rounded-xl px-3 hover:bg-white/10">
               <Share className="h-4 w-4" aria-hidden />
               {t.bulk.assign}
             </button>
             {popover === "bulk-assign" && (
-              <div className={cn(menu, "bottom-12 left-0 mt-0 max-h-72 w-60 overflow-y-auto text-heading")}>
+              <FloatingPanel anchor={toolAnchor} open onClose={() => setPopover(null)} align="start" placement="top" role="menu" className={cn(menuPanel, "max-h-72 w-60 text-heading")}>
                 {employees.map((e) => (
                   <button key={e.id} type="button" onClick={() => { void update([...selected], { assigned_to: e.id }); setPopover(null); }} className={menuItem}>
                     {e.name}
                   </button>
                 ))}
-              </div>
+              </FloatingPanel>
             )}
           </div>
           {isAdmin && (

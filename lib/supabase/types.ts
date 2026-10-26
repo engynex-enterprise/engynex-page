@@ -89,6 +89,10 @@ export type Lead = {
   value_cop: number | null;
   lost_reason: string | null;
   last_activity_at: string;
+  /** Slug del servicio pedido (content/services.ts) o null si es general. */
+  service: string | null;
+  /** Resumen corto de la solicitud para la lista del CRM. */
+  request_summary: string | null;
 };
 
 export type Appointment = {

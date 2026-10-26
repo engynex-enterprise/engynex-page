@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Check, Copy, Loader2, Repeat, SendHorizontal, Trash2, X } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { createClient } from "@/lib/supabase/client";
 import type { ChecklistItem, LeadTier, TaskComment, TaskPriority, TaskRecurrence, TaskStatus, TaskType } from "@/lib/supabase/types";
 import { tasksProCopy } from "@/content/tasksPro";
@@ -63,6 +64,7 @@ export function TaskDrawer({
   const [sending, setSending] = useState(false);
   const [step, setStep] = useState("");
   const [tag, setTag] = useState("");
+  const [leadInput, setLeadInput] = useState<HTMLInputElement | null>(null);
   const [leadQuery, setLeadQuery] = useState("");
   const [hits, setHits] = useState<{ id: string; name: string; email: string; tier: LeadTier }[]>([]);
   const timer = useRef<number | undefined>(undefined);
@@ -331,6 +333,7 @@ export function TaskDrawer({
               ) : (
                 <div className="relative">
                   <input
+                    ref={setLeadInput}
                     value={leadQuery}
                     onChange={(e) => findLead(e.target.value)}
                     placeholder={d.leadSearch}
@@ -338,25 +341,27 @@ export function TaskDrawer({
                     className="h-10 w-full rounded-[10px] bg-[#f4f4f5] px-3 text-sm text-heading outline-none ring-1 ring-transparent placeholder:text-muted focus:bg-surface focus:ring-line-strong dark:bg-white/[0.06]"
                   />
                   {hits.length > 0 && (
-                    <ul className="absolute inset-x-0 top-full z-10 mt-1 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
-                      {hits.map((h) => (
-                        <li key={h.id}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              save({ lead_id: h.id, lead_name: h.name });
-                              setHits([]);
-                              setLeadQuery("");
-                            }}
-                            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left hover:bg-[var(--meta-hover)]"
-                          >
-                            <span className={cn("h-2 w-2 rounded-full", tierStyles[h.tier].dot)} aria-hidden />
-                            <span className="min-w-0 flex-1 truncate text-sm text-heading">{h.name}</span>
-                            <span className="truncate text-xs text-muted">{h.email}</span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                    <FloatingPanel anchor={leadInput} open onClose={() => setHits([])} align="start" matchWidth className="rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
+                      <ul>
+                        {hits.map((h) => (
+                          <li key={h.id}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                save({ lead_id: h.id, lead_name: h.name });
+                                setHits([]);
+                                setLeadQuery("");
+                              }}
+                              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left hover:bg-[var(--meta-hover)]"
+                            >
+                              <span className={cn("h-2 w-2 rounded-full", tierStyles[h.tier].dot)} aria-hidden />
+                              <span className="min-w-0 flex-1 truncate text-sm text-heading">{h.name}</span>
+                              <span className="truncate text-xs text-muted">{h.email}</span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </FloatingPanel>
                   )}
                 </div>
               )}

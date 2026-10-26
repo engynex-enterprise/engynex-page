@@ -13,6 +13,7 @@ import { SELECT_CHAT_EVENT } from "./ChatContext";
 import { AGENT_STATUS_EVENT, type AgentStatusDetail } from "./ChatAlerts";
 import type { Locale } from "@/i18n/config";
 import { cn } from "@/lib/utils";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 
 export type InboxConversation = Omit<ChatConversation, "token_hash">;
 type Filter = "open" | "mine" | "unassigned" | "closed";
@@ -36,7 +37,7 @@ export const statusDot: Record<ChatAgentStatus, string> = {
 };
 
 const iconBtn = "grid h-10 w-10 shrink-0 place-items-center rounded-[10px] text-heading transition-colors hover:bg-[var(--meta-hover)]";
-const menu = "absolute z-30 mt-2 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
+const menu = "rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
 const menuItem = "flex h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm text-heading hover:bg-[var(--meta-hover)]";
 
 /* ---------------- Permiso de notificaciones de escritorio ---------------- */
@@ -60,14 +61,7 @@ function AgentStatusMenu({ locale, initial, onShortcuts }: { locale: Locale; ini
   const [open, setOpen] = useState(false);
   const notify = useSyncExternalStore(subscribeNotify, readNotify, () => "unsupported" as NotifyState);
 
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (event: MouseEvent) => {
-      if (!(event.target as HTMLElement).closest("[data-status-menu]")) setOpen(false);
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [open]);
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
 
   const save = (patch: Partial<AgentStatusDetail>) => {
     const next = { ...me, ...patch };
@@ -81,7 +75,10 @@ function AgentStatusMenu({ locale, initial, onShortcuts }: { locale: Locale; ini
     <div className="relative" data-status-menu>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={(e) => {
+          setAnchor(e.currentTarget);
+          setOpen((v) => !v);
+        }}
         aria-expanded={open}
         aria-label={`${t.status.label}: ${t.status[me.status]}`}
         className="inline-flex h-10 items-center gap-2 rounded-[10px] px-3 text-sm font-medium text-heading ring-1 ring-line hover:bg-[var(--meta-hover)]"
@@ -90,7 +87,7 @@ function AgentStatusMenu({ locale, initial, onShortcuts }: { locale: Locale; ini
         <span className="hidden sm:inline">{t.status[me.status]}</span>
       </button>
       {open && (
-        <div className={cn(menu, "right-0 w-72")}>
+        <FloatingPanel anchor={anchor} open onClose={() => setOpen(false)} role="menu" className={cn(menu, "w-72")}>
           <p className="px-2.5 pb-1 pt-1.5 text-xs font-medium text-muted">{t.status.label}</p>
           {(["available", "busy", "away"] as const).map((s) => (
             <button key={s} type="button" onClick={() => save({ status: s })} className={menuItem}>
@@ -134,7 +131,7 @@ function AgentStatusMenu({ locale, initial, onShortcuts }: { locale: Locale; ini
             <span className="flex-1">{t.shortcuts.open}</span>
             <kbd className="rounded bg-card-soft px-1.5 font-mono text-xs text-muted dark:bg-white/10">?</kbd>
           </button>
-        </div>
+        </FloatingPanel>
       )}
     </div>
   );
@@ -214,6 +211,7 @@ export function ChatInbox({
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(initialSelected);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filtersAnchor, setFiltersAnchor] = useState<HTMLElement | null>(null);
   const [help, setHelp] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
@@ -323,14 +321,6 @@ export function ChatInbox({
     return () => window.removeEventListener("keydown", onKey);
   }, [visible, selectedId, select]);
 
-  useEffect(() => {
-    if (!filtersOpen) return;
-    const onDown = (event: MouseEvent) => {
-      if (!(event.target as HTMLElement).closest("[data-filters]")) setFiltersOpen(false);
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [filtersOpen]);
 
   const selected = conversations.find((c) => c.id === selectedId) ?? null;
   const names = useMemo(() => Object.fromEntries(employees.map((e) => [e.id, e.name])), [employees]);
@@ -367,7 +357,10 @@ export function ChatInbox({
               <div className="relative" data-filters>
                 <button
                   type="button"
-                  onClick={() => setFiltersOpen((v) => !v)}
+                  onClick={(e) => {
+                    setFiltersAnchor(e.currentTarget);
+                    setFiltersOpen((v) => !v);
+                  }}
                   aria-label={t.more.filter}
                   aria-expanded={filtersOpen}
                   className={cn(iconBtn, "relative", activeFilters > 0 && "bg-[var(--meta-active)] text-accent")}
@@ -376,7 +369,7 @@ export function ChatInbox({
                   {activeFilters > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-brand-green-dark" />}
                 </button>
                 {filtersOpen && (
-                  <div className={cn(menu, "right-0 grid w-72 gap-3 p-3")}>
+                  <FloatingPanel anchor={filtersAnchor} open onClose={() => setFiltersOpen(false)} className={cn(menu, "grid w-72 gap-3 p-3")}>
                     <Select
                       size="md"
                       label={t.more.channel}
@@ -414,7 +407,7 @@ export function ChatInbox({
                         {t.more.clear}
                       </button>
                     )}
-                  </div>
+                  </FloatingPanel>
                 )}
               </div>
               <AgentStatusMenu locale={locale} initial={myStatus} onShortcuts={() => setHelp(true)} />

@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { cn } from "@/lib/utils";
 
 const TZ = "America/Bogota";
@@ -69,6 +70,7 @@ export function DateTimePicker({
   const [month, setMonth] = useState(() => (selected?.date ?? today).slice(0, 7));
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -155,7 +157,10 @@ export function DateTimePicker({
       <button
         ref={buttonRef}
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={(e) => {
+          setAnchor(e.currentTarget);
+          setOpen((v) => !v);
+        }}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-labelledby={`${id}-label ${id}-value`}
@@ -180,95 +185,98 @@ export function DateTimePicker({
       </button>
 
       {open && (
-        <div
-          ref={panelRef}
-          role="dialog"
-          aria-label={label}
-          className="absolute left-0 top-full z-50 mt-2 flex w-max max-w-[calc(100vw-2rem)] gap-4 rounded-3xl bg-surface p-4 shadow-[0_16px_50px_-14px_rgba(11,16,32,0.45)] ring-1 ring-line dark:bg-card"
+        <FloatingPanel
+          anchor={anchor}
+          open
+          onClose={() => setOpen(false)}
+          align="start"
+          className="w-max max-w-[calc(100vw-2rem)] rounded-3xl bg-surface p-4 shadow-[0_16px_50px_-14px_rgba(11,16,32,0.45)] ring-1 ring-line dark:bg-card"
         >
-          <div className="w-64">
-            <div className="flex items-center justify-between">
-              <button type="button" onClick={() => shiftMonth(-1)} aria-label="‹" className="grid h-9 w-9 place-items-center rounded-full hover:bg-surface-soft dark:hover:bg-white/10">
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <p className="text-sm font-bold capitalize text-heading">{monthName}</p>
-              <button type="button" onClick={() => shiftMonth(1)} aria-label="›" className="grid h-9 w-9 place-items-center rounded-full hover:bg-surface-soft dark:hover:bg-white/10">
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="mt-2 grid grid-cols-7 text-center text-xs font-semibold uppercase text-muted">
-              {weekdayNames.map((w, i) => (
-                <span key={i} className="py-1.5">{w}</span>
-              ))}
-            </div>
-            <div role="grid" className="grid grid-cols-7 gap-0.5">
-              {weeks.map((date, i) =>
-                date ? (
-                  <button
-                    key={date}
-                    type="button"
-                    role="gridcell"
-                    aria-selected={selected?.date === date}
-                    data-today={date === today ? "" : undefined}
-                    disabled={!!minDate && date < minDate}
-                    onClick={() => pickDate(date)}
-                    className={cn(
-                      "grid h-9 place-items-center rounded-full text-sm tabular-nums transition-colors disabled:pointer-events-none disabled:opacity-30",
-                      selected?.date === date
-                        ? "bg-deep-700 font-bold text-white dark:bg-white dark:text-deep-700"
-                        : date === today
-                          ? "font-bold text-heading ring-1 ring-line-strong hover:bg-surface-soft dark:hover:bg-white/10"
-                          : "text-heading hover:bg-surface-soft dark:hover:bg-white/10",
-                    )}
-                  >
-                    {Number(date.slice(8))}
-                  </button>
-                ) : (
-                  <span key={`e${i}`} />
-                ),
-              )}
-            </div>
-            {clearLabel && value && (
-              <button
-                type="button"
-                onClick={() => {
-                  onChange(null);
-                  setOpen(false);
-                }}
-                className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-heading"
-              >
-                <X className="h-3.5 w-3.5" aria-hidden />
-                {clearLabel}
-              </button>
-            )}
-          </div>
-          {mode === "datetime" && (
-            <ul aria-label="Hora" className="no-scrollbar h-[19rem] w-24 overflow-y-auto border-l border-line pl-3">
-              {times.map((time) => {
-                const active = selected?.time === time;
-                return (
-                  <li key={time}>
+          <div ref={panelRef} role="dialog" aria-label={label} className="flex gap-4">
+            <div className="w-64">
+              <div className="flex items-center justify-between">
+                <button type="button" onClick={() => shiftMonth(-1)} aria-label="‹" className="grid h-9 w-9 place-items-center rounded-full hover:bg-surface-soft dark:hover:bg-white/10">
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <p className="text-sm font-bold capitalize text-heading">{monthName}</p>
+                <button type="button" onClick={() => shiftMonth(1)} aria-label="›" className="grid h-9 w-9 place-items-center rounded-full hover:bg-surface-soft dark:hover:bg-white/10">
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="mt-2 grid grid-cols-7 text-center text-xs font-semibold uppercase text-muted">
+                {weekdayNames.map((w, i) => (
+                  <span key={i} className="py-1.5">{w}</span>
+                ))}
+              </div>
+              <div role="grid" className="grid grid-cols-7 gap-0.5">
+                {weeks.map((date, i) =>
+                  date ? (
                     <button
+                      key={date}
                       type="button"
-                      aria-pressed={active}
-                      onClick={() => pickTime(time)}
+                      role="gridcell"
+                      aria-selected={selected?.date === date}
+                      data-today={date === today ? "" : undefined}
+                      disabled={!!minDate && date < minDate}
+                      onClick={() => pickDate(date)}
                       className={cn(
-                        "h-9 w-full rounded-full text-sm tabular-nums transition-colors",
-                        active
-                          ? "bg-action font-bold text-deep-700"
-                          : "text-heading hover:bg-surface-soft dark:hover:bg-white/10",
+                        "grid h-9 place-items-center rounded-full text-sm tabular-nums transition-colors disabled:pointer-events-none disabled:opacity-30",
+                        selected?.date === date
+                          ? "bg-deep-700 font-bold text-white dark:bg-white dark:text-deep-700"
+                          : date === today
+                            ? "font-bold text-heading ring-1 ring-line-strong hover:bg-surface-soft dark:hover:bg-white/10"
+                            : "text-heading hover:bg-surface-soft dark:hover:bg-white/10",
                       )}
                     >
-                      {new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", timeZone: "UTC" }).format(
-                        new Date(`1970-01-01T${time}:00Z`),
-                      )}
+                      {Number(date.slice(8))}
                     </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+                  ) : (
+                    <span key={`e${i}`} />
+                  ),
+                )}
+              </div>
+              {clearLabel && value && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(null);
+                    setOpen(false);
+                  }}
+                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-heading"
+                >
+                  <X className="h-3.5 w-3.5" aria-hidden />
+                  {clearLabel}
+                </button>
+              )}
+            </div>
+            {mode === "datetime" && (
+              <ul aria-label="Hora" className="no-scrollbar h-[19rem] w-24 overflow-y-auto border-l border-line pl-3">
+                {times.map((time) => {
+                  const active = selected?.time === time;
+                  return (
+                    <li key={time}>
+                      <button
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => pickTime(time)}
+                        className={cn(
+                          "h-9 w-full rounded-full text-sm tabular-nums transition-colors",
+                          active
+                            ? "bg-action font-bold text-deep-700"
+                            : "text-heading hover:bg-surface-soft dark:hover:bg-white/10",
+                        )}
+                      >
+                        {new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", timeZone: "UTC" }).format(
+                          new Date(`1970-01-01T${time}:00Z`),
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </FloatingPanel>
       )}
     </div>
   );

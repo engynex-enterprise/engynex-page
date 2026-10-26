@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { createClient } from "@/lib/supabase/client";
 import type { AccountKind, AppRole, Profile } from "@/lib/supabase/types";
 import { buttonClasses } from "@/components/ui/Button";
@@ -289,27 +290,17 @@ function RowActions({
   onReset: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (event: PointerEvent) => {
-      if (!ref.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);
-    document.addEventListener("pointerdown", onDown);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("pointerdown", onDown);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
 
   const item = "flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-heading hover:bg-surface-soft dark:hover:bg-white/[0.06]";
   return (
-    <div ref={ref} className="relative inline-block">
+    <div className="relative inline-block">
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={(e) => {
+          setAnchor(e.currentTarget);
+          setOpen((v) => !v);
+        }}
         aria-expanded={open}
         aria-label={`${labels.actions}: ${row.full_name ?? row.email}`}
         className="grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-surface-soft hover:text-heading dark:hover:bg-white/[0.08]"
@@ -317,7 +308,7 @@ function RowActions({
         <MoreHorizontal className="h-5 w-5" />
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 top-full z-20 mt-1 w-60 rounded-lg bg-surface p-1.5 text-left shadow-[0_16px_40px_-12px_rgba(11,16,32,0.35)] shadow-meta dark:bg-card">
+        <FloatingPanel anchor={anchor} open onClose={() => setOpen(false)} role="menu" className="w-60 rounded-lg bg-surface p-1.5 text-left shadow-[0_16px_40px_-12px_rgba(11,16,32,0.35)] shadow-meta dark:bg-card">
           <button role="menuitem" type="button" className={item} onClick={() => { setOpen(false); onEdit(); }}>
             <ShieldCheck className="h-4 w-4 text-muted" aria-hidden />
             {labels.edit}
@@ -332,7 +323,7 @@ function RowActions({
               {row.active ? labels.deactivate : labels.activate}
             </button>
           )}
-        </div>
+        </FloatingPanel>
       )}
     </div>
   );

@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, ArrowRight, ChevronDown, Clock, Copy, Folder, Loader2, MoreHorizontal, Pause, Pencil, Play, Search, Timer, Trash2, X, Zap } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { createClient } from "@/lib/supabase/client";
 import { Select } from "@/components/ui/Select";
 import { ACTION_ICONS, GROUP_ICONS } from "@/components/automations/icons";
@@ -60,6 +61,7 @@ export function RulesList({
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [menu, setMenu] = useState<string | null>(null);
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -378,7 +380,10 @@ export function RulesList({
                               <div className="relative mt-0.5">
                                 <button
                                   type="button"
-                                  onClick={() => setMenu((m) => (m === rule.id ? null : rule.id))}
+                                  onClick={(e) => {
+                                    setMenuAnchor(e.currentTarget);
+                                    setMenu((m) => (m === rule.id ? null : rule.id));
+                                  }}
                                   aria-label={`${r.edit}: ${rule.name}`}
                                   aria-expanded={menu === rule.id}
                                   className="grid h-9 w-9 place-items-center rounded-full hover:bg-[var(--meta-hover)]"
@@ -386,7 +391,7 @@ export function RulesList({
                                   <MoreHorizontal className="h-5 w-5" aria-hidden />
                                 </button>
                                 {menu === rule.id && (
-                                  <div className="absolute right-0 top-10 z-20 w-48 rounded-xl border border-line bg-surface p-1.5 shadow-lg dark:bg-card">
+                                  <FloatingPanel anchor={menuAnchor} open onClose={() => setMenu(null)} role="menu" className="w-48 rounded-xl border border-line bg-surface p-1.5 shadow-lg dark:bg-card">
                                     <Link href={`${base}/${rule.id}`} className={menuItem}>
                                       <Pencil className="h-4 w-4" aria-hidden />
                                       {r.edit}
@@ -399,7 +404,7 @@ export function RulesList({
                                       <Trash2 className="h-4 w-4" aria-hidden />
                                       {r.delete}
                                     </button>
-                                  </div>
+                                  </FloatingPanel>
                                 )}
                               </div>
                             )}

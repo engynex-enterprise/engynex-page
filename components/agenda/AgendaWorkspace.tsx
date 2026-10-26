@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { CalendarDays, Check, Copy, Link2, ListFilter, Loader2, Mail, MessageCircle, Plus, Rows3, Search, Settings2, X } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { createClient } from "@/lib/supabase/client";
 import type { AppointmentKind, Availability, AvailabilityBlock, MeetingChannel } from "@/lib/supabase/types";
 import { agendaProCopy } from "@/content/agendaPro";
@@ -22,7 +23,7 @@ const KINDS: AppointmentKind[] = ["discovery", "demo", "proposal", "followup", "
 const CHANNELS: MeetingChannel[] = ["meet", "call", "whatsapp", "in_person"];
 
 const iconBtn = "grid h-10 w-10 shrink-0 place-items-center rounded-[10px] text-heading transition-colors hover:bg-[var(--meta-hover)]";
-const menu = "absolute z-30 mt-2 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
+const menu = "rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card";
 const softBtn = "inline-flex h-10 items-center gap-2 rounded-[10px] px-3.5 text-sm font-medium text-heading ring-1 ring-line hover:bg-[var(--meta-hover)]";
 
 /**
@@ -61,6 +62,7 @@ export function AgendaWorkspace({
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState({ channel: "", kind: "", host: "" });
   const [filterOpen, setFilterOpen] = useState(false);
+  const [filterAnchor, setFilterAnchor] = useState<HTMLElement | null>(null);
   const [open, setOpen] = useState<{ id: string; close?: "done" | "no_show" } | null>(initialOpen ? { id: initialOpen } : null);
   const [dialog, setDialog] = useState<{ kind: "new"; at?: string } | { kind: "invite" } | null>(null);
   const [toast, setToast] = useState<{ text: string; error?: boolean } | null>(null);
@@ -116,7 +118,7 @@ export function AgendaWorkspace({
   useEffect(() => {
     if (!filterOpen) return;
     const onDown = (event: MouseEvent) => {
-      if (!(event.target as HTMLElement).closest("[data-filter]")) setFilterOpen(false);
+      if (!(event.target as HTMLElement).closest("[data-filter], [data-popover]")) setFilterOpen(false);
     };
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
@@ -197,12 +199,12 @@ export function AgendaWorkspace({
               />
             </label>
             <div className="relative" data-filter>
-              <button type="button" onClick={() => setFilterOpen((v) => !v)} aria-expanded={filterOpen} aria-label={t.filter} className={cn(iconBtn, "relative", activeFilters && "bg-[var(--meta-active)] text-accent")}>
+              <button type="button" onClick={(e) => { setFilterAnchor(e.currentTarget); setFilterOpen((v) => !v); }} aria-expanded={filterOpen} aria-label={t.filter} className={cn(iconBtn, "relative", activeFilters && "bg-[var(--meta-active)] text-accent")}>
                 <ListFilter className="h-[18px] w-[18px]" aria-hidden />
                 {activeFilters > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-brand-green-dark" />}
               </button>
               {filterOpen && (
-                <div className={cn(menu, "left-0 grid w-72 gap-3 p-3")}>
+                <FloatingPanel anchor={filterAnchor} open onClose={() => setFilterOpen(false)} align="start" className={cn(menu, "grid w-72 gap-3 p-3")}>
                   <Select size="md" label={t.filters.channel} value={filters.channel} onChange={(v) => setFilters((f) => ({ ...f, channel: v }))} options={[{ value: "", label: t.filters.any }, ...CHANNELS.map((k) => ({ value: k, label: p.channels[k] }))]} />
                   <Select size="md" label={t.filters.kind} value={filters.kind} onChange={(v) => setFilters((f) => ({ ...f, kind: v }))} options={[{ value: "", label: t.filters.any }, ...KINDS.map((k) => ({ value: k, label: p.kinds[k] }))]} />
                   <Select size="md" label={t.filters.host} value={filters.host} onChange={(v) => setFilters((f) => ({ ...f, host: v }))} options={[{ value: "", label: t.filters.any }, ...employees.map((e) => ({ value: e.id, label: e.name }))]} />
@@ -211,7 +213,7 @@ export function AgendaWorkspace({
                       {t.filters.clear}
                     </button>
                   )}
-                </div>
+                </FloatingPanel>
               )}
             </div>
           </>

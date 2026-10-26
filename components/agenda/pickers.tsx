@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, X } from "lucide-react";
+import { FloatingPanel } from "@/components/ui/FloatingPanel";
 import { createClient } from "@/lib/supabase/client";
 import type { LeadTier } from "@/lib/supabase/types";
 import { DateTimePicker } from "@/components/ui/DateTimePicker";
@@ -31,6 +32,7 @@ export function LeadPicker({
 }) {
   const supabase = useMemo(() => createClient(), []);
   const [query, setQuery] = useState("");
+  const [input, setInput] = useState<HTMLInputElement | null>(null);
   const [hits, setHits] = useState<PickedLead[] | null>(null);
   const timer = useRef<number | undefined>(undefined);
 
@@ -66,22 +68,24 @@ export function LeadPicker({
   }
   return (
     <div className="relative">
-      <input autoFocus value={query} onChange={(e) => search(e.target.value)} placeholder={placeholder} aria-label={label} className={field} />
+      <input ref={setInput} autoFocus value={query} onChange={(e) => search(e.target.value)} placeholder={placeholder} aria-label={label} className={field} />
       {hits && (
-        <ul className="absolute inset-x-0 top-full z-10 mt-1 max-h-64 overflow-y-auto rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
-          {hits.length === 0 && <li className="px-3 py-2 text-sm text-muted">{noResults}</li>}
-          {hits.map((h) => (
-            <li key={h.id}>
-              <button type="button" onClick={() => onChange(h)} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left hover:bg-[var(--meta-hover)]">
-                <span className={cn("h-2 w-2 shrink-0 rounded-full", tierStyles[h.tier].dot)} aria-hidden />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm text-heading">{h.name}</span>
-                  <span className="block truncate text-xs text-muted">{[h.company, h.email].filter(Boolean).join(" · ")}</span>
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+        <FloatingPanel anchor={input} open onClose={() => setHits(null)} align="start" matchWidth className="max-h-64 rounded-xl bg-surface p-1.5 shadow-[0_12px_32px_-8px_rgba(16,24,40,0.25),0_0_0_1px_rgba(16,24,40,0.06)] dark:bg-card">
+          <ul>
+            {hits.length === 0 && <li className="px-3 py-2 text-sm text-muted">{noResults}</li>}
+            {hits.map((h) => (
+              <li key={h.id}>
+                <button type="button" onClick={() => onChange(h)} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left hover:bg-[var(--meta-hover)]">
+                  <span className={cn("h-2 w-2 shrink-0 rounded-full", tierStyles[h.tier].dot)} aria-hidden />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm text-heading">{h.name}</span>
+                    <span className="block truncate text-xs text-muted">{[h.company, h.email].filter(Boolean).join(" · ")}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </FloatingPanel>
       )}
     </div>
   );
