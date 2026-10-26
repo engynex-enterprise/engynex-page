@@ -4,6 +4,7 @@ import { getIntegrations, isOn } from "@/lib/integrations";
 import { whatsappMissing } from "@/lib/whatsapp";
 import { dispatchWhatsApp } from "@/lib/whatsappDispatch";
 import { analyzeLead } from "@/lib/ai";
+import { resolveLlm } from "@/lib/llm";
 import { sendEmail } from "@/lib/email/send";
 import { abandoned, bookingConfirmation, customEmail, followup, newLeadAlert, weeklyReport, type Rendered } from "@/lib/email/templates";
 import { normalizeFollowupConfig } from "@/content/followupDefaults";
@@ -70,7 +71,8 @@ export async function runJobs(budgetMs = 50_000): Promise<JobsSummary> {
   }
 
   // 4. Lectura con IA
-  if (c.anthropic_api_key && isOn(c, "ai_lead_insights") && left() > 15_000) {
+  const llm = resolveLlm(c);
+  if (llm && isOn(c, "ai_lead_insights") && left() > 15_000) {
     const { data: pending, error } = await db.rpc("ai_pending_leads", { p_limit: 5 });
     if (error) summary.ai = error.message;
     else {
@@ -79,7 +81,7 @@ export async function runJobs(budgetMs = 50_000): Promise<JobsSummary> {
       for (const lead of pending ?? []) {
         if (left() < 10_000) break;
         try {
-          const insights = await analyzeLead(c.anthropic_api_key, lead);
+          const insights = await analyzeLead(llm, lead);
           await db.rpc("ai_store", { p_lead: lead.id, p_insights: insights, p_error: insights ? null : "refusal" });
           analyzed++;
         } catch (e) {

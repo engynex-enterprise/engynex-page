@@ -1310,6 +1310,9 @@ export type Database = {
       chat_agent_set: { Args: { p: Json; p_profile?: string | null }; Returns: undefined };
       chat_transfer: { Args: { p_conversation: string; p_to: string; p_note?: string | null }; Returns: undefined };
       chat_save_summary: { Args: { p_conversation: string; p_summary: string }; Returns: undefined };
+      chat_config: { Args: Record<string, never>; Returns: Json };
+      chat_open_now: { Args: { p_config: Json }; Returns: boolean };
+      chat_ai_handoff: { Args: { p_conversation: string; p_reason: string }; Returns: undefined };
       chat_create_ticket: { Args: { p_conversation: string; p: Json }; Returns: Json };
       chat_report: { Args: { p_days?: number }; Returns: Json };
       chat_team: { Args: Record<string, never>; Returns: Json };

@@ -18,6 +18,8 @@ const es = {
   contactPhone: "Déjanos tu celular para poder responderte si te desconectas.",
   agentsHere: "Asesores en línea: {names}",
   attach: "Adjuntar archivo",
+  aiBot: "Asistente con IA",
+  quickReplies: "Respuestas rápidas",
 };
 
 export type ChatWidgetCopy = typeof es;
@@ -39,6 +41,8 @@ const en: ChatWidgetCopy = {
   contactPhone: "Leave your mobile number so we can reply if you disconnect.",
   agentsHere: "Advisors online: {names}",
   attach: "Attach file",
+  aiBot: "AI assistant",
+  quickReplies: "Quick replies",
 };
 
 export const chatWidgetCopy: Record<Locale, ChatWidgetCopy> = { es, en };

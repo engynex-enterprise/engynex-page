@@ -20,6 +20,7 @@ import { trackContact } from "@/lib/tracking";
 import { AGENTS_CHANNEL, OPEN_CHAT_EVENT, liveChatCopy } from "@/content/liveChat";
 import { chatWidgetCopy } from "@/content/chatWidget";
 import { chatProCopy } from "@/content/chatPro";
+import { serviceFromPath, serviceNames } from "@/content/serviceNames";
 import {
   ATTACHMENT_ACCEPT,
   SITE_VISITORS_CHANNEL,
@@ -49,6 +50,8 @@ type Message = {
   attachment?: ChatAttachment | null;
   created_at: string;
   agent: string | null;
+  /** Mensaje del bot escrito por la IA (piloto automático). */
+  ai?: boolean;
 };
 
 type Fetched = {
@@ -125,6 +128,52 @@ function tabIdentity() {
     // Igual que arriba.
   }
   return tabMemory;
+}
+
+/**
+ * Avisa al servidor que hay un mensaje nuevo para que el asistente con IA
+ * decida si responde (según el modo configurado). No bloquea la interfaz y
+ * cualquier error se ignora: el chat funciona igual sin IA.
+ */
+function pingAutopilot(token: string) {
+  void fetch("/api/chat/autopilot", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+    keepalive: true,
+  }).catch(() => null);
+}
+
+/** Botones de respuesta rápida: al tocar uno se usa su texto como mensaje. */
+function QuickReplies({
+  label,
+  options,
+  accent,
+  disabled,
+  onPick,
+}: {
+  label: string;
+  options: string[];
+  accent: Accent;
+  disabled?: boolean;
+  onPick: (text: string) => void;
+}) {
+  return (
+    <div role="group" aria-label={label} className="flex flex-wrap gap-2">
+      {options.map((q) => (
+        <button
+          key={q}
+          type="button"
+          disabled={disabled}
+          onClick={() => onPick(q)}
+          style={accent ? { borderColor: accent.backgroundColor, color: "inherit" } : undefined}
+          className="rounded-full border border-deep-700/30 bg-surface px-3 py-1.5 text-left text-xs font-semibold text-heading transition-colors hover:bg-surface-soft disabled:opacity-50 dark:border-white/20 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]"
+        >
+          {q}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 const initials = (name: string) =>
@@ -488,7 +537,15 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
   };
 
   const away = config?.open_now === false || agentsOnline === false;
-  const greeting = away ? texts.greeting_away : texts.greeting;
+  // En una página de servicio, saludo que nombra el servicio (si está activo).
+  const pageService = serviceFromPath(pathname);
+  const pageGreeting =
+    !away && pageService && config?.page_greeting
+      ? config.page_greeting.replace(/\{servicio\}|\{service\}/g, serviceNames[pageService][locale])
+      : null;
+  const greeting = away ? texts.greeting_away : pageGreeting || texts.greeting;
+  const quickReplies = config?.quick_replies ?? [];
+  const aiEnabled = !!config?.ai?.enabled;
   const agentNames = [...new Set(agents.map((a) => a.name).filter(Boolean))].slice(0, 3);
 
   if (!loaded || (hiddenHere && !token)) return null;
@@ -656,9 +713,19 @@ export function LiveChatWidget({ locale }: { locale: Locale }) {
             accent={accent}
             onSent={() => void load(token)}
             onTyping={notifyTyping}
+            quickReplies={hasAgentReply ? [] : quickReplies}
+            aiEnabled={aiEnabled}
           />
         ) : (
-          <StartForm locale={locale} greeting={greeting} agentsOnline={agentsOnline} fields={config?.fields ?? null} accent={accent} />
+          <StartForm
+            locale={locale}
+            greeting={greeting}
+            agentsOnline={agentsOnline}
+            fields={config?.fields ?? null}
+            accent={accent}
+            quickReplies={quickReplies}
+            aiEnabled={aiEnabled}
+          />
         )}
       </div>
     </>
@@ -685,12 +752,16 @@ function StartForm({
   agentsOnline,
   fields,
   accent,
+  quickReplies,
+  aiEnabled,
 }: {
   locale: Locale;
   greeting: string;
   agentsOnline: boolean | null;
   fields: { email: FieldMode; phone: FieldMode } | null;
   accent: Accent;
+  quickReplies: string[];
+  aiEnabled: boolean;
 }) {
   const t = liveChatCopy[locale].widget;
   const w = chatWidgetCopy[locale];
@@ -747,6 +818,7 @@ function StartForm({
     const token = (data as { token: string }).token;
     // Nadie conectado: respuesta automática con el horario de atención.
     if (agentsOnline === false) await supabase().rpc("chat_offline_notice", { p_token: token });
+    if (aiEnabled) pingAutopilot(token);
     trackContact("chat");
     saveToken(token);
   };
@@ -797,6 +869,14 @@ function StartForm({
                 className={field}
               />
             </div>
+          )}
+          {quickReplies.length > 0 && (
+            <QuickReplies
+              label={w.quickReplies}
+              options={quickReplies}
+              accent={accent}
+              onPick={(text) => setForm((f) => ({ ...f, message: text }))}
+            />
           )}
           <div>
             <label htmlFor={ids.message} className="mb-1 block text-xs font-semibold text-muted">
@@ -866,6 +946,8 @@ function Conversation({
   accent,
   onSent,
   onTyping,
+  quickReplies,
+  aiEnabled,
 }: {
   locale: Locale;
   token: string;
@@ -880,6 +962,8 @@ function Conversation({
   accent: Accent;
   onSent: () => void;
   onTyping: () => void;
+  quickReplies: string[];
+  aiEnabled: boolean;
 }) {
   const t = liveChatCopy[locale].widget;
   const w = chatWidgetCopy[locale];
@@ -901,8 +985,8 @@ function Conversation({
     if (el) el.scrollTop = el.scrollHeight;
   }, [last, typing]);
 
-  const send = async () => {
-    const text = body.trim();
+  const send = async (preset?: string) => {
+    const text = (preset ?? body).trim();
     if (!text || busy) return;
     setBusy(true);
     const { error: rpcError } = await supabase().rpc("chat_send", { p_token: token, p_body: text });
@@ -912,9 +996,13 @@ function Conversation({
       return;
     }
     setError(null);
-    setBody("");
+    if (preset === undefined) setBody("");
     onSent();
+    if (aiEnabled) pingAutopilot(token);
   };
+  // Botones que aún no se han enviado (mientras ningún asesor responda).
+  const sentTexts = new Set(messages.filter((m) => m.sender === "visitor").map((m) => m.body.trim()));
+  const pendingQuick = status === "open" ? quickReplies.filter((q) => !sentTexts.has(q.trim())) : [];
 
   const attach = async (file: File) => {
     if (!topic) return;
@@ -962,10 +1050,10 @@ function Conversation({
             const onlyFile = !!m.attachment && m.body === `📎 ${m.attachment.name}`;
             return (
               <li key={m.id} className={cn("flex flex-col", mine ? "items-end" : "items-start")}>
-                {showName && (
+                {(showName || (bot && m.ai && !prev?.ai)) && (
                   <span className="mb-1 ml-1 flex items-center gap-1 text-xs font-semibold text-muted">
                     {bot && <Bot className="h-3.5 w-3.5" aria-hidden />}
-                    {bot ? pro.bot : m.agent || t.someone}
+                    {bot ? (m.ai ? w.aiBot : pro.bot) : m.agent || t.someone}
                   </span>
                 )}
                 <div
@@ -1008,6 +1096,11 @@ function Conversation({
             </span>
             {t.typing.replace("{name}", typing || t.someone)}
           </p>
+        )}
+        {pendingQuick.length > 0 && (
+          <div className="mt-4">
+            <QuickReplies label={w.quickReplies} options={pendingQuick} accent={accent} disabled={busy} onPick={(text) => void send(text)} />
+          </div>
         )}
       </div>
 

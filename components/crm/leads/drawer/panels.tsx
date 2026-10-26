@@ -358,7 +358,8 @@ export function EmailsPanel({ locale, lead }: { locale: Locale; lead: Lead }) {
 export function AiPanel({ locale, lead, canRun, onAnalyzed }: { locale: Locale; lead: Lead; canRun: boolean; onAnalyzed: () => void }) {
   const { data } = useLoad(async (s) => {
     const { data: status } = await s.rpc("integration_status");
-    return !!(status as Record<string, boolean> | null)?.anthropic_api_key;
+    const keys = status as Record<string, boolean> | null;
+    return !!(keys?.anthropic_api_key || keys?.openai_api_key || keys?.gemini_api_key);
   }, []);
   if (data === null) return <PanelLoading locale={locale} />;
   return (

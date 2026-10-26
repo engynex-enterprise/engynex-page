@@ -12,7 +12,10 @@ import { buttonClasses } from "@/components/ui/Button";
 import {
   DAY_KEYS,
   readableOn,
+  type ChatAiMode,
+  type ChatAiProvider,
   type ChatConfig,
+  type ChatQuickReply,
   type ChatInvite,
   type ChatTexts,
   type DayKey,
@@ -26,10 +29,27 @@ const PRESETS = ["#1f2a46", "#467316", "#18181b", "#2563eb", "#0f766e", "#6d28d9
 const CLOSE_PRESETS = [0, 15, 30, 60, 120];
 const MAX_FAQS = 30;
 
+const MAX_QUICK = 6;
+const WAIT_PRESETS = [1, 2, 3, 5, 10];
+
 /** Pregunta frecuente en edición: las palabras clave van como texto. */
-type FaqDraft = { keywords: string; answer: string; answer_en: string };
+type FaqDraft = { keywords: string; answer: string; answer_en: string; priority: number };
+type BotDraft = {
+  enabled: boolean;
+  faqs: FaqDraft[];
+  intents_enabled: boolean;
+  sales: { answer: string; answer_en: string };
+  support: { answer: string; answer_en: string };
+  page_greetings: { enabled: boolean; text: string; text_en: string };
+  quick_replies: { label: string; label_en: string }[];
+  wait_message: { enabled: boolean; minutes: number; text: string; text_en: string };
+  auto_lead: boolean;
+  ai: { enabled: boolean; mode: ChatAiMode; provider: ChatAiProvider };
+};
 type Draft = Omit<ChatConfig, "bot" | "exclude_paths"> & {
-  bot: { enabled: boolean; faqs: FaqDraft[] };
+  bot: BotDraft;
+  /** Ajustes del bot tal como estaban: se conservan las claves que este formulario no edita. */
+  bot_raw: Record<string, unknown>;
   exclude_text: string;
 };
 
@@ -58,8 +78,26 @@ function toDraft(raw: unknown): Draft {
     hours: { enabled: c.hours?.enabled ?? false, email_team: c.hours?.email_team ?? false, days: { ...(c.hours?.days ?? {}) } },
     bot: {
       enabled: c.bot?.enabled ?? false,
-      faqs: (c.bot?.faqs ?? []).map((f) => ({ keywords: (f.keywords ?? []).join(", "), answer: f.answer ?? "", answer_en: f.answer_en ?? "" })),
+      faqs: (c.bot?.faqs ?? []).map((f) => ({ keywords: (f.keywords ?? []).join(", "), answer: f.answer ?? "", answer_en: f.answer_en ?? "", priority: f.priority ?? 0 })),
+      intents_enabled: c.bot?.intents_enabled ?? true,
+      sales: { answer: c.bot?.intents?.sales?.answer ?? "", answer_en: c.bot?.intents?.sales?.answer_en ?? "" },
+      support: { answer: c.bot?.intents?.support?.answer ?? "", answer_en: c.bot?.intents?.support?.answer_en ?? "" },
+      page_greetings: {
+        enabled: c.bot?.page_greetings?.enabled ?? false,
+        text: c.bot?.page_greetings?.text ?? "",
+        text_en: c.bot?.page_greetings?.text_en ?? "",
+      },
+      quick_replies: (c.bot?.quick_replies ?? []).map((q: ChatQuickReply) => ({ label: q.label ?? "", label_en: q.label_en ?? "" })),
+      wait_message: {
+        enabled: c.bot?.wait_message?.enabled ?? false,
+        minutes: c.bot?.wait_message?.minutes ?? 3,
+        text: c.bot?.wait_message?.text ?? "",
+        text_en: c.bot?.wait_message?.text_en ?? "",
+      },
+      auto_lead: c.bot?.auto_lead ?? true,
+      ai: { enabled: c.bot?.ai?.enabled ?? false, mode: c.bot?.ai?.mode ?? "assist", provider: c.bot?.ai?.provider ?? "anthropic" },
     },
+    bot_raw: c.bot && typeof c.bot === "object" ? (c.bot as unknown as Record<string, unknown>) : {},
     routing: { mode: c.routing?.mode ?? "off", max_chats: c.routing?.max_chats ?? 5 },
     auto_close_minutes: c.auto_close_minutes ?? 0,
     invites: (c.invites ?? []).map((i) => ({ path: i.path ?? "", delay: i.delay ?? 20, es: i.es ?? "", en: i.en ?? "" })),
@@ -70,7 +108,12 @@ function toDraft(raw: unknown): Draft {
 
 /** Del formulario a lo que se guarda en chat_settings.config. */
 function toConfig(d: Draft): ChatConfig {
-  const { exclude_text, ...rest } = d;
+  const { exclude_text, bot_raw, ...rest } = d;
+  const b = d.bot;
+  const intentText = (x: { answer: string; answer_en: string }) => ({
+    ...(x.answer.trim() ? { answer: x.answer.trim() } : {}),
+    ...(x.answer_en.trim() ? { answer_en: x.answer_en.trim() } : {}),
+  });
   return {
     ...rest,
     exclude_paths: exclude_text
@@ -79,14 +122,31 @@ function toConfig(d: Draft): ChatConfig {
       .filter(Boolean)
       .map((p) => (p.startsWith("/") ? p : `/${p}`)),
     bot: {
-      enabled: d.bot.enabled,
-      faqs: d.bot.faqs
+      // Claves que este formulario no conoce (p. ej. ajustes extra de la IA) se conservan.
+      ...(bot_raw as Partial<ChatConfig["bot"]>),
+      enabled: b.enabled,
+      faqs: b.faqs
         .map((f) => ({
           keywords: f.keywords.split(",").map((k) => k.trim()).filter(Boolean),
           answer: f.answer.trim(),
           ...(f.answer_en.trim() ? { answer_en: f.answer_en.trim() } : {}),
+          ...(Math.round(f.priority) ? { priority: Math.max(-9, Math.min(9, Math.round(f.priority))) } : {}),
         }))
         .filter((f) => f.keywords.length && f.answer),
+      intents_enabled: b.intents_enabled,
+      intents: { sales: intentText(b.sales), support: intentText(b.support) },
+      page_greetings: { enabled: b.page_greetings.enabled, text: b.page_greetings.text.trim(), text_en: b.page_greetings.text_en.trim() },
+      quick_replies: b.quick_replies
+        .map((q) => ({ label: q.label.trim(), ...(q.label_en.trim() ? { label_en: q.label_en.trim() } : {}) }))
+        .filter((q) => q.label),
+      wait_message: {
+        enabled: b.wait_message.enabled,
+        minutes: Math.min(60, Math.max(1, Math.round(b.wait_message.minutes) || 3)),
+        text: b.wait_message.text.trim(),
+        text_en: b.wait_message.text_en.trim(),
+      },
+      auto_lead: b.auto_lead,
+      ai: { ...((bot_raw.ai as Record<string, unknown>) ?? {}), enabled: b.ai.enabled, mode: b.ai.mode, provider: b.ai.provider },
     },
     routing: { mode: d.routing.mode, max_chats: Math.min(50, Math.max(1, Math.round(d.routing.max_chats) || 5)) },
     auto_close_minutes: Math.max(0, Math.round(d.auto_close_minutes) || 0),
@@ -165,6 +225,7 @@ export function ChatSettingsForm({ locale, initial, updatedAt }: { locale: Local
     patch({ hours: { ...d.hours, days } });
   };
   const setFaq = (i: number, p: Partial<FaqDraft>) => patch({ bot: { ...d.bot, faqs: d.bot.faqs.map((f, j) => (j === i ? { ...f, ...p } : f)) } });
+  const setBot = (p: Partial<BotDraft>) => patch({ bot: { ...d.bot, ...p } });
   const setInvite = (i: number, p: Partial<ChatInvite>) => patch({ invites: d.invites.map((x, j) => (j === i ? { ...x, ...p } : x)) });
 
   const save = async () => {
@@ -391,6 +452,10 @@ export function ChatSettingsForm({ locale, initial, updatedAt }: { locale: Local
                   <span className={labelCls}>{t.bot.keywords}</span>
                   <input value={f.keywords} onChange={(e) => setFaq(i, { keywords: e.target.value })} maxLength={300} className={small} />
                 </label>
+                <label className="w-24 shrink-0" title={t.automation.priorityHint}>
+                  <span className={labelCls}>{t.automation.priority}</span>
+                  <input type="number" min={-9} max={9} value={f.priority} onChange={(e) => setFaq(i, { priority: Number(e.target.value) || 0 })} className={small} />
+                </label>
                 <button
                   type="button"
                   onClick={() => patch({ bot: { ...d.bot, faqs: d.bot.faqs.filter((_, j) => j !== i) } })}
@@ -416,7 +481,7 @@ export function ChatSettingsForm({ locale, initial, updatedAt }: { locale: Local
             <button
               type="button"
               disabled={d.bot.faqs.length >= MAX_FAQS}
-              onClick={() => patch({ bot: { ...d.bot, faqs: [...d.bot.faqs, { keywords: "", answer: "", answer_en: "" }] } })}
+              onClick={() => patch({ bot: { ...d.bot, faqs: [...d.bot.faqs, { keywords: "", answer: "", answer_en: "", priority: 0 }] } })}
               className={cn(ghostBtn, "disabled:opacity-50")}
             >
               <Plus className="h-4 w-4" aria-hidden />
@@ -425,6 +490,141 @@ export function ChatSettingsForm({ locale, initial, updatedAt }: { locale: Local
             {d.bot.faqs.length >= MAX_FAQS && <span className="text-xs text-muted">{t.bot.max}</span>}
           </div>
         </div>
+      </Card>
+
+      <Card title={t.automation.title} hint={t.automation.hint}>
+        <div className="grid gap-5">
+          <div>
+            <Switch checked={d.bot.intents_enabled} onChange={(v) => setBot({ intents_enabled: v })} label={t.automation.intents} />
+            {d.bot.intents_enabled && (
+              <div className="mt-3 grid gap-3">
+                <p className="text-xs text-muted">{t.automation.salesHint}</p>
+                {(["sales", "support"] as const).map((k) => (
+                  <div key={k} className="grid gap-3 md:grid-cols-2">
+                    <label>
+                      <span className={labelCls}>{t.automation[k]}</span>
+                      <textarea value={d.bot[k].answer} onChange={(e) => setBot({ [k]: { ...d.bot[k], answer: e.target.value } })} rows={3} maxLength={2000} className={area} />
+                    </label>
+                    <label>
+                      <span className={labelCls}>{t.automation.answerEn}</span>
+                      <textarea value={d.bot[k].answer_en} onChange={(e) => setBot({ [k]: { ...d.bot[k], answer_en: e.target.value } })} rows={3} maxLength={2000} className={area} />
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-line pt-4">
+            <Switch checked={d.bot.page_greetings.enabled} onChange={(v) => setBot({ page_greetings: { ...d.bot.page_greetings, enabled: v } })} label={t.automation.pageGreeting} />
+            <p className="text-xs text-muted">{t.automation.pageGreetingHint}</p>
+            {d.bot.page_greetings.enabled && (
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                <label>
+                  <span className={labelCls}>{t.automation.text}</span>
+                  <textarea value={d.bot.page_greetings.text} onChange={(e) => setBot({ page_greetings: { ...d.bot.page_greetings, text: e.target.value } })} rows={2} maxLength={300} className={area} />
+                </label>
+                <label>
+                  <span className={labelCls}>{t.automation.answerEn}</span>
+                  <textarea value={d.bot.page_greetings.text_en} onChange={(e) => setBot({ page_greetings: { ...d.bot.page_greetings, text_en: e.target.value } })} rows={2} maxLength={300} className={area} />
+                </label>
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-line pt-4">
+            <p className="text-sm font-medium text-heading">{t.automation.quickReplies}</p>
+            <p className="text-xs text-muted">{t.automation.quickRepliesHint}</p>
+            <div className="mt-3 grid gap-2">
+              {d.bot.quick_replies.map((q, i) => (
+                <div key={i} className="flex items-end gap-2">
+                  <label className="min-w-0 flex-1">
+                    <span className={labelCls}>{t.automation.quickLabel}</span>
+                    <input value={q.label} onChange={(e) => setBot({ quick_replies: d.bot.quick_replies.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)) })} maxLength={60} className={small} />
+                  </label>
+                  <label className="min-w-0 flex-1">
+                    <span className={labelCls}>{t.automation.quickLabelEn}</span>
+                    <input value={q.label_en} onChange={(e) => setBot({ quick_replies: d.bot.quick_replies.map((x, j) => (j === i ? { ...x, label_en: e.target.value } : x)) })} maxLength={60} className={small} />
+                  </label>
+                  <button type="button" onClick={() => setBot({ quick_replies: d.bot.quick_replies.filter((_, j) => j !== i) })} aria-label={`${t.remove} ${i + 1}`} className={iconBtn}>
+                    <Trash2 className="h-4 w-4" aria-hidden />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                disabled={d.bot.quick_replies.length >= MAX_QUICK}
+                onClick={() => setBot({ quick_replies: [...d.bot.quick_replies, { label: "", label_en: "" }] })}
+                className={cn(ghostBtn, "w-fit disabled:opacity-50")}
+              >
+                <Plus className="h-4 w-4" aria-hidden />
+                {t.automation.addQuick}
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-line pt-4">
+            <Switch checked={d.bot.wait_message.enabled} onChange={(v) => setBot({ wait_message: { ...d.bot.wait_message, enabled: v } })} label={t.automation.wait} />
+            <p className="text-xs text-muted">{t.automation.waitHint}</p>
+            {d.bot.wait_message.enabled && (
+              <div className="mt-3 grid gap-3">
+                <div className="max-w-xs">
+                  <Select
+                    size="md"
+                    label={t.automation.minutes}
+                    value={String(d.bot.wait_message.minutes)}
+                    onChange={(v) => setBot({ wait_message: { ...d.bot.wait_message, minutes: Number(v) } })}
+                    options={WAIT_PRESETS.map((m) => ({ value: String(m), label: `${m} min` }))}
+                  />
+                </div>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <label>
+                    <span className={labelCls}>{t.automation.text}</span>
+                    <textarea value={d.bot.wait_message.text} onChange={(e) => setBot({ wait_message: { ...d.bot.wait_message, text: e.target.value } })} rows={2} maxLength={500} className={area} />
+                  </label>
+                  <label>
+                    <span className={labelCls}>{t.automation.answerEn}</span>
+                    <textarea value={d.bot.wait_message.text_en} onChange={(e) => setBot({ wait_message: { ...d.bot.wait_message, text_en: e.target.value } })} rows={2} maxLength={500} className={area} />
+                  </label>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-line pt-4">
+            <Switch checked={d.bot.auto_lead} onChange={(v) => setBot({ auto_lead: v })} label={t.automation.autoLead} />
+            <p className="text-xs text-muted">{t.automation.autoLeadHint}</p>
+          </div>
+        </div>
+      </Card>
+
+      <Card title={t.ai.title} hint={t.ai.hint}>
+        <Switch checked={d.bot.ai.enabled} onChange={(v) => setBot({ ai: { ...d.bot.ai, enabled: v } })} label={t.ai.enabled} />
+        {d.bot.ai.enabled && (
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            <Select
+              size="md"
+              label={t.ai.mode}
+              value={d.bot.ai.mode}
+              onChange={(v) => setBot({ ai: { ...d.bot.ai, mode: v as ChatAiMode } })}
+              options={(Object.keys(t.ai.modes) as ChatAiMode[]).map((k) => ({ value: k, label: t.ai.modes[k] }))}
+            />
+            <Select
+              size="md"
+              label={t.ai.provider}
+              value={d.bot.ai.provider}
+              onChange={(v) => setBot({ ai: { ...d.bot.ai, provider: v as ChatAiProvider } })}
+              options={(Object.keys(t.ai.providers) as ChatAiProvider[]).map((k) => ({ value: k, label: t.ai.providers[k] }))}
+            />
+          </div>
+        )}
+        <p className="mt-3 text-sm text-muted">
+          {t.ai.keys}{" "}
+          <a href={`/${locale}/portal/integraciones`} className="font-semibold text-accent hover:underline">
+            {t.ai.keysLink}
+          </a>
+          .
+        </p>
       </Card>
 
       <div className="grid gap-5 xl:grid-cols-2">

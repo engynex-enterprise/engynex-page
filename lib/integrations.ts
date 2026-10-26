@@ -41,6 +41,11 @@ export type IntegrationKey =
   | "notify_emails"
   | "anthropic_api_key"
   | "ai_lead_insights"
+  | "openai_api_key"
+  | "openai_model"
+  | "gemini_api_key"
+  | "gemini_model"
+  | "ai_provider"
   | "followup_sequence"
   | "abandoned_recovery"
   | "weekly_report"
@@ -91,6 +96,11 @@ const ENV_FALLBACK: Record<IntegrationKey, string> = {
   notify_emails: "NOTIFY_EMAILS",
   anthropic_api_key: "ANTHROPIC_API_KEY",
   ai_lead_insights: "AI_LEAD_INSIGHTS",
+  openai_api_key: "OPENAI_API_KEY",
+  openai_model: "OPENAI_MODEL",
+  gemini_api_key: "GEMINI_API_KEY",
+  gemini_model: "GEMINI_MODEL",
+  ai_provider: "AI_PROVIDER",
   followup_sequence: "FOLLOWUP_SEQUENCE",
   abandoned_recovery: "ABANDONED_RECOVERY",
   weekly_report: "WEEKLY_REPORT",

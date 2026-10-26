@@ -658,6 +658,82 @@ dataLayer.push({ event: "contact", contact_channel: "whatsapp" });`,
     ],
   },
 
+  openai: {
+    summary: "Conecta los modelos de OpenAI (los de ChatGPT) como alternativa o reemplazo de Claude: análisis de leads, ayudas del chat y el asistente automático del chat en vivo.",
+    benefits: [
+      "Eliges el proveedor de IA que prefieras o el que ya pagas.",
+      "Si un proveedor falla o se queda sin saldo, puedes cambiar a otro en segundos.",
+      "Los mismos usos: análisis de leads, respuestas sugeridas, resúmenes y asistente del chat.",
+    ],
+    cost: "Pago por uso (por tokens). El modelo predeterminado (gpt-6-luna) es de los más económicos: una respuesta del chat cuesta fracciones de centavo de dólar. Define un límite mensual en la plataforma.",
+    before: ["Una cuenta en platform.openai.com con método de pago (es distinta de la suscripción de ChatGPT)."],
+    steps: [
+      { title: "Crea la cuenta", body: "Entra a platform.openai.com con el correo de la empresa y crea una organización." },
+      { title: "Agrega saldo y un límite", body: "En Settings → Billing agrega un método de pago y créditos; en Limits define un tope mensual." },
+      { title: "Crea la clave", body: "En API keys → Create new secret key, ponle «Portal Engynex» y permisos de solo lo necesario. Copia la clave (empieza por sk-) y pégala aquí: solo se muestra una vez." },
+      { title: "Elige el modelo (opcional)", body: "Déjalo vacío para usar gpt-6-luna, o escribe el ID exacto de otro modelo de la página de modelos." },
+      { title: "Elige el proveedor predeterminado", body: "En «Proveedor de IA predeterminado» escribe openai si quieres que el portal use OpenAI primero." },
+    ],
+    verify: ["Pulsa «Probar conexión»: debe decir cuántos modelos ve tu cuenta y si el modelo elegido está disponible.", "En el chat del portal pulsa «Sugerir con IA»: debajo verás «vía OpenAI»."],
+    technical: {
+      how: [
+        "lib/llm.ts llama a la API de Respuestas (POST https://api.openai.com/v1/responses) desde el servidor, con store=false. La clave nunca llega al navegador.",
+        "lib/ai.ts usa esa capa para analizar leads (JSON validado con zod), sugerir, reescribir, traducir y resumir en el chat; /api/chat/autopilot la usa para el asistente automático.",
+        "El proveedor se elige con ai_provider; si no tiene clave, se usa el primero que sí la tenga (Claude, OpenAI, Gemini).",
+      ],
+      fields: [
+        { key: "openai_api_key", where: "platform.openai.com → API keys", format: "sk- seguido de 20 o más caracteres, cifrada" },
+        { key: "openai_model", where: "Página de modelos de OpenAI (opcional)", format: "ID exacto, p. ej. gpt-6-luna" },
+        { key: "ai_provider", where: "Esta página", format: "anthropic, openai o gemini" },
+      ],
+      security: ["Se envía solo el texto necesario (lo que escribió el lead o la conversación).", "store=false: OpenAI no guarda las respuestas para la API de conversaciones.", "Rota la clave si sospechas que se filtró; aquí solo se ven los últimos 4 caracteres."],
+      limits: ["Los límites por minuto dependen del nivel (tier) de tu cuenta en OpenAI."],
+    },
+    troubleshooting: [
+      { problem: "Error 401 «Incorrect API key».", fix: "La clave está mal copiada o fue revocada. Crea otra y pégala de nuevo." },
+      { problem: "Error 429 «insufficient_quota».", fix: "No hay saldo o llegaste al límite: agrega créditos en Billing." },
+      { problem: "«El modelo no aparece en tu cuenta».", fix: "Revisa el ID exacto en la página de modelos o deja el campo vacío para usar el predeterminado." },
+    ],
+  },
+
+  gemini: {
+    summary: "Conecta Google Gemini como proveedor de IA: análisis de leads, ayudas del chat y el asistente automático del chat en vivo, con la opción gratuita de Google AI Studio para empezar.",
+    benefits: [
+      "Tiene un nivel gratuito para probar (con límites de uso).",
+      "Modelos Flash-Lite muy rápidos y económicos, ideales para el chat.",
+      "Cambias de proveedor en segundos si lo necesitas.",
+    ],
+    cost: "Nivel gratuito con límites por minuto y por día; el nivel de pago cobra por tokens. Con el nivel gratuito Google puede usar los datos para mejorar sus productos: para datos de clientes reales activa la facturación (nivel de pago).",
+    before: ["Una cuenta de Google de la empresa.", "Para producción: un proyecto de Google Cloud con facturación activa."],
+    steps: [
+      { title: "Entra a Google AI Studio", body: "Abre aistudio.google.com con la cuenta de Google de la empresa y acepta los términos." },
+      { title: "Crea la clave", body: "En Get API key → Create API key, elige (o crea) el proyecto de Google Cloud. Copia la clave y pégala aquí." },
+      { title: "Activa la facturación (recomendado)", body: "Para usar datos de clientes reales y tener límites más altos, vincula el proyecto a una cuenta de facturación en console.cloud.google.com." },
+      { title: "Elige el modelo (opcional)", body: "Déjalo vacío para usar gemini-3.5-flash-lite, o escribe el ID exacto de otro modelo." },
+      { title: "Elige el proveedor predeterminado", body: "En «Proveedor de IA predeterminado» escribe gemini si quieres que el portal use Gemini primero." },
+    ],
+    verify: ["Pulsa «Probar conexión»: debe decir cuántos modelos ve tu clave y si el modelo elegido está disponible.", "En el chat del portal pulsa «Sugerir con IA»: debajo verás «vía Gemini»."],
+    technical: {
+      how: [
+        "lib/llm.ts llama a generateContent (POST https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent) con la cabecera x-goog-api-key, desde el servidor.",
+        "lib/ai.ts usa esa capa para analizar leads (JSON con responseMimeType application/json, validado con zod) y para las ayudas del chat; /api/chat/autopilot la usa para el asistente automático.",
+        "Si Gemini bloquea la respuesta por seguridad, se trata como «rechazo» y el asistente pasa la conversación a un asesor.",
+      ],
+      fields: [
+        { key: "gemini_api_key", where: "Google AI Studio → Get API key", format: "Texto largo (suele empezar por AIza), cifrada" },
+        { key: "gemini_model", where: "Página de modelos de Gemini (opcional)", format: "ID exacto, p. ej. gemini-3.5-flash-lite" },
+        { key: "ai_provider", where: "Esta página", format: "anthropic, openai o gemini" },
+      ],
+      security: ["Restringe la clave a la API de Gemini en Google Cloud → Credenciales.", "En el nivel gratuito Google puede usar los datos; para clientes reales usa el nivel de pago.", "Aquí solo se ven los últimos 4 caracteres de la clave."],
+      limits: ["El nivel gratuito tiene límites bajos de peticiones por minuto y por día; el de pago los amplía."],
+    },
+    troubleshooting: [
+      { problem: "Error 400 «API key not valid».", fix: "La clave está mal copiada o restringida a otra API. Crea otra en AI Studio." },
+      { problem: "Error 429 «RESOURCE_EXHAUSTED».", fix: "Llegaste al límite del nivel gratuito: espera o activa la facturación." },
+      { problem: "Error 404 del modelo.", fix: "El ID del modelo no existe o fue retirado: deja el campo vacío o revisa la página de modelos." },
+    ],
+  },
+
   "hostinger-domains": {
     summary: "Vende dominios en autoservicio: el cliente busca, crea su cuenta, paga y el dominio se registra a su nombre; luego lo administra y lo renueva desde su portal.",
     benefits: [
@@ -1543,6 +1619,74 @@ dataLayer.push({ event: "contact", contact_channel: "whatsapp" });`,
       { problem: "Error «credit balance is too low».", fix: "Add credits in Billing." },
       { problem: "Error 429 or 529.", fix: "Tier limit or service overloaded. It retries on the next run; check status.anthropic.com." },
       { problem: "The AI card doesn't appear.", fix: "Check the switch is on and scheduled jobs are active (or click «Analyze» on the lead)." },
+    ],
+  },
+
+  openai: {
+    summary: "Connect OpenAI's models (the ones behind ChatGPT) as an alternative or replacement for Claude: lead analysis, chat helpers and the live chat's automatic assistant.",
+    benefits: ["Pick the AI provider you prefer or already pay for.", "If a provider fails or runs out of credit, switch in seconds.", "Same uses: lead analysis, suggested replies, summaries and the chat assistant."],
+    cost: "Pay per use (tokens). The default model (gpt-6-luna) is one of the cheapest: a chat reply costs a fraction of a cent. Set a monthly limit on the platform.",
+    before: ["An account at platform.openai.com with a payment method (separate from a ChatGPT subscription)."],
+    steps: [
+      { title: "Create the account", body: "Sign in at platform.openai.com with the company email and create an organization." },
+      { title: "Add credit and a limit", body: "In Settings → Billing add a payment method and credits; in Limits set a monthly cap." },
+      { title: "Create the key", body: "In API keys → Create new secret key, name it «Engynex Portal». Copy the key (starts with sk-) and paste it here: it's shown only once." },
+      { title: "Choose the model (optional)", body: "Leave it empty to use gpt-6-luna, or enter the exact ID of another model from the models page." },
+      { title: "Choose the default provider", body: "In «Default AI provider» enter openai if you want the portal to use OpenAI first." },
+    ],
+    verify: ["Click «Test connection»: it shows how many models your account sees and whether the chosen model is available.", "In the portal chat click «Suggest with AI»: you'll see «via OpenAI» below."],
+    technical: {
+      how: [
+        "lib/llm.ts calls the Responses API (POST https://api.openai.com/v1/responses) from the server, with store=false. The key never reaches the browser.",
+        "lib/ai.ts uses that layer for lead analysis (JSON validated with zod), chat suggestions, rewrites, translations and summaries; /api/chat/autopilot uses it for the automatic assistant.",
+        "The provider is chosen with ai_provider; if it has no key, the first one with a key is used (Claude, OpenAI, Gemini).",
+      ],
+      fields: [
+        { key: "openai_api_key", where: "platform.openai.com → API keys", format: "sk- followed by 20+ characters, encrypted" },
+        { key: "openai_model", where: "OpenAI models page (optional)", format: "Exact ID, e.g. gpt-6-luna" },
+        { key: "ai_provider", where: "This page", format: "anthropic, openai or gemini" },
+      ],
+      security: ["Only the needed text is sent (what the lead wrote or the conversation).", "store=false: OpenAI doesn't store the responses for the conversations API.", "Rotate the key if you suspect a leak; only the last 4 characters are shown here."],
+      limits: ["Per-minute limits depend on your OpenAI account tier."],
+    },
+    troubleshooting: [
+      { problem: "Error 401 «Incorrect API key».", fix: "The key was copied wrong or revoked. Create another and paste it again." },
+      { problem: "Error 429 «insufficient_quota».", fix: "No credit or you hit the limit: add credits in Billing." },
+      { problem: "«The model isn't in your account».", fix: "Check the exact ID on the models page or leave the field empty to use the default." },
+    ],
+  },
+
+  gemini: {
+    summary: "Connect Google Gemini as an AI provider: lead analysis, chat helpers and the live chat's automatic assistant, with Google AI Studio's free tier to get started.",
+    benefits: ["A free tier to try it (with usage limits).", "Very fast and cheap Flash-Lite models, ideal for chat.", "Switch providers in seconds if needed."],
+    cost: "Free tier with per-minute and per-day limits; the paid tier charges per token. On the free tier Google may use data to improve its products: for real customer data enable billing (paid tier).",
+    before: ["A company Google account.", "For production: a Google Cloud project with billing enabled."],
+    steps: [
+      { title: "Open Google AI Studio", body: "Go to aistudio.google.com with the company Google account and accept the terms." },
+      { title: "Create the key", body: "In Get API key → Create API key, choose (or create) the Google Cloud project. Copy the key and paste it here." },
+      { title: "Enable billing (recommended)", body: "To use real customer data and get higher limits, link the project to a billing account at console.cloud.google.com." },
+      { title: "Choose the model (optional)", body: "Leave it empty to use gemini-3.5-flash-lite, or enter the exact ID of another model." },
+      { title: "Choose the default provider", body: "In «Default AI provider» enter gemini if you want the portal to use Gemini first." },
+    ],
+    verify: ["Click «Test connection»: it shows how many models your key sees and whether the chosen model is available.", "In the portal chat click «Suggest with AI»: you'll see «via Gemini» below."],
+    technical: {
+      how: [
+        "lib/llm.ts calls generateContent (POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent) with the x-goog-api-key header, from the server.",
+        "lib/ai.ts uses that layer for lead analysis (JSON via responseMimeType application/json, validated with zod) and chat helpers; /api/chat/autopilot uses it for the automatic assistant.",
+        "If Gemini blocks a response for safety, it's treated as a «refusal» and the assistant hands the conversation to an advisor.",
+      ],
+      fields: [
+        { key: "gemini_api_key", where: "Google AI Studio → Get API key", format: "Long text (usually starts with AIza), encrypted" },
+        { key: "gemini_model", where: "Gemini models page (optional)", format: "Exact ID, e.g. gemini-3.5-flash-lite" },
+        { key: "ai_provider", where: "This page", format: "anthropic, openai or gemini" },
+      ],
+      security: ["Restrict the key to the Gemini API in Google Cloud → Credentials.", "On the free tier Google may use data; for real customers use the paid tier.", "Only the last 4 characters of the key are shown here."],
+      limits: ["The free tier has low per-minute and per-day request limits; the paid tier raises them."],
+    },
+    troubleshooting: [
+      { problem: "Error 400 «API key not valid».", fix: "The key was copied wrong or restricted to another API. Create another in AI Studio." },
+      { problem: "Error 429 «RESOURCE_EXHAUSTED».", fix: "You hit the free tier limit: wait or enable billing." },
+      { problem: "Model 404 error.", fix: "The model ID doesn't exist or was retired: leave the field empty or check the models page." },
     ],
   },
 

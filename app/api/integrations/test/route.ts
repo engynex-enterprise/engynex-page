@@ -3,6 +3,7 @@ import { apiProfile } from "@/lib/apiAuth";
 import { getIntegrations, hasSecretKey, type IntegrationKey } from "@/lib/integrations";
 import { integrationBySlug } from "@/lib/integrationCatalog";
 import { phoneInfo, whatsappMissing } from "@/lib/whatsapp";
+import { DEFAULT_MODELS } from "@/lib/llm";
 
 type Result = { ok: boolean; detail?: string; missing?: string[] };
 
@@ -59,6 +60,27 @@ async function check(slug: string, supabase: NonNullable<Awaited<ReturnType<type
     if (!res.ok) return { ok: false, detail: await httpError(res) };
     const body = (await res.json()) as { data?: { id: string }[] };
     return { ok: true, detail: `${body.data?.length ?? 0}+ modelos disponibles` };
+  }
+
+  if (slug === "openai") {
+    const model = c.openai_model || DEFAULT_MODELS.openai;
+    const res = await fetch("https://api.openai.com/v1/models", { headers: { Authorization: `Bearer ${c.openai_api_key ?? ""}` }, cache: "no-store" });
+    if (!res.ok) return { ok: false, detail: await httpError(res) };
+    const body = (await res.json()) as { data?: { id: string }[] };
+    const has = body.data?.some((m) => m.id === model);
+    return { ok: true, detail: `${body.data?.length ?? 0} modelos · ${model}${has ? " disponible" : " no aparece en tu cuenta"}` };
+  }
+
+  if (slug === "gemini") {
+    const model = c.gemini_model || DEFAULT_MODELS.gemini;
+    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", {
+      headers: { "x-goog-api-key": c.gemini_api_key ?? "" },
+      cache: "no-store",
+    });
+    if (!res.ok) return { ok: false, detail: await httpError(res) };
+    const body = (await res.json()) as { models?: { name: string }[] };
+    const has = body.models?.some((m) => m.name === `models/${model}`);
+    return { ok: true, detail: `${body.models?.length ?? 0} modelos · ${model}${has ? " disponible" : " no aparece en tu cuenta"}` };
   }
 
   if (slug === "messenger-instagram") {

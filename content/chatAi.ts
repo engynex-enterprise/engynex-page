@@ -1,0 +1,63 @@
+import type { Locale } from "@/i18n/config";
+
+/** Herramientas de IA del asesor en el chat del portal (Claude, OpenAI o Gemini). */
+export const chatAiCopy = {
+  es: {
+    menu: "Más herramientas de IA",
+    suggest: "Sugerir respuesta",
+    alternatives: "3 respuestas para elegir",
+    rewriteTitle: "Reescribir mi borrador",
+    rewrite: { formal: "Más formal", friendly: "Más cercano", shorter: "Más corto", fix: "Corregir ortografía" },
+    translate: "Traducir al idioma del cliente",
+    intent: "Detectar intención y servicio",
+    summary: "Resumir conversación",
+    needDraft: "Escribe primero un borrador para reescribirlo o traducirlo.",
+    via: "vía {provider}",
+    pick: "Elige una respuesta",
+    close: "Cerrar",
+    intentLabel: "Intención",
+    serviceLabel: "Servicio",
+    confidence: "confianza {level}",
+    intents: { cotizacion: "Cotización", informacion: "Información", soporte: "Soporte", agendar: "Agendar reunión", queja: "Queja", empleo: "Empleo", otro: "Otro" } as Record<string, string>,
+    aiBadge: "IA",
+    errors: {
+      not_configured: "Configura una clave de IA (Claude, OpenAI o Gemini) en Integraciones.",
+      invalid_api_key: "La clave del proveedor de IA no es válida. Revísala en Integraciones.",
+      rate_limited: "El proveedor de IA está limitando las peticiones. Intenta en un momento.",
+      refusal: "La IA no pudo generar una respuesta para esta conversación.",
+      timeout: "La IA tardó demasiado. Intenta de nuevo.",
+      no_text: "Escribe primero un borrador.",
+      generic: "No se pudo generar: {detail}",
+    } as Record<string, string>,
+  },
+  en: {
+    menu: "More AI tools",
+    suggest: "Suggest a reply",
+    alternatives: "3 replies to choose from",
+    rewriteTitle: "Rewrite my draft",
+    rewrite: { formal: "More formal", friendly: "Friendlier", shorter: "Shorter", fix: "Fix spelling" },
+    translate: "Translate to the customer's language",
+    intent: "Detect intent and service",
+    summary: "Summarize conversation",
+    needDraft: "Write a draft first to rewrite or translate it.",
+    via: "via {provider}",
+    pick: "Choose a reply",
+    close: "Close",
+    intentLabel: "Intent",
+    serviceLabel: "Service",
+    confidence: "{level} confidence",
+    intents: { cotizacion: "Quote", informacion: "Information", soporte: "Support", agendar: "Book a meeting", queja: "Complaint", empleo: "Job", otro: "Other" } as Record<string, string>,
+    aiBadge: "AI",
+    errors: {
+      not_configured: "Set up an AI key (Claude, OpenAI or Gemini) in Integrations.",
+      invalid_api_key: "The AI provider key isn't valid. Check it in Integrations.",
+      rate_limited: "The AI provider is rate limiting. Try again in a moment.",
+      refusal: "The AI couldn't generate a reply for this conversation.",
+      timeout: "The AI took too long. Try again.",
+      no_text: "Write a draft first.",
+      generic: "Couldn't generate: {detail}",
+    } as Record<string, string>,
+  },
+} satisfies Record<Locale, unknown>;
+
+export const AI_PROVIDER_NAMES: Record<string, string> = { anthropic: "Claude", openai: "OpenAI", gemini: "Gemini" };

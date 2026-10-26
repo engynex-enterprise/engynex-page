@@ -154,7 +154,7 @@ export default async function LeadPage({
             analyzedAt={l.ai_analyzed_at}
             error={l.ai_error}
             hasText={!!l.problem_text?.trim()}
-            configured={!!status.anthropic_api_key}
+            configured={!!(status.anthropic_api_key || status.openai_api_key || status.gemini_api_key)}
             canRun={["admin", "sales", "marketing"].includes(profile.role)}
           />
 

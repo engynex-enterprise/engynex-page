@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import {
   ArrowLeft,
   ArrowRightLeft,
+  ChevronUp,
   Bold,
   Bot,
   CalendarPlus,
@@ -50,6 +51,8 @@ import { CHAT_SHORTCUT_EVENT, initialsOf, type ChatShortcut, type InboxConversat
 import type { Locale } from "@/i18n/config";
 import { cn } from "@/lib/utils";
 import { FloatingPanel } from "@/components/ui/FloatingPanel";
+import { AI_PROVIDER_NAMES, chatAiCopy } from "@/content/chatAi";
+import { services } from "@/content/services";
 
 type Presence = { role?: string; page?: string };
 type Mode = "reply" | "note";
@@ -166,11 +169,14 @@ export function ChatThread({
   const [sendError, setSendError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [slashIndex, setSlashIndex] = useState(0);
-  const [popover, setPopover] = useState<"emoji" | "replies" | "more" | "tags" | null>(null);
+  const [popover, setPopover] = useState<"emoji" | "replies" | "more" | "tags" | "ai" | null>(null);
   const [popAnchor, setPopAnchor] = useState<HTMLElement | null>(null);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [newTag, setNewTag] = useState("");
   const [aiBusy, setAiBusy] = useState(false);
+  const [aiVia, setAiVia] = useState<string | null>(null);
+  const [aiOptions, setAiOptions] = useState<string[] | null>(null);
+  const [aiIntent, setAiIntent] = useState<{ intent: string; service: string | null; confidence: string; summary: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const channelRef = useRef<RealtimeChannel | null>(null);
@@ -362,23 +368,65 @@ export function ChatThread({
     }, 0);
   };
 
-  const suggest = async () => {
+  const ai = chatAiCopy[locale];
+  const aiError = (code?: string) => ai.errors[code ?? ""] ?? ai.errors.generic.replace("{detail}", code ?? "—");
+
+  /** Llama a /api/ai/chat; devuelve la respuesta o muestra el error. */
+  const askAi = async (action: string, extra: Record<string, string> = {}) => {
+    setPopover(null);
     setAiBusy(true);
     setSendError(null);
     const res = await fetch("/api/ai/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversation: c.id, action: "suggest" }),
-    });
-    const data = (await res.json().catch(() => ({}))) as { text?: string; error?: string };
+      body: JSON.stringify({ conversation: c.id, action, ...extra }),
+    }).catch(() => null);
+    const data = (await res?.json().catch(() => ({}))) as {
+      text?: string;
+      options?: string[];
+      intent?: { intent: string; service: string | null; confidence: string; summary: string };
+      provider?: string;
+      error?: string;
+    };
     setAiBusy(false);
-    if (res.ok && data.text) {
-      setMode("reply");
-      setBody(data.text);
-      inputRef.current?.focus();
-    } else {
-      setSendError(t.composer.aiErrors[data.error ?? ""] ?? t.composer.aiErrors.generic.replace("{detail}", data.error ?? "—"));
+    if (!res?.ok) {
+      setSendError(aiError(data?.error));
+      return null;
     }
+    const via = data.provider ? AI_PROVIDER_NAMES[data.provider] ?? data.provider : null;
+    setAiVia(via);
+    if (via) flash(ai.via.replace("{provider}", via));
+    return data;
+  };
+
+  const applyText = (text: string) => {
+    setMode("reply");
+    setBody(text);
+    inputRef.current?.focus();
+  };
+
+  const suggest = async () => {
+    const data = await askAi("suggest");
+    if (data?.text) applyText(data.text);
+  };
+
+  const alternatives = async () => {
+    const data = await askAi("alternatives");
+    if (data?.options?.length) setAiOptions(data.options);
+  };
+
+  const transformDraft = async (action: "rewrite" | "translate", mode?: string) => {
+    if (!body.trim()) {
+      setPopover(null);
+      return setSendError(ai.needDraft);
+    }
+    const data = await askAi(action, { draft: body, ...(mode ? { mode } : {}) });
+    if (data?.text) applyText(data.text);
+  };
+
+  const detect = async () => {
+    const data = await askAi("intent");
+    if (data?.intent) setAiIntent(data.intent);
   };
 
   const attach = async (file: File) => {
@@ -724,6 +772,11 @@ export function ChatThread({
                         {m.internal && <Lock className="h-3 w-3 text-amber-600" aria-hidden />}
                         {m.sender === "bot" && <Bot className="h-3.5 w-3.5 text-accent" aria-hidden />}
                         <span className="font-medium text-heading">{who}</span> · {time(m.created_at)}
+                        {m.sender === "bot" && (m.meta as { ai?: boolean; provider?: string } | null)?.ai && (
+                          <span className="rounded-md bg-[var(--meta-active)] px-1.5 py-px text-[0.65rem] font-semibold text-accent">
+                            {ai.aiBadge} · {AI_PROVIDER_NAMES[(m.meta as { provider?: string }).provider ?? ""] ?? "—"}
+                          </span>
+                        )}
                         {m.internal && <span className="text-amber-700 dark:text-amber-300">· {t.internalTag}</span>}
                       </span>
                     )}
@@ -819,6 +872,58 @@ export function ChatThread({
             <p role="alert" className="mb-2 text-xs font-semibold text-red-600 dark:text-red-400">
               {sendError}
             </p>
+          )}
+
+          {/* IA: intención detectada */}
+          {aiIntent && (
+            <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl bg-[var(--meta-active)] px-3 py-2 text-xs text-heading">
+              <Sparkles className="h-3.5 w-3.5 shrink-0 text-accent" aria-hidden />
+              <span>
+                <span className="font-semibold">{ai.intentLabel}:</span> {ai.intents[aiIntent.intent] ?? aiIntent.intent}
+              </span>
+              {aiIntent.service && (
+                <span>
+                  · <span className="font-semibold">{ai.serviceLabel}:</span> {services.find((x) => x.slug === aiIntent.service)?.[locale].title ?? aiIntent.service}
+                </span>
+              )}
+              <span className="text-muted">· {ai.confidence.replace("{level}", aiIntent.confidence)}</span>
+              <span className="basis-full text-body">{aiIntent.summary}</span>
+              <button type="button" onClick={() => setAiIntent(null)} aria-label={ai.close} className="ml-auto grid h-6 w-6 place-items-center rounded-md hover:bg-[var(--meta-hover)]">
+                <X className="h-3.5 w-3.5" aria-hidden />
+              </button>
+            </div>
+          )}
+
+          {/* IA: tres respuestas para elegir */}
+          {aiOptions && (
+            <div className="mb-2 rounded-xl bg-surface-soft p-2 ring-1 ring-line dark:bg-white/[0.04]">
+              <div className="mb-1 flex items-center justify-between px-1 text-xs font-semibold text-muted">
+                <span className="inline-flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-accent" aria-hidden />
+                  {ai.pick}
+                  {aiVia && <span className="font-normal">· {ai.via.replace("{provider}", aiVia)}</span>}
+                </span>
+                <button type="button" onClick={() => setAiOptions(null)} aria-label={ai.close} className="grid h-6 w-6 place-items-center rounded-md hover:bg-[var(--meta-hover)]">
+                  <X className="h-3.5 w-3.5" aria-hidden />
+                </button>
+              </div>
+              <ul className="grid gap-1">
+                {aiOptions.map((o, i) => (
+                  <li key={i}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        applyText(o);
+                        setAiOptions(null);
+                      }}
+                      className="w-full rounded-lg bg-surface px-3 py-2 text-left text-sm text-heading ring-1 ring-line hover:ring-brand-green dark:bg-card"
+                    >
+                      {o}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
 
           {/* Respuestas guardadas: con "/" o desde el botón */}
@@ -971,16 +1076,68 @@ export function ChatThread({
             >
               <MessageSquareText className="h-[18px] w-[18px]" aria-hidden />
             </button>
-            <button
-              type="button"
-              onClick={() => void suggest()}
-              disabled={aiBusy || internal}
-              title={t.composer.ai}
-              className="ml-1 inline-flex h-9 items-center gap-1.5 rounded-[10px] px-2.5 text-sm font-medium text-accent hover:bg-[var(--meta-active)] disabled:opacity-40"
-            >
-              {aiBusy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Sparkles className="h-4 w-4" aria-hidden />}
-              <span className="whitespace-nowrap max-sm:sr-only">{aiBusy ? t.composer.aiBusy : t.composer.aiShort}</span>
-            </button>
+            <div className="ml-1 flex items-center" data-popover>
+              <button
+                type="button"
+                onClick={() => void suggest()}
+                disabled={aiBusy || internal}
+                title={t.composer.ai}
+                className="inline-flex h-9 items-center gap-1.5 rounded-l-[10px] pl-2.5 pr-2 text-sm font-medium text-accent hover:bg-[var(--meta-active)] disabled:opacity-40"
+              >
+                {aiBusy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Sparkles className="h-4 w-4" aria-hidden />}
+                <span className="whitespace-nowrap max-sm:sr-only">{aiBusy ? t.composer.aiBusy : t.composer.aiShort}</span>
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  setPopAnchor(e.currentTarget);
+                  setPopover((p) => (p === "ai" ? null : "ai"));
+                }}
+                disabled={aiBusy}
+                aria-expanded={popover === "ai"}
+                aria-label={ai.menu}
+                title={ai.menu}
+                className="grid h-9 w-7 place-items-center rounded-r-[10px] text-accent hover:bg-[var(--meta-active)] disabled:opacity-40"
+              >
+                <ChevronUp className="h-4 w-4" aria-hidden />
+              </button>
+              {popover === "ai" && (
+                <FloatingPanel anchor={popAnchor} open onClose={() => setPopover(null)} placement="top" role="menu" ariaLabel={ai.menu} className={cn(menu, "w-64")}>
+                  <button type="button" role="menuitem" disabled={internal} onClick={() => void suggest()} className={cn(menuItem, "disabled:opacity-40")}>
+                    {ai.suggest}
+                  </button>
+                  <button type="button" role="menuitem" disabled={internal} onClick={() => void alternatives()} className={cn(menuItem, "disabled:opacity-40")}>
+                    {ai.alternatives}
+                  </button>
+                  <p className="mt-1 border-t border-line px-2.5 pb-1 pt-2 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-muted">{ai.rewriteTitle}</p>
+                  {(["formal", "friendly", "shorter", "fix"] as const).map((k) => (
+                    <button key={k} type="button" role="menuitem" onClick={() => void transformDraft("rewrite", k)} className={menuItem}>
+                      {ai.rewrite[k]}
+                    </button>
+                  ))}
+                  <button type="button" role="menuitem" onClick={() => void transformDraft("translate")} className={menuItem}>
+                    {ai.translate}
+                  </button>
+                  <div className="mt-1 border-t border-line pt-1">
+                    <button type="button" role="menuitem" onClick={() => void detect()} className={menuItem}>
+                      {ai.intent}
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setPopover(null);
+                        void summarize();
+                      }}
+                      className={menuItem}
+                    >
+                      {ai.summary}
+                    </button>
+                  </div>
+                </FloatingPanel>
+              )}
+            </div>
+
             <button
               type="submit"
               disabled={busy || !body.trim() || (!windowOpen && !internal)}

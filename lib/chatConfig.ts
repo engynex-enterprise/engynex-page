@@ -6,7 +6,28 @@
 export type FieldMode = "required" | "optional" | "hidden";
 export type RoutingMode = "off" | "round_robin" | "least_busy";
 export type ChatTexts = { title: string; launcher: string; greeting: string; greeting_away: string; invite: string };
-export type ChatFaq = { keywords: string[]; answer: string; answer_en?: string };
+/** `priority`: mayor número, se revisa primero (por defecto 0). */
+export type ChatFaq = { keywords: string[]; answer: string; answer_en?: string; priority?: number };
+export type ChatIntentText = { answer?: string; answer_en?: string };
+export type ChatQuickReply = { label: string; label_en?: string };
+export type ChatAiMode = "assist" | "offline" | "always";
+export type ChatAiProvider = "anthropic" | "openai" | "gemini";
+/**
+ * Respuestas automáticas del chat. `ai` lo usa el piloto automático con IA
+ * (assist: solo sugiere al asesor; offline: responde fuera de horario o sin
+ * asesores; always: responde siempre mientras nadie del equipo conteste).
+ */
+export type ChatBotConfig = {
+  enabled: boolean;
+  faqs: ChatFaq[];
+  intents_enabled?: boolean;
+  intents?: { sales?: ChatIntentText; support?: ChatIntentText };
+  page_greetings?: { enabled: boolean; text: string; text_en: string };
+  quick_replies?: ChatQuickReply[];
+  wait_message?: { enabled: boolean; minutes: number; text: string; text_en: string };
+  auto_lead?: boolean;
+  ai?: { enabled: boolean; mode: ChatAiMode; provider: ChatAiProvider } & Record<string, unknown>;
+};
 export type ChatInvite = { path: string; delay: number; es: string; en: string };
 /** 1 = lunes … 7 = domingo (ISO). Sin entrada = cerrado ese día. */
 export type DayKey = "1" | "2" | "3" | "4" | "5" | "6" | "7";
@@ -20,7 +41,7 @@ export type ChatConfig = {
   fields: { email: FieldMode; phone: FieldMode };
   exclude_paths: string[];
   hours: { enabled: boolean; email_team: boolean; days: Partial<Record<DayKey, [string, string]>> };
-  bot: { enabled: boolean; faqs: ChatFaq[] };
+  bot: ChatBotConfig;
   routing: { mode: RoutingMode; max_chats: number };
   auto_close_minutes: number;
   invites: ChatInvite[];
@@ -42,6 +63,11 @@ export type PublicChatConfig = {
   invites: { path: string; delay: number; text: string }[];
   invite_delay: number;
   exit_intent: boolean;
+  /** Botones que el widget ofrece antes de que responda un asesor. */
+  quick_replies?: string[];
+  /** Saludo para páginas de servicio; {servicio}/{service} = nombre del servicio. */
+  page_greeting?: string | null;
+  ai?: { enabled: boolean; mode: ChatAiMode };
 };
 
 export const DAY_KEYS: DayKey[] = ["1", "2", "3", "4", "5", "6", "7"];
