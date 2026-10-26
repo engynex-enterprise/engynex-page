@@ -107,6 +107,23 @@ export type ShowcaseCopy = {
   };
   models: { title: string; subtitle: string; items: { name: string; fit: string; body: string; points: string[]; cta: string }[] };
   included: { title: string; items: string[] };
+  /** Comparativo de tecnologías (nativa, multiplataforma, web app), estilo Netguru. */
+  platforms?: {
+    title: string;
+    subtitle: string;
+    recommended: string;
+    bestForLabel: string;
+    items: {
+      name: string;
+      tagline: string;
+      bestFor: string[];
+      tech: string[];
+      /** Calificación de 1 a 3 por criterio (rendimiento, costo, tiempo…). */
+      ratings: { label: string; value: 1 | 2 | 3 }[];
+      highlight?: boolean;
+    }[];
+    note: string;
+  };
   /**
    * Bloques de fábrica de software (Globant, Endava, EPAM, Thoughtworks,
    * BairesDev): la célula que trabaja en tu proyecto, industrias, cómo se

@@ -128,6 +128,22 @@ export const extraServiceFaqs: Record<string, { es: Faq[]; en: Faq[] }> = {
         q: "¿Puedo ver avances antes de la entrega final?",
         a: "Sí. Desde las primeras semanas te damos acceso a versiones de prueba (TestFlight y APK) para que uses la app mientras la construimos.",
       },
+      {
+        q: "¿Cuánto cuesta y cuánto tarda una app?",
+        a: "Depende de las funciones. Una primera versión (MVP) suele tomar de 2 a 3 meses hasta la tienda y una app completa de 4 a 6 meses. Los planes de esta página te dan un punto de partida y en la sesión inicial te damos un estimado para tu caso.",
+      },
+      {
+        q: "¿La app puede funcionar sin internet?",
+        a: "Sí. Diseñamos el modo sin conexión para que tu equipo o tus clientes sigan trabajando sin señal; los datos se sincronizan solos cuando vuelve la conexión.",
+      },
+      {
+        q: "¿Se conecta con los sistemas que ya tengo?",
+        a: "Sí. Integramos la app con tu ERP, CRM, facturación electrónica, pasarelas de pago o cualquier sistema con API, y si no tiene, construimos el puente.",
+      },
+      {
+        q: "¿Qué pasa después de publicarla?",
+        a: "Seguimos con un ritmo de actualizaciones: versiones correctivas mensuales, nuevas funciones cada dos meses y compatibilidad con cada versión nueva de iOS y Android, junto con un informe de uso y fallos.",
+      },
     ],
     en: [
       {
@@ -141,6 +157,22 @@ export const extraServiceFaqs: Record<string, { es: Faq[]; en: Faq[] }> = {
       {
         q: "Can I see progress before the final delivery?",
         a: "Yes. From the first weeks you get access to test builds (TestFlight and APK) so you can use the app while we build it.",
+      },
+      {
+        q: "How much does an app cost and how long does it take?",
+        a: "It depends on the features. A first version (MVP) usually takes 2 to 3 months to reach the store and a full app 4 to 6 months. The plans on this page give you a starting point and in the first session we estimate your case.",
+      },
+      {
+        q: "Can the app work without internet?",
+        a: "Yes. We design offline mode so your team or customers keep working with no signal; data syncs automatically when the connection returns.",
+      },
+      {
+        q: "Does it connect to the systems I already have?",
+        a: "Yes. We integrate the app with your ERP, CRM, e-invoicing, payment gateways or any system with an API, and if it has none, we build the bridge.",
+      },
+      {
+        q: "What happens after it's published?",
+        a: "We keep a release rhythm: monthly fix releases, new features every two months and compatibility with every new iOS and Android version, along with a usage and crash report.",
       },
     ],
   },

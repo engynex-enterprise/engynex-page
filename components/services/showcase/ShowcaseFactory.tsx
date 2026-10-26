@@ -338,3 +338,55 @@ export function CaseStudy({
     </Reveal>
   );
 }
+
+/** ¿Nativa, multiplataforma o web app? (Netguru, BairesDev). */
+export function PlatformsSection({ copy: t }: { copy: NonNullable<ShowcaseCopy["platforms"]> }) {
+  return (
+    <Section tone="light">
+      <ShowcaseHeading title={t.title} subtitle={t.subtitle} className="mb-12 sm:mb-16" />
+      <div className="grid gap-4 lg:grid-cols-3 lg:gap-6">
+        {t.items.map((it, i) => {
+          const dark = !!it.highlight;
+          return (
+            <Reveal key={it.name} delay={i * 80} className={cn("relative flex flex-col rounded-[2rem] p-7 sm:p-8", dark ? "bg-deep-700 text-white dark:bg-white/[0.08]" : "bg-surface-soft dark:bg-white/[0.04]")}>
+              {dark && <span className="absolute right-6 top-6 rounded-full bg-brand-green px-3 py-1 text-xs font-semibold text-deep-700">{t.recommended}</span>}
+              <h3 className={cn("pr-28 text-[1.6rem] font-bold leading-tight", dark ? "text-white" : "text-heading")}>{it.name}</h3>
+              <p className={cn("mt-2 text-[0.97rem] leading-relaxed", dark ? "text-white/80" : "text-muted")}>{it.tagline}</p>
+
+              <dl className="mt-6 grid gap-3">
+                {it.ratings.map((r) => (
+                  <div key={r.label} className="flex items-center justify-between gap-4 text-sm">
+                    <dt className={dark ? "text-white/85" : "text-heading"}>{r.label}</dt>
+                    <dd className="flex gap-1" aria-label={`${r.value}/3`}>
+                      {[1, 2, 3].map((n) => (
+                        <span key={n} className={cn("h-2 w-7 rounded-full", n <= r.value ? "bg-brand-green" : dark ? "bg-white/15" : "bg-line")} />
+                      ))}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+
+              <p className={cn("mt-7 text-xs font-semibold uppercase tracking-[0.12em]", dark ? "text-brand-green" : "text-brand-green-dark dark:text-brand-green")}>{t.bestForLabel}</p>
+              <ul className="mt-3 grid flex-1 content-start gap-2.5">
+                {it.bestFor.map((b) => (
+                  <li key={b} className={cn("flex items-start gap-2.5 text-[0.95rem]", dark ? "text-white" : "text-heading")}>
+                    <Check className={cn("mt-0.5 h-4 w-4 shrink-0", dark ? "text-brand-green" : "text-accent")} strokeWidth={2.5} aria-hidden />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+              <ul className="mt-7 flex flex-wrap gap-1.5">
+                {it.tech.map((x) => (
+                  <li key={x} className={cn("rounded-full px-2.5 py-1 text-xs font-medium", dark ? "bg-white/10 text-white" : "bg-surface text-heading ring-1 ring-line dark:bg-card")}>
+                    {x}
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          );
+        })}
+      </div>
+      <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-muted">{t.note}</p>
+    </Section>
+  );
+}

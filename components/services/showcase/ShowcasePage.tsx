@@ -14,7 +14,7 @@ import { TechStack } from "@/components/services/ServiceSections";
 import { AuditForm } from "@/components/services/showcase/AuditForm";
 import { ShowcaseProcess } from "@/components/services/showcase/ShowcaseProcess";
 import { SHOWCASE_ICONS as ICONS } from "@/components/services/showcase/icons";
-import { BeforeAfter, CaseStudy, CompareModels, GovernanceSection, GuaranteesSection, IndustriesSection, ShowcaseHeading as Heading, SquadSection } from "@/components/services/showcase/ShowcaseFactory";
+import { BeforeAfter, CaseStudy, CompareModels, GovernanceSection, GuaranteesSection, IndustriesSection, PlatformsSection, ShowcaseHeading as Heading, SquadSection } from "@/components/services/showcase/ShowcaseFactory";
 import { DomainSearch } from "@/components/domains/DomainSearch";
 import { domainSearchCopy } from "@/content/domainSearch";
 import { DashboardVisual, EditorVisual, FunnelVisual, ScoreRing, TimelineVisual } from "@/components/services/showcase/ShowcaseVisuals";
@@ -238,6 +238,8 @@ export function ShowcasePage({ service, locale, dict, copy: t }: { service: Serv
           })}
         </ul>
       </Section>
+
+      {t.platforms && <PlatformsSection copy={t.platforms} />}
 
       {t.factory && <SquadSection copy={t.factory.squad} />}
 
