@@ -390,3 +390,130 @@ export function PlatformsSection({ copy: t }: { copy: NonNullable<ShowcaseCopy["
     </Section>
   );
 }
+
+/** Conector entre columnas: trazo punteado con un paquete de datos que viaja. */
+function FlowLink({ vertical, delay = 0 }: { vertical?: boolean; delay?: number }) {
+  return vertical ? (
+    <div className="relative mx-auto h-12 w-0.5 lg:hidden" aria-hidden>
+      <svg viewBox="0 0 2 48" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
+        <path d="M1 0 L1 48" stroke="#9fdb4f" strokeOpacity="0.5" strokeWidth="2" vectorEffect="non-scaling-stroke" className="flow-dash" />
+      </svg>
+      <span className="flow-packet-y absolute -left-[3px] h-2 w-2 rounded-full bg-brand-green shadow-[0_0_12px_#9fdb4f]" style={{ animationDelay: `${delay}ms` }} />
+    </div>
+  ) : (
+    <div className="relative hidden h-2 self-center lg:block" aria-hidden>
+      <svg viewBox="0 0 60 2" preserveAspectRatio="none" className="absolute inset-x-0 top-[3px] h-0.5 w-full">
+        <path d="M0 1 L60 1" stroke="#9fdb4f" strokeOpacity="0.5" strokeWidth="2" vectorEffect="non-scaling-stroke" className="flow-dash" />
+      </svg>
+      <span className="flow-packet absolute top-0 h-2 w-2 rounded-full bg-brand-green shadow-[0_0_12px_#9fdb4f]" style={{ animationDelay: `${delay}ms` }} />
+    </div>
+  );
+}
+
+const LOG_TONE = {
+  ok: "bg-emerald-400/15 text-emerald-300",
+  retry: "bg-amber-400/15 text-amber-300",
+  alert: "bg-rose-400/15 text-rose-300",
+} as const;
+
+/**
+ * Cómo viaja un dato (MuleSoft, Workato): orígenes → recorrido de la capa de
+ * integración → destinos, con paquetes animados y un registro de eventos.
+ */
+export function FlowSection({ copy: t }: { copy: NonNullable<ShowcaseCopy["flow"]> }) {
+  const column = (label: string, items: string[]) => (
+    <div className="flex flex-col rounded-[1.75rem] bg-white/[0.04] p-5 ring-1 ring-inset ring-white/10">
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-100/60">{label}</p>
+      <ul className="mt-4 grid flex-1 content-center gap-2">
+        {items.map((x) => (
+          <li key={x} className="flex items-center gap-2.5 rounded-xl bg-white/[0.06] px-3.5 py-2.5 text-sm font-medium text-white">
+            <span className="relative flex h-2 w-2 shrink-0" aria-hidden>
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-green opacity-40 motion-reduce:animate-none" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-green" />
+            </span>
+            {x}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+  return (
+    <Section tone="dark" className="relative overflow-hidden">
+      <div className="pointer-events-none absolute -left-40 -top-40 h-[30rem] w-[30rem] rounded-full bg-brand-green/10 blur-3xl" aria-hidden />
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-end lg:gap-16">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-brand-green">{t.eyebrow}</p>
+          <h2 className="mt-4 text-balance text-[clamp(2.1rem,4.2vw,3.6rem)] font-bold leading-[1.04] tracking-[-0.02em] text-white">{t.title}</h2>
+        </div>
+        <p className="text-base leading-relaxed text-ink-100/80 sm:text-lg lg:pb-2">{t.subtitle}</p>
+      </div>
+
+      <Reveal className="mt-12 grid items-stretch sm:mt-16 lg:grid-cols-[minmax(0,0.8fr)_3.5rem_minmax(0,1.4fr)_3.5rem_minmax(0,0.8fr)]">
+        {column(t.sourcesLabel, t.sources)}
+        <FlowLink />
+        <FlowLink vertical />
+        <div className="rounded-[1.75rem] bg-brand-green/[0.08] p-5 ring-1 ring-inset ring-brand-green/40 sm:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-green">{t.hubLabel}</p>
+          <ol className="relative mt-5 grid gap-3 sm:grid-cols-2">
+            {t.hub.map((h, i) => {
+              const Icon = ICONS[h.icon];
+              return (
+                <li key={h.title} className="flex gap-3 rounded-2xl bg-white/[0.06] p-3.5">
+                  <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-green text-deep-700">
+                    <Icon className="h-[1.1rem] w-[1.1rem]" aria-hidden />
+                    <span className="absolute -right-1.5 -top-1.5 grid h-4.5 w-4.5 place-items-center rounded-full bg-deep-950 text-[0.6rem] font-bold tabular-nums text-white ring-1 ring-white/20">{i + 1}</span>
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-white">{h.title}</span>
+                    {h.body && <span className="mt-0.5 block text-xs leading-snug text-ink-100/70">{h.body}</span>}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+        <FlowLink delay={1200} />
+        <FlowLink vertical delay={1200} />
+        {column(t.targetsLabel, t.targets)}
+      </Reveal>
+
+      {t.log && (
+        <Reveal className="mt-6 grid gap-4 lg:mt-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+          <div className="overflow-hidden rounded-[1.75rem] bg-black/30 ring-1 ring-inset ring-white/10">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-5 py-3.5">
+              <p className="flex items-center gap-2 text-sm font-semibold text-white">
+                <span className="relative flex h-2 w-2" aria-hidden>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-green opacity-60 motion-reduce:animate-none" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-green" />
+                </span>
+                {t.log.title}
+              </p>
+              <p className="text-xs text-ink-100/50">{t.log.caption}</p>
+            </div>
+            <ul className="divide-y divide-white/[0.06] font-mono text-[0.78rem]">
+              {t.log.rows.map((r, i) => (
+                <li key={i} className="log-row grid grid-cols-[4.5rem_5.5rem_minmax(0,1fr)] items-center gap-3 px-5 py-2.5 max-sm:grid-cols-[5.5rem_minmax(0,1fr)]" style={{ animationDelay: `${i * 140}ms` }}>
+                  <span className="tabular-nums text-ink-100/45 max-sm:hidden">{r.time}</span>
+                  <span className={cn("justify-self-start rounded-md px-2 py-0.5 font-sans text-[0.68rem] font-semibold", LOG_TONE[r.status])}>{t.log!.statusLabels[r.status]}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-white/90">{r.text}</span>
+                    <span className="block truncate text-ink-100/50">{r.meta}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-[1.75rem] bg-white/10 lg:grid-cols-1">
+            {t.log.stats.map((st) => (
+              <div key={st.label} className="flex flex-col justify-center bg-deep-950/80 p-5">
+                <dt className="sr-only">{st.label}</dt>
+                <dd className="text-[clamp(1.4rem,2.6vw,2.1rem)] font-bold leading-none tabular-nums text-brand-green">{st.value}</dd>
+                <dd className="mt-1.5 text-sm text-ink-100/75">{st.label}</dd>
+              </div>
+            ))}
+          </dl>
+        </Reveal>
+      )}
+    </Section>
+  );
+}

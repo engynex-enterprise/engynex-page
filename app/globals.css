@@ -375,8 +375,12 @@
     0 0 40px -12px rgba(159, 219, 79, 0.2);
 }
 
-* {
-  border-color: var(--line);
+/* En la capa base para que las utilidades de color de borde (border-white/10,
+   divide-*) puedan sobrescribirlo. */
+@layer base {
+  * {
+    border-color: var(--line);
+  }
 }
 
 html {
@@ -834,8 +838,56 @@ h3,
     stroke-dashoffset: -13;
   }
 }
+/* Paquetes de datos que viajan por las líneas del diagrama de integración. */
+.flow-packet {
+  animation: flowPacketX 2.4s linear infinite;
+}
+.flow-packet-y {
+  animation: flowPacketY 2.4s linear infinite;
+}
+@keyframes flowPacketX {
+  from {
+    left: 0;
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+  to {
+    left: calc(100% - 0.5rem);
+    opacity: 0;
+  }
+}
+@keyframes flowPacketY {
+  from {
+    top: 0;
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+  to {
+    top: calc(100% - 0.5rem);
+    opacity: 0;
+  }
+}
+/* Filas del registro de eventos: aparecen una tras otra. */
+.log-row {
+  animation: logRowIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes logRowIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .flow-dash {
+  .flow-dash,
+  .flow-packet,
+  .flow-packet-y,
+  .log-row {
     animation: none;
   }
 }

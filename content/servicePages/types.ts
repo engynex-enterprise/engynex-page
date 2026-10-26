@@ -107,6 +107,53 @@ export type ShowcaseCopy = {
   };
   models: { title: string; subtitle: string; items: { name: string; fit: string; body: string; points: string[]; cta: string }[] };
   included: { title: string; items: string[] };
+  /** Diagrama de cómo viaja un dato entre sistemas (orígenes → capa → destinos). */
+  flow?: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    sourcesLabel: string;
+    hubLabel: string;
+    targetsLabel: string;
+    sources: string[];
+    hub: { icon: ShowcaseIcon; title: string; body?: string }[];
+    targets: string[];
+    /** Registro de eventos de ejemplo bajo el diagrama. */
+    log?: {
+      title: string;
+      caption: string;
+      statusLabels: { ok: string; retry: string; alert: string };
+      rows: { time: string; status: "ok" | "retry" | "alert"; text: string; meta: string }[];
+      stats: { value: string; label: string }[];
+    };
+  };
+  /**
+   * Explorador de casos de uso: reemplaza la rejilla de fotos de `solutions`.
+   * Cada `key` debe coincidir con una solución (de ella toma título, icono y foto).
+   */
+  useCases?: {
+    triggerLabel: string;
+    stepsLabel: string;
+    systemsLabel: string;
+    resultsLabel: string;
+    items: { key: string; trigger: string; steps: string[]; systems: string[]; results: { value: string; label: string }[] }[];
+  };
+  /** Catálogo filtrable de sistemas que se conectan. */
+  catalog?: {
+    title: string;
+    subtitle: string;
+    searchLabel: string;
+    searchPlaceholder: string;
+    all: string;
+    empty: string;
+    count: string;
+    ctaTitle: string;
+    ctaBody: string;
+    ctaLabel: string;
+    categories: { key: string; label: string }[];
+    /** `logo`: ruta en /public (images/integrations); sin logo se muestran las iniciales. */
+    items: { name: string; category: string; syncs: string; logo?: string; logoDark?: boolean }[];
+  };
   /** Comparativo de tecnologías (nativa, multiplataforma, web app), estilo Netguru. */
   platforms?: {
     title: string;

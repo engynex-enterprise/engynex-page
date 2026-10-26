@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Braces, KeyRound, Webhook } from "lucide-react";
 import { techIcon } from "@/lib/techIcons";
 import { cn } from "@/lib/utils";
@@ -5,7 +6,7 @@ import { cn } from "@/lib/utils";
 const genericIcons = { braces: Braces, webhook: Webhook, key: KeyRound };
 
 /**
- * Logo de una tecnología: la marca real (simple-icons) en su color, un icono
+ * Logo de una tecnología: la marca real (simple-icons o su logo oficial), un icono
  * genérico para conceptos (REST, Webhooks…) o un monograma cuando la marca
  * no tiene logo libre. Es decorativo: el nombre siempre va como texto aparte.
  */
@@ -29,6 +30,10 @@ export function TechMark({
         <path d={icon.path} />
       </svg>
     );
+  }
+
+  if (icon.kind === "image") {
+    return <Image src={icon.src} alt="" aria-hidden width={24} height={24} unoptimized className={cn("object-contain", className)} />;
   }
 
   if (icon.kind === "generic") {

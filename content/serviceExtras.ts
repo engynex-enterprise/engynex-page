@@ -100,12 +100,16 @@ export const serviceStack: Record<string, string[]> = {
   "integraciones-apis": [
     "REST",
     "GraphQL",
+    "OpenAPI",
     "Webhooks",
     "Node.js",
     "RabbitMQ",
+    "PostgreSQL",
+    "OAuth 2.0",
+    "Postman",
     "Zapier",
     "Make",
-    "OAuth 2.0",
+    "n8n",
   ],
 };
 

@@ -13,8 +13,10 @@ import { CtaBand } from "@/components/sections/CtaBand";
 import { TechStack } from "@/components/services/ServiceSections";
 import { AuditForm } from "@/components/services/showcase/AuditForm";
 import { ShowcaseProcess } from "@/components/services/showcase/ShowcaseProcess";
+import { IntegrationCatalog } from "@/components/services/showcase/IntegrationCatalog";
+import { UseCaseExplorer } from "@/components/services/showcase/UseCaseExplorer";
 import { SHOWCASE_ICONS as ICONS } from "@/components/services/showcase/icons";
-import { BeforeAfter, CaseStudy, CompareModels, GovernanceSection, GuaranteesSection, IndustriesSection, PlatformsSection, ShowcaseHeading as Heading, SquadSection } from "@/components/services/showcase/ShowcaseFactory";
+import { BeforeAfter, CaseStudy, CompareModels, FlowSection, GovernanceSection, GuaranteesSection, IndustriesSection, PlatformsSection, ShowcaseHeading as Heading, SquadSection } from "@/components/services/showcase/ShowcaseFactory";
 import { DomainSearch } from "@/components/domains/DomainSearch";
 import { domainSearchCopy } from "@/content/domainSearch";
 import { DashboardVisual, EditorVisual, FunnelVisual, ScoreRing, TimelineVisual } from "@/components/services/showcase/ShowcaseVisuals";
@@ -175,33 +177,45 @@ export function ShowcasePage({ service, locale, dict, copy: t }: { service: Serv
       {/* 5. Tipos de sitio: rejilla de tarjetas fotográficas (meta.com) */}
       <Section tone="light" className="pt-16 sm:pt-24">
         <Heading title={t.solutionsTitle} subtitle={t.solutionsSubtitle} className="mb-10 sm:mb-14" />
-        <div className="grid gap-4 md:grid-cols-2 lg:gap-6">
-          {t.solutions.map((sol, i) => {
-            const s = sol;
-            return (
-              <Reveal
-                key={s.key}
-                delay={(i % 2) * 80}
-                className="relative isolate flex min-h-[26rem] scroll-mt-40 flex-col items-center justify-end overflow-hidden rounded-[2rem] px-6 pb-10 text-center text-white sm:min-h-[32rem]"
-              >
-                <span id={`sol-${s.key}`} className="absolute -top-40" aria-hidden />
-                <Image src={s.image} alt="" fill sizes="(min-width: 768px) 50vw, 100vw" className="-z-20 object-cover transition-transform duration-700 hover:scale-[1.02]" />
-                <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/40 to-black/5" aria-hidden />
-                <p className="text-base font-medium text-white/90">{sol.eyebrow}</p>
-                <h3 className="mt-1 text-[clamp(2rem,3.6vw,3rem)] font-bold leading-[1.05] tracking-tight">{sol.title}</h3>
-                <p className="mt-3 max-w-md text-[0.95rem] leading-relaxed text-white/85">{sol.body}</p>
-                <div className="mt-6 flex flex-wrap justify-center gap-3">
-                  <Link href={contactHref} className={buttonClasses("primary", "md")}>
-                    {dict.ui.quote}
-                  </Link>
-                  <Link href={hrefFor(s.href)} className={buttonClasses("glass", "md")}>
-                    {sol.more}
-                  </Link>
-                </div>
-              </Reveal>
-            );
-          })}
-        </div>
+        {t.useCases ? (
+          <UseCaseExplorer
+            items={t.useCases.items.flatMap((u) => {
+              const sol = t.solutions.find((x) => x.key === u.key);
+              return sol ? [{ ...u, icon: sol.icon, image: sol.image, eyebrow: sol.eyebrow, title: sol.title, body: sol.body, more: sol.more, href: hrefFor(sol.href) }] : [];
+            })}
+            labels={t.useCases}
+            contactHref={contactHref}
+            quoteLabel={dict.ui.quote}
+          />
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:gap-6">
+            {t.solutions.map((sol, i) => {
+              const s = sol;
+              return (
+                <Reveal
+                  key={s.key}
+                  delay={(i % 2) * 80}
+                  className="relative isolate flex min-h-[26rem] scroll-mt-40 flex-col items-center justify-end overflow-hidden rounded-[2rem] px-6 pb-10 text-center text-white sm:min-h-[32rem]"
+                >
+                  <span id={`sol-${s.key}`} className="absolute -top-40" aria-hidden />
+                  <Image src={s.image} alt="" fill sizes="(min-width: 768px) 50vw, 100vw" className="-z-20 object-cover transition-transform duration-700 hover:scale-[1.02]" />
+                  <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/40 to-black/5" aria-hidden />
+                  <p className="text-base font-medium text-white/90">{sol.eyebrow}</p>
+                  <h3 className="mt-1 text-[clamp(2rem,3.6vw,3rem)] font-bold leading-[1.05] tracking-tight">{sol.title}</h3>
+                  <p className="mt-3 max-w-md text-[0.95rem] leading-relaxed text-white/85">{sol.body}</p>
+                  <div className="mt-6 flex flex-wrap justify-center gap-3">
+                    <Link href={contactHref} className={buttonClasses("primary", "md")}>
+                      {dict.ui.quote}
+                    </Link>
+                    <Link href={hrefFor(s.href)} className={buttonClasses("glass", "md")}>
+                      {sol.more}
+                    </Link>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        )}
       </Section>
 
       {/* 6. Servicios por capa (Netguru) */}
@@ -239,7 +253,16 @@ export function ShowcasePage({ service, locale, dict, copy: t }: { service: Serv
         </ul>
       </Section>
 
+      {t.flow && <FlowSection copy={t.flow} />}
+
       {t.platforms && <PlatformsSection copy={t.platforms} />}
+
+      {t.catalog && (
+        <Section tone="muted" id="sistemas" className="scroll-mt-32">
+          <Heading title={t.catalog.title} subtitle={t.catalog.subtitle} className="mb-10 sm:mb-12" />
+          <IntegrationCatalog copy={t.catalog} />
+        </Section>
+      )}
 
       {t.factory && <SquadSection copy={t.factory.squad} />}
 

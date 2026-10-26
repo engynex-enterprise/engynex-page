@@ -533,6 +533,22 @@ export const extraServiceFaqs: Record<string, { es: Faq[]; en: Faq[] }> = {
         q: "¿Usan Zapier o Make?",
         a: "Cuando conviene, sí: son más rápidos y económicos para flujos simples. Para volúmenes altos o lógica compleja desarrollamos la integración a la medida.",
       },
+      {
+        q: "¿Qué tan en tiempo real es la sincronización?",
+        a: "Depende de cada sistema. Con webhooks los datos llegan en segundos; cuando el sistema no avisa, consultamos cada pocos minutos. Lo definimos en el contrato de datos según lo que necesita tu operación.",
+      },
+      {
+        q: "¿Cómo protegen las credenciales y los datos?",
+        a: "Las credenciales quedan cifradas y a tu nombre, nunca en el código. Usamos permisos mínimos, tráfico cifrado y un registro de auditoría de cada mensaje.",
+      },
+      {
+        q: "¿Pueden crear una API para que otros se conecten a mi sistema?",
+        a: "Sí. Diseñamos y publicamos tu API con documentación OpenAPI, llaves de acceso, límites de uso y un ambiente de pruebas para que clientes o aliados se conecten solos.",
+      },
+      {
+        q: "¿Cuánto cuesta mantener una integración funcionando?",
+        a: "Las integraciones a la medida no cobran por tarea ejecutada; solo el servidor donde corren y el soporte que elijas. Con Zapier o Make pagas la mensualidad de la herramienta según tu volumen.",
+      },
     ],
     en: [
       {
@@ -546,6 +562,22 @@ export const extraServiceFaqs: Record<string, { es: Faq[]; en: Faq[] }> = {
       {
         q: "Do you use Zapier or Make?",
         a: "When it fits, yes: they're faster and cheaper for simple flows. For high volumes or complex logic we build a custom integration.",
+      },
+      {
+        q: "How real-time is the sync?",
+        a: "It depends on each system. With webhooks data arrives in seconds; when a system doesn't notify, we check every few minutes. We define it in the data contract based on what your operation needs.",
+      },
+      {
+        q: "How do you protect credentials and data?",
+        a: "Credentials are encrypted and in your name, never in the code. We use least privilege, encrypted traffic and an audit log of every message.",
+      },
+      {
+        q: "Can you build an API so others can connect to my system?",
+        a: "Yes. We design and publish your API with OpenAPI documentation, access keys, rate limits and a sandbox so customers or partners can connect on their own.",
+      },
+      {
+        q: "How much does it cost to keep an integration running?",
+        a: "Custom integrations don't charge per task run; only the server they run on and the support you choose. With Zapier or Make you pay the tool's monthly fee based on your volume.",
       },
     ],
   },
