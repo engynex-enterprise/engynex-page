@@ -58,7 +58,8 @@ export type ShowcaseIcon =
 export type ShowcaseHref = "plans" | string;
 
 export type ShowcaseCopy = {
-  hero: { eyebrow: string; title: string; subtitle: string; primary: string; secondary: string; wordmark: string; image: string };
+  /** `secondaryHref`: destino del segundo botón (por defecto, el portafolio). */
+  hero: { eyebrow: string; title: string; subtitle: string; primary: string; secondary: string; secondaryHref?: string; wordmark: string; image: string };
   proof: { value: string; label: string }[];
   tiles: { title: string; hint: string };
   featured: { eyebrow: string; title: string; body: string; cta: string; image: string };
@@ -83,6 +84,16 @@ export type ShowcaseCopy = {
       saved: string;
       /** Si existe, la tercera ilustración es un tablero de indicadores en vez del editor. */
       dashboard?: { kpis: { label: string; value: string; delta: string }[]; alert: string };
+      /** Si existe, las tres ilustraciones son las del renting (caja, reemplazo, inventario). */
+      rental?: {
+        buyLabel: string;
+        buyHint: string;
+        rentLabel: string;
+        rentHint: string;
+        swap: string[];
+        inventoryTitle: string;
+        inventory: { device: string; user: string; status: string; tone: "ok" | "service" | "renew" }[];
+      };
     };
   };
   performance: {
@@ -151,8 +162,77 @@ export type ShowcaseCopy = {
     ctaBody: string;
     ctaLabel: string;
     categories: { key: string; label: string }[];
-    /** `logo`: ruta en /public (images/integrations); sin logo se muestran las iniciales. */
-    items: { name: string; category: string; syncs: string; logo?: string; logoDark?: boolean }[];
+    /** `logo`: ruta en /public; sin logo se muestra `mark` o las iniciales del nombre. */
+    items: { name: string; category: string; syncs: string; logo?: string; logoDark?: boolean; mark?: string }[];
+  };
+  /**
+   * Calculadora de renting: cada equipo tiene un precio por día de uso. Por
+   * días: equipos × días × precio. Por meses: equipos × días de uso al mes ×
+   * precio × meses. La solicitud se registra como lead en el CRM
+   * (submit_lead) con el desglose completo.
+   */
+  quote?: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    items: { key: string; name: string; desc: string; dayPrice: number }[];
+    /** Días de uso al mes por defecto en la modalidad por meses. */
+    defaultDaysPerMonth: number;
+    daysPerMonthLabel: string;
+    daysPerMonthHint: string;
+    extras: { key: string; name: string; desc: string }[];
+    steps: [string, string];
+    modeLabel: string;
+    modes: { days: string; months: string };
+    terms: number[];
+    monthsUnit: string;
+    daysUnit: string;
+    daysLabel: string;
+    termLabel: string;
+    extrasLabel: string;
+    perMonth: string;
+    perDay: string;
+    devicesLabel: string;
+    quoteLater: string;
+    volumeNote: string;
+    breakdownTitle: string;
+
+    /** {n} equipos, {d} días de uso al mes. */
+    subtotalMonth: string;
+    termRow: string;
+    totalLabel: string;
+    monthlyLabel: string;
+    note: string;
+    copy: string;
+    copied: string;
+    next: string;
+    back: string;
+    form: {
+      title: string;
+      subtitle: string;
+      name: string;
+      company: string;
+      email: string;
+      phone: string;
+      city: string;
+      start: string;
+      timeline: string;
+      timelines: { week: string; month: string; browsing: string };
+      notes: string;
+      notesPlaceholder: string;
+      consent: string;
+      privacy: string;
+      submit: string;
+      sending: string;
+      whatsapp: string;
+      successTitle: string;
+      successBody: string;
+      errors: { required: string; email: string; generic: string; rateLimited: string; empty: string };
+    };
+    /** Mensaje de WhatsApp; {summary} es el resumen de la cotización. */
+    message: string;
+    decrease: string;
+    increase: string;
   };
   /** Comparativo de tecnologías (nativa, multiplataforma, web app), estilo Netguru. */
   platforms?: {

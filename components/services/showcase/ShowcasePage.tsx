@@ -15,11 +15,12 @@ import { AuditForm } from "@/components/services/showcase/AuditForm";
 import { ShowcaseProcess } from "@/components/services/showcase/ShowcaseProcess";
 import { IntegrationCatalog } from "@/components/services/showcase/IntegrationCatalog";
 import { UseCaseExplorer } from "@/components/services/showcase/UseCaseExplorer";
+import { RentalQuote } from "@/components/services/showcase/RentalQuote";
 import { SHOWCASE_ICONS as ICONS } from "@/components/services/showcase/icons";
 import { BeforeAfter, CaseStudy, CompareModels, FlowSection, GovernanceSection, GuaranteesSection, IndustriesSection, PlatformsSection, ShowcaseHeading as Heading, SquadSection } from "@/components/services/showcase/ShowcaseFactory";
 import { DomainSearch } from "@/components/domains/DomainSearch";
 import { domainSearchCopy } from "@/content/domainSearch";
-import { DashboardVisual, EditorVisual, FunnelVisual, ScoreRing, TimelineVisual } from "@/components/services/showcase/ShowcaseVisuals";
+import { CashVisual, DashboardVisual, EditorVisual, FunnelVisual, InventoryVisual, SwapVisual, ScoreRing, TimelineVisual } from "@/components/services/showcase/ShowcaseVisuals";
 import type { ShowcaseCopy } from "@/content/servicePages/types";
 import { services, type Service } from "@/content/services";
 import { servicePlans, formatCOP } from "@/content/pricing";
@@ -78,7 +79,7 @@ export function ShowcasePage({ service, locale, dict, copy: t }: { service: Serv
                 <Link href={contactHref} className={buttonClasses("primary", "lg")}>
                   {t.hero.primary}
                 </Link>
-                <Link href={localizedHref(locale, "portafolio")} className={buttonClasses("glass", "lg")}>
+                <Link href={t.hero.secondaryHref ?? localizedHref(locale, "portafolio")} className={buttonClasses("glass", "lg")}>
                   {t.hero.secondary}
                 </Link>
               </div>
@@ -257,6 +258,12 @@ export function ShowcasePage({ service, locale, dict, copy: t }: { service: Serv
 
       {t.platforms && <PlatformsSection copy={t.platforms} />}
 
+      {t.quote && (
+        <Section tone="light" id="cotizador" className="scroll-mt-32">
+          <RentalQuote copy={t.quote} locale={locale} />
+        </Section>
+      )}
+
       {t.catalog && (
         <Section tone="muted" id="sistemas" className="scroll-mt-32">
           <Heading title={t.catalog.title} subtitle={t.catalog.subtitle} className="mb-10 sm:mb-12" />
@@ -277,14 +284,24 @@ export function ShowcasePage({ service, locale, dict, copy: t }: { service: Serv
         <div className="grid gap-10 md:grid-cols-3 md:gap-6 lg:gap-8">
           {t.outcomes.items.map((item, i) => (
             <Reveal key={item.title} delay={i * 80}>
-              {i === 0 && <TimelineVisual week={t.outcomes.visual.week} review={t.outcomes.visual.review} live={t.outcomes.visual.live} />}
-              {i === 1 && <FunnelVisual rows={t.outcomes.visual.funnel} />}
-              {i === 2 &&
-                (t.outcomes.visual.dashboard ? (
-                  <DashboardVisual title={t.outcomes.visual.editor} kpis={t.outcomes.visual.dashboard.kpis} alert={t.outcomes.visual.dashboard.alert} />
-                ) : (
-                  <EditorVisual editor={t.outcomes.visual.editor} publish={t.outcomes.visual.publish} saved={t.outcomes.visual.saved} />
-                ))}
+              {t.outcomes.visual.rental ? (
+                <>
+                  {i === 0 && <CashVisual {...t.outcomes.visual.rental} />}
+                  {i === 1 && <SwapVisual steps={t.outcomes.visual.rental.swap} />}
+                  {i === 2 && <InventoryVisual title={t.outcomes.visual.rental.inventoryTitle} rows={t.outcomes.visual.rental.inventory} />}
+                </>
+              ) : (
+                <>
+                {i === 0 && <TimelineVisual week={t.outcomes.visual.week} review={t.outcomes.visual.review} live={t.outcomes.visual.live} />}
+                {i === 1 && <FunnelVisual rows={t.outcomes.visual.funnel} />}
+                {i === 2 &&
+                  (t.outcomes.visual.dashboard ? (
+                    <DashboardVisual title={t.outcomes.visual.editor} kpis={t.outcomes.visual.dashboard.kpis} alert={t.outcomes.visual.dashboard.alert} />
+                  ) : (
+                    <EditorVisual editor={t.outcomes.visual.editor} publish={t.outcomes.visual.publish} saved={t.outcomes.visual.saved} />
+                  ))}
+                </>
+              )}
               <h3 className="mt-6 text-xl font-bold leading-snug text-heading">{item.title}</h3>
               <p className="mt-2 text-base leading-relaxed text-muted">{item.body}</p>
             </Reveal>

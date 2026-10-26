@@ -1,4 +1,4 @@
-import { BellRing, Check, MousePointerClick, PenLine } from "lucide-react";
+import { ArrowDown, BellRing, Check, Laptop, MousePointerClick, PenLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -126,6 +126,91 @@ export function DashboardVisual({ title, kpis, alert }: { title: string; kpis: {
           <BellRing className="h-3.5 w-3.5 shrink-0" />
           {alert}
         </span>
+      </div>
+    </div>
+  );
+}
+
+/** Renting: la compra se paga el primer día; el renting, en cuotas iguales. */
+export function CashVisual({ buyLabel, buyHint, rentLabel, rentHint }: { buyLabel: string; buyHint: string; rentLabel: string; rentHint: string }) {
+  return (
+    <div className={frame} aria-hidden>
+      <div className="grid h-full content-center gap-6">
+        <div>
+          <div className="mb-2 flex items-baseline justify-between text-xs">
+            <span className="font-semibold text-heading">{buyLabel}</span>
+            <span className="text-muted">{buyHint}</span>
+          </div>
+          <div className="flex h-14 items-end gap-1">
+            <span className="h-full w-[12%] rounded-md bg-deep-700/85 dark:bg-white/40" />
+            {Array.from({ length: 11 }, (_, i) => (
+              <span key={i} className="h-1 flex-1 rounded-full bg-line" />
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="mb-2 flex items-baseline justify-between text-xs">
+            <span className="font-semibold text-heading">{rentLabel}</span>
+            <span className="text-muted">{rentHint}</span>
+          </div>
+          <div className="flex h-14 items-end gap-1">
+            {Array.from({ length: 12 }, (_, i) => (
+              <span key={i} className="h-[22%] flex-1 rounded-md bg-brand-green" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Renting: pasos del reemplazo de un equipo con falla. */
+export function SwapVisual({ steps }: { steps: string[] }) {
+  return (
+    <div className={frame} aria-hidden>
+      <ol className="grid h-full content-center gap-1.5">
+        {steps.map((s, i) => {
+          const last = i === steps.length - 1;
+          return (
+            <li key={s} className="grid justify-items-center gap-1.5">
+              <span className={cn("flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold shadow-sm", i === 0 ? "bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200" : last ? "bg-brand-green text-deep-700" : "bg-white text-heading dark:bg-white/[0.06]")}>
+                <Laptop className="h-4 w-4 shrink-0" />
+                {s}
+                {last && <Check className="ml-auto h-3.5 w-3.5" strokeWidth={3} />}
+              </span>
+              {!last && <ArrowDown className="h-3 w-3 text-muted" />}
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
+const INVENTORY_TONE = {
+  ok: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300",
+  service: "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
+  renew: "bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300",
+} as const;
+
+/** Renting: inventario por equipo, usuario y estado. */
+export function InventoryVisual({ title, rows }: { title: string; rows: { device: string; user: string; status: string; tone: "ok" | "service" | "renew" }[] }) {
+  return (
+    <div className={frame} aria-hidden>
+      <div className="flex h-full flex-col rounded-2xl bg-white p-4 shadow-sm dark:bg-white/[0.06]">
+        <p className="text-xs font-semibold text-heading">{title}</p>
+        <ul className="mt-3 grid flex-1 content-center gap-2">
+          {rows.map((r) => (
+            <li key={r.device + r.user} className="flex items-center gap-2.5 rounded-lg bg-surface-soft px-2.5 py-2 dark:bg-white/[0.04]">
+              <Laptop className="h-4 w-4 shrink-0 text-muted" />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[0.7rem] font-semibold text-heading">{r.device}</span>
+                <span className="block truncate text-[0.65rem] text-muted">{r.user}</span>
+              </span>
+              <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[0.62rem] font-semibold", INVENTORY_TONE[r.tone])}>{r.status}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

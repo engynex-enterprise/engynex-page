@@ -64,8 +64,8 @@ export function IntegrationCatalog({ copy: t }: { copy: NonNullable<ShowcaseCopy
                   <Image src={it.logo} alt="" width={28} height={28} unoptimized className="h-7 w-7 object-contain" />
                 </span>
               ) : (
-                <span aria-hidden className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent-soft text-base font-bold text-brand-green-dark dark:text-brand-green">
-                  {it.name.replace(/[^A-Za-z0-9]/g, "").slice(0, 2)}
+                <span aria-hidden className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent-soft text-[0.85rem] font-bold text-brand-green-dark dark:text-brand-green">
+                  {it.mark ?? it.name.replace(/[^A-Za-z0-9]/g, "").slice(0, 2)}
                 </span>
               )}
               <div className="min-w-0">

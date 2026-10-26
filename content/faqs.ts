@@ -635,6 +635,18 @@ export const extraServiceFaqs: Record<string, { es: Faq[]; en: Faq[] }> = {
         q: "¿Alquilan para eventos o proyectos cortos?",
         a: "Sí. Manejamos alquiler por días, semanas o meses para capacitaciones, ferias, auditorías, temporadas altas y proyectos temporales, con entrega e instalación en sitio.",
       },
+      {
+        q: "¿Qué marcas manejan?",
+        a: "Trabajamos con marcas empresariales como HP, Dell, Lenovo y Apple en equipos de cómputo, y con Cisco, Ubiquiti y Fortinet en redes. Te proponemos la referencia según el perfil y el inventario disponible.",
+      },
+      {
+        q: "¿Puedo sumar equipos durante el contrato?",
+        a: "Sí. Cuando entra personal nuevo o abres una sede, pides los equipos adicionales y los entregamos configurados; la cuota se ajusta con los equipos nuevos.",
+      },
+      {
+        q: "¿Cómo se registra el alquiler en la contabilidad?",
+        a: "La cuota de renting suele registrarse como un gasto operativo y no como un activo. Te entregamos la factura mensual; el tratamiento tributario exacto lo debe confirmar tu contador.",
+      },
     ],
     en: [
       {
@@ -656,6 +668,18 @@ export const extraServiceFaqs: Record<string, { es: Faq[]; en: Faq[] }> = {
       {
         q: "Do you rent for events or short projects?",
         a: "Yes. We rent by day, week or month for training sessions, trade shows, audits, peak seasons and temporary projects, with on-site delivery and setup.",
+      },
+      {
+        q: "Which brands do you work with?",
+        a: "We work with business brands like HP, Dell, Lenovo and Apple for computers, and Cisco, Ubiquiti and Fortinet for networking. We propose the model based on the profile and available inventory.",
+      },
+      {
+        q: "Can I add devices during the contract?",
+        a: "Yes. When new people join or you open an office, you order additional devices and we deliver them configured; the fee adjusts with the new devices.",
+      },
+      {
+        q: "How is the rental recorded in accounting?",
+        a: "The rental fee is usually recorded as an operating expense rather than an asset. We send a monthly invoice; your accountant should confirm the exact tax treatment.",
       },
     ],
   },
