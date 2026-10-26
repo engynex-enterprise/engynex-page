@@ -191,6 +191,22 @@ export const extraServiceFaqs: Record<string, { es: Faq[]; en: Faq[] }> = {
         q: "¿Me ayudan a cargar los productos?",
         a: "En el plan Start cargamos hasta 100 productos con la información que nos entregues. Para catálogos más grandes hacemos una importación masiva desde tu Excel o tu ERP.",
       },
+      {
+        q: "¿Qué plataforma me conviene: Shopify, WooCommerce o a la medida?",
+        a: "Depende de tu catálogo, tu presupuesto mensual y cuánto necesites personalizar. Shopify es la opción más rápida y sin servidores; WooCommerce encaja si ya usas WordPress; a la medida conviene para B2B, reglas de precios complejas o integraciones profundas. Te lo recomendamos en la sesión inicial.",
+      },
+      {
+        q: "¿La tienda emite factura electrónica?",
+        a: "Sí. Conectamos la tienda con tu software de facturación (por ejemplo Siigo o Alegra) para que la factura electrónica DIAN se emita al confirmar el pago.",
+      },
+      {
+        q: "¿Pueden migrar mi tienda actual sin perder ventas ni posicionamiento?",
+        a: "Sí. Migramos productos, clientes y pedidos, configuramos redirecciones para conservar el posicionamiento en Google y hacemos el cambio en el horario de menor venta.",
+      },
+      {
+        q: "¿Sirve para vender a otras empresas (B2B)?",
+        a: "Sí. Configuramos precios por cliente, cupos de crédito, pedidos mínimos, aprobaciones y pedido rápido por referencia, en la misma tienda o en un portal B2B separado.",
+      },
     ],
     en: [
       {
@@ -204,6 +220,22 @@ export const extraServiceFaqs: Record<string, { es: Faq[]; en: Faq[] }> = {
       {
         q: "Do you help me upload the products?",
         a: "In the Starter plan we upload up to 100 products with the information you provide. For larger catalogs we run a bulk import from your spreadsheet or ERP.",
+      },
+      {
+        q: "Which platform fits me: Shopify, WooCommerce or custom?",
+        a: "It depends on your catalog, your monthly budget and how much you need to customize. Shopify is the fastest with no servers; WooCommerce fits if you already use WordPress; custom makes sense for B2B, complex pricing rules or deep integrations. We recommend one in the first session.",
+      },
+      {
+        q: "Does the store issue electronic invoices?",
+        a: "Yes. We connect the store to your invoicing software so the electronic invoice is issued when payment is confirmed.",
+      },
+      {
+        q: "Can you migrate my current store without losing sales or rankings?",
+        a: "Yes. We migrate products, customers and orders, set up redirects to keep your Google rankings and switch over during your lowest-sales hours.",
+      },
+      {
+        q: "Does it work for selling to other businesses (B2B)?",
+        a: "Yes. We set up customer pricing, credit limits, minimum orders, approvals and quick order by SKU, in the same store or a separate B2B portal.",
       },
     ],
   },
