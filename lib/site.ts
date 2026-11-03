@@ -17,17 +17,17 @@ export const siteConfig = {
   businessHours: {
     timeZone: "America/Bogota",
     days: {
-      1: [7, 17],
-      2: [7, 17],
-      3: [7, 17],
-      4: [7, 17],
-      5: [7, 17],
-      6: [8, 16],
+      1: [8, 17],
+      2: [8, 17],
+      3: [8, 17],
+      4: [8, 17],
+      5: [8, 17],
+      6: [8, 13],
     } as Record<number, [number, number]>,
   },
   hours: {
-    es: "Lun–Vie 7:00 a.m. – 5:00 p.m. · Sáb 8:00 a.m. – 4:00 p.m.",
-    en: "Mon–Fri 7:00 a.m. – 5:00 p.m. · Sat 8:00 a.m. – 4:00 p.m.",
+    es: "Lun–Vie 8:00 a.m. – 5:00 p.m. · Sáb 8:00 a.m. – 1:00 p.m. · Dom cerrado",
+    en: "Mon–Fri 8:00 a.m. – 5:00 p.m. · Sat 8:00 a.m. – 1:00 p.m. · Sun closed",
   },
   social: {
     instagram: "https://instagram.com/engynex",

@@ -187,13 +187,13 @@ export const serviceSla: Record<string, { es: SlaRow[]; en: SlaRow[] }> = {
   "soporte-ti": {
     es: [
       { label: "Primera respuesta", value: "4 a 8 horas" },
-      { label: "Cobertura", value: "Lun–Vie 7:00–17:00" },
+      { label: "Cobertura", value: "Lun–Vie 8:00–17:00" },
       { label: "Mantenimiento preventivo", value: "Trimestral" },
       { label: "Reporte de servicio", value: "Mensual" },
     ],
     en: [
       { label: "First response", value: "4 to 8 hours" },
-      { label: "Coverage", value: "Mon–Fri 7:00–17:00" },
+      { label: "Coverage", value: "Mon–Fri 8:00–17:00" },
       { label: "Preventive maintenance", value: "Quarterly" },
       { label: "Service report", value: "Monthly" },
     ],
