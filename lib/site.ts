@@ -5,10 +5,10 @@ export const siteConfig = {
   domain: "engynex.com",
   url: "https://engynex.com",
   email: "contacto@engynex.com",
-  phone: "+57 315 437 7743",
-  phoneDisplay: "315 437 7743",
+  phone: "+57 350 526 0047",
+  phoneDisplay: "350 526 0047",
   // Número para el enlace de WhatsApp (solo dígitos, con código de país).
-  whatsapp: "573154377743",
+  whatsapp: "573505260047",
   /**
    * Horario de atención en formato estructurado (hora de Colombia), para
    * mostrar "en línea" / "fuera de horario". Debe coincidir con `hours`.
@@ -31,7 +31,7 @@ export const siteConfig = {
   },
   social: {
     instagram: "https://instagram.com/engynex",
-    facebook: "https://facebook.com/engynex",
+    facebook: "https://www.facebook.com/engynex",
     tiktok: "https://tiktok.com/@engynex",
   },
 };
